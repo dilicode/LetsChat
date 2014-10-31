@@ -6,5 +6,6 @@
 	<string name="signup">Signup</string>
 	<string name="nickname">Nickname</string>
 	<string name="cell_phone_number">Cell phone number</string>
+	<string name="send_message">Send</string>
 
 </resources>

@@ -15,15 +15,17 @@ public class StartupActivity extends Activity implements OnClickListener {
 		findViewById(R.id.btn_login).setOnClickListener(this);
 		findViewById(R.id.btn_signup).setOnClickListener(this);
 	}
-
+	
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.btn_login:
+			startActivity(new Intent(this, LoginActivity.class));
 			break;
 			
 		case R.id.btn_signup:
 			startActivity(new Intent(this, SignupActivity.class));
+			break;
 		}
 	}
 }
