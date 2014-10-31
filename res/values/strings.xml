@@ -1,0 +1,10 @@
+<resources>
+
+    <string name="app_name">LetsChat</string>
+	<string name="password_hint">Please input password</string>
+	<string name="login">Login</string>
+	<string name="signup">Signup</string>
+	<string name="nickname">Nickname</string>
+	<string name="cell_phone_number">Cell phone number</string>
+
+</resources>
