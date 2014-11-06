@@ -7,8 +7,9 @@
         android:minSdkVersion="14"
         android:targetSdkVersion="19" />
     
-    <uses-permission
-        android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name="LetsChatApplication"
@@ -25,16 +26,27 @@
 			</intent-filter>
 		</activity>
 		
-		<activity
-			android:name=".SignupActivity">
-		</activity>
+		<activity android:name=".SignupActivity" />
+		
+		<activity android:name=".LoginActivity" />
+		
+		<activity android:name=".ChatActivity" />
+		
+		<activity android:name=".MainActivity" />
+		
+		<activity android:name=".AccountSetupActivity" />
 		
 		<activity
-			android:name=".LoginActivity">
-		</activity>
-		
+		    android:name=".ChatHistoryActivity"
+		    android:label="@string/chats" />
 		<activity
-			android:name=".ChatActivity">
-		</activity>
+		    android:name=".SearchContactActivity"
+		    android:label="@string/search_contact" />
+		<activity
+		    android:name=".ContactListActivity"
+		    android:label="@string/select_contact" />
+		<activity
+		    android:name=".ContactSearchResultActivity"
+		    android:label="@string/search_contact_result" />
     </application>
 </manifest>

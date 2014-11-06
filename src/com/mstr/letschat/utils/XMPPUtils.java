@@ -7,34 +7,39 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
 import org.jivesoftware.smack.AccountManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.SmackAndroid;
 import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.SmackException.NoResponseException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
+import org.jivesoftware.smack.SmackException.NotLoggedInException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.XMPPException.XMPPErrorException;
-import org.jivesoftware.smack.filter.MessageTypeFilter;
-import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.XMPPError.Condition;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import org.jivesoftware.smackx.search.ReportedData;
+import org.jivesoftware.smackx.search.ReportedData.Row;
+import org.jivesoftware.smackx.search.UserSearchManager;
+import org.jivesoftware.smackx.xdata.Form;
 
 import android.app.Application;
 import android.util.Log;
 
-import com.mstr.letschat.tasks.AddAccountTask.AccountCreationResult;
+import com.mstr.letschat.model.ContactSearchResult;
+import com.mstr.letschat.tasks.CreateAccountTask.AccountCreationResult;
 
 public class XMPPUtils {
 	private static final boolean DEBUG = true;
@@ -57,15 +62,9 @@ public class XMPPUtils {
 		try {
 			connectIfNecessary();
 			
-			con.login(username, password);
-			
-			PacketFilter filter = new MessageTypeFilter(Message.Type.chat);
-			con.addPacketListener(new PacketListener() {
-				@Override
-				public void processPacket(Packet packet) {
-					Message message = (Message) packet;
-					Log.d(LOG_TAG, message.getBody());
-				}}, filter);
+			if (!con.isAuthenticated()) {
+				con.login(username, password);
+			}
 			
 			return true;
 		} catch (SmackException e) {
@@ -79,11 +78,13 @@ public class XMPPUtils {
 		return false;
 	}
 	
-	public static AccountCreationResult addAccount(String name, String password) {
+	public static AccountCreationResult createAccount(String user, String name, String password) {
 		try {
 			connectIfNecessary();
 			
-			AccountManager.getInstance(con).createAccount(name, password);
+			Map<String, String> attributes = new HashMap<String, String>();
+			attributes.put("name", name);
+			AccountManager.getInstance(con).createAccount(user, password, attributes);
 			
 			return AccountCreationResult.SUCCESS;
 		} catch (SmackException e) {
@@ -125,12 +126,79 @@ public class XMPPUtils {
 		return result;
 	}
 	
+	public static ArrayList<ContactSearchResult> search(String username) {
+		connectIfNecessary();
+		
+		ArrayList<ContactSearchResult> result = new ArrayList<ContactSearchResult>();
+		
+		UserSearchManager search = new UserSearchManager(con);
+		
+		final String searchService = "search." + con.getServiceName();
+		final String KEY_USERNAME = "Username";
+		final String KEY_NAME = "Name";
+		try {
+			Form searchForm = search.getSearchForm(searchService);
+			Form answerForm = searchForm.createAnswerForm();
+			answerForm.setAnswer("search", username);
+			answerForm.setAnswer(KEY_USERNAME, true);
+			answerForm.setAnswer(KEY_NAME, true);
+			
+			ReportedData data = search.getSearchResults(answerForm, searchService);
+			List<Row> rows = data.getRows();
+			for (Row row: rows) {
+				List<String> usernameValues = row.getValues(KEY_USERNAME);
+				List<String> nameValues = row.getValues(KEY_NAME);
+				
+				if (usernameValues != null && nameValues != null) {
+					for (int i = 0; i < usernameValues.size() && i < nameValues.size(); i ++) {
+						result.add(new ContactSearchResult(usernameValues.get(i), nameValues.get(i)));
+					}
+				} else {
+					return null;
+				}
+			}
+			
+			return result;
+		} catch (NoResponseException e) {
+			e.printStackTrace();
+		} catch (XMPPErrorException e) {
+			e.printStackTrace();
+		} catch (NotConnectedException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	public static boolean addContact(String user, String name) {
+		Roster roster = con.getRoster();
+		if (roster != null) {
+			try {
+				roster.createEntry(user, name, null);
+				return true;
+			} catch (NotLoggedInException e) {
+				e.printStackTrace();
+			} catch (NoResponseException e) {
+				e.printStackTrace();
+			} catch (XMPPErrorException e) {
+				e.printStackTrace();
+			} catch (NotConnectedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return false;
+	}
+	
 	private static void connectIfNecessary() {
 		try {
 			if (con == null) {
 				ConnectionConfiguration config = new ConnectionConfiguration(HOST, PORT);
 				loadCA(config);
 				con = new XMPPTCPConnection(config);
+				
+				Log.d(LOG_TAG, "is secure connection " + con.isSecureConnection());
+				
 				con.connect();
 			} else {
 				if (!con.isConnected()) {

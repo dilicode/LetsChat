@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
@@ -16,5 +16,17 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
-
+	
+	<style name="Divider">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">1dp</item>
+		<item name="android:background">?android:attr/listDivider</item>
+	</style>
+	
+	<style name="LoginButton">
+	    <item name="android:layout_width">100dp</item>
+	    <item name="android:layout_height">wrap_content</item>
+	    <item name="android:background">@drawable/btn_green</item>
+		<item name="android:textColor">@android:color/white</item>
+	</style>
 </resources>

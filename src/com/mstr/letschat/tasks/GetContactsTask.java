@@ -9,7 +9,7 @@ import com.mstr.letschat.utils.XMPPUtils;
 
 import android.os.AsyncTask;
 
-public class GetRosterEntriesTask extends AsyncTask<Void, Void, List<RosterEntry>> {
+public class GetContactsTask extends AsyncTask<Void, Void, List<RosterEntry>> {
 
 	public static interface GetRosterEntriesInterface {
 		public void onRosterEntriesReceived(List<RosterEntry> entries);
@@ -17,7 +17,7 @@ public class GetRosterEntriesTask extends AsyncTask<Void, Void, List<RosterEntry
 	
 	private WeakReference<GetRosterEntriesInterface> listener;
 	
-	public GetRosterEntriesTask(GetRosterEntriesInterface listener) {
+	public GetContactsTask(GetRosterEntriesInterface listener) {
 		this.listener = new WeakReference<GetRosterEntriesInterface>(listener);
 	}
 	

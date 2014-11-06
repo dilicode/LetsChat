@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/action_search"
+        android:icon="@drawable/ic_action_search"
+	   	android:title="@string/action_bar_search_contact"
+	   	android:showAsAction="ifRoom"
+	   	android:actionViewClass="android.widget.SearchView" />
+	<item android:id="@+id/action_add"
+		android:icon="@drawable/ic_action_add_person"
+		android:title="@string/add"
+		android:showAsAction="ifRoom" />
+</menu>

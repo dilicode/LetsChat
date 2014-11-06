@@ -2,10 +2,29 @@
 
     <string name="app_name">LetsChat</string>
 	<string name="password_hint">Please input password</string>
-	<string name="login">Login</string>
-	<string name="signup">Signup</string>
-	<string name="nickname">Nickname</string>
+	<string name="login">Log in</string>
+	<string name="signup">Sign up</string>
+	<string name="name_hint">Name</string>
 	<string name="cell_phone_number">Cell phone number</string>
 	<string name="send_message">Send</string>
-
+	<string name="tab_letschat">LetsChat</string>
+	<string name="tab_contacts">Contacts</string>
+	<string name="tab_discover">Discover</string>
+	<string name="tab_me">Me</string>
+	<string name="action_bar_search_contact">Search</string>
+	<string name="add">Add</string>
+	<string name="chats">Chats</string>
+	<string name="add_contact">Add contact</string>
+	<string name="select_contact">Select contact</string>
+	<string name="new_chat">New chat</string>
+	<string name="search">Search:</string>
+	<string name="search_contact_no_result">No result</string>
+	<string name="search_contact_result">Search result</string>
+	<string name="search_contact">Search contact</string>
+	<string name="search_contact_hint">Phone</string>
+	<string name="phone_number">Phone number</string>
+	<string name="enter_password">Enter password</string>
+	<string name="create_account_error">Create account error</string>
+	<string name="account_already_exists">Account already exists</string>
+	<string name="login_error">Login error</string>
 </resources>
