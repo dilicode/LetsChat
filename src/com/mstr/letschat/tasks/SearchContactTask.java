@@ -5,12 +5,12 @@ import java.util.ArrayList;
 
 import android.os.AsyncTask;
 
-import com.mstr.letschat.model.ContactSearchResult;
+import com.mstr.letschat.model.Contact;
 import com.mstr.letschat.utils.XMPPUtils;
 
-public class SearchContactTask extends AsyncTask<Void, Void, ArrayList<ContactSearchResult>> {
+public class SearchContactTask extends AsyncTask<Void, Void, ArrayList<Contact>> {
 	public static interface SearchContactListener {
-		public void onSearchResult(ArrayList<ContactSearchResult> result);
+		public void onSearchResult(ArrayList<Contact> result);
 	}
 	
 	private WeakReference<SearchContactListener> listener;
@@ -22,12 +22,12 @@ public class SearchContactTask extends AsyncTask<Void, Void, ArrayList<ContactSe
 	}
 
 	@Override
-	protected ArrayList<ContactSearchResult> doInBackground(Void... params) {
+	protected ArrayList<Contact> doInBackground(Void... params) {
 		return XMPPUtils.search(username);
 	}
 	
 	@Override
-	protected void onPostExecute(ArrayList<ContactSearchResult> result) {
+	protected void onPostExecute(ArrayList<Contact> result) {
 		super.onPostExecute(result);
 		
 		SearchContactListener l = listener.get();

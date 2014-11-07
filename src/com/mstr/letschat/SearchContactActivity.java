@@ -15,7 +15,7 @@ import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mstr.letschat.model.ContactSearchResult;
+import com.mstr.letschat.model.Contact;
 import com.mstr.letschat.tasks.SearchContactTask;
 import com.mstr.letschat.tasks.SearchContactTask.SearchContactListener;
 
@@ -87,7 +87,7 @@ public class SearchContactActivity extends Activity implements OnQueryTextListen
 	}
 
 	@Override
-	public void onSearchResult(ArrayList<ContactSearchResult> result) {
+	public void onSearchResult(ArrayList<Contact> result) {
 		if (result != null && result.size() > 0) {
 			Intent intent = new Intent(this, ContactSearchResultActivity.class);
 			intent.putParcelableArrayListExtra(ContactSearchResultActivity.EXTRA_DATA_NAME_CONTACT_LIST, result);

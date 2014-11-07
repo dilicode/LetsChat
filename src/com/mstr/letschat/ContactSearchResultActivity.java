@@ -15,7 +15,7 @@ import android.view.View;
 
 import com.mstr.letschat.adapters.ContactSearchResultAdapter;
 import com.mstr.letschat.adapters.ContactSearchResultAdapter.OnAddButtonClickListener;
-import com.mstr.letschat.model.ContactSearchResult;
+import com.mstr.letschat.model.Contact;
 import com.mstr.letschat.service.MessageService;
 import com.mstr.letschat.service.MessageService.LocalBinder;
 import com.mstr.letschat.tasks.AddContactTask;
@@ -51,7 +51,7 @@ public class ContactSearchResultActivity extends ListActivity implements OnAddBu
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		ArrayList<ContactSearchResult> list = getIntent().getExtras().getParcelableArrayList(EXTRA_DATA_NAME_CONTACT_LIST);
+		ArrayList<Contact> list = getIntent().getExtras().getParcelableArrayList(EXTRA_DATA_NAME_CONTACT_LIST);
 		adapter = new ContactSearchResultAdapter(this, list);
 		setListAdapter(adapter);
 		
@@ -91,7 +91,7 @@ public class ContactSearchResultActivity extends ListActivity implements OnAddBu
 	}
 
 	public void onContactAdded(int position) {
-		((ContactSearchResult)adapter.getItem(position)).setAdded(true);
+		((Contact)adapter.getItem(position)).setAdded(true);
 		
 		adapter.notifyDataSetChanged();
 	}

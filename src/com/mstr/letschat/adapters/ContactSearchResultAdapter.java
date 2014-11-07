@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mstr.letschat.R;
-import com.mstr.letschat.model.ContactSearchResult;
+import com.mstr.letschat.model.Contact;
 
 public class ContactSearchResultAdapter extends BaseAdapter {
 	
@@ -22,10 +22,10 @@ public class ContactSearchResultAdapter extends BaseAdapter {
 	}
 	
 	private Context context;
-	private List<ContactSearchResult> list;
+	private List<Contact> list;
 	private OnAddButtonClickListener addButtonListener;
 	
-	public ContactSearchResultAdapter(Context context, List<ContactSearchResult> list) {
+	public ContactSearchResultAdapter(Context context, List<Contact> list) {
 		this.context = context;
 		this.list = list;
 	}
@@ -67,7 +67,7 @@ public class ContactSearchResultAdapter extends BaseAdapter {
 			convertView.setTag(viewHolder);
 		}
 		
-		ContactSearchResult item = (ContactSearchResult)getItem(position);
+		Contact item = (Contact)getItem(position);
 		viewHolder.userText.setText(item.getUser());
 		viewHolder.nameText.setText(item.getName());
 		viewHolder.addButton.setOnClickListener(new OnClickListener() {

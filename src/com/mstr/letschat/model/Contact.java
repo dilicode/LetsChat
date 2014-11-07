@@ -3,20 +3,20 @@ package com.mstr.letschat.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class ContactSearchResult implements Parcelable {
+public class Contact implements Parcelable {
 	private String user;
 	private String name;
 	
 	private boolean added;
 	
-	public ContactSearchResult(String user, String name) {
+	public Contact(String user, String name) {
 		this.user = user;
 		this.name = name;
 	}
 	
-	public ContactSearchResult() {}
+	public Contact() {}
 	
-	private ContactSearchResult(Parcel in) {
+	private Contact(Parcel in) {
 		user = in.readString();
 		name = in.readString();
 		added = in.readByte() != 0;
@@ -58,15 +58,15 @@ public class ContactSearchResult implements Parcelable {
 		dest.writeByte((byte)(added ? 1 : 0));
 	}
 	
-	public static final Parcelable.Creator<ContactSearchResult> CREATOR = new Parcelable.Creator<ContactSearchResult>() {
+	public static final Parcelable.Creator<Contact> CREATOR = new Parcelable.Creator<Contact>() {
 		@Override
-		public ContactSearchResult createFromParcel(Parcel source) {
-			return new ContactSearchResult(source);
+		public Contact createFromParcel(Parcel source) {
+			return new Contact(source);
 		}
 
 		@Override
-		public ContactSearchResult[] newArray(int size) {
-			return new ContactSearchResult[size];
+		public Contact[] newArray(int size) {
+			return new Contact[size];
 		}
 		
 	};

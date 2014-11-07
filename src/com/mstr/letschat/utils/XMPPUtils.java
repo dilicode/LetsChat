@@ -40,7 +40,7 @@ import org.jivesoftware.smackx.xdata.Form;
 import android.app.Application;
 import android.util.Log;
 
-import com.mstr.letschat.model.ContactSearchResult;
+import com.mstr.letschat.model.Contact;
 import com.mstr.letschat.tasks.CreateAccountTask.AccountCreationResult;
 
 public class XMPPUtils {
@@ -145,10 +145,10 @@ public class XMPPUtils {
 		return result;
 	}
 	
-	public static ArrayList<ContactSearchResult> search(String username) {
+	public static ArrayList<Contact> search(String username) {
 		connectIfNecessary();
 		
-		ArrayList<ContactSearchResult> result = new ArrayList<ContactSearchResult>();
+		ArrayList<Contact> result = new ArrayList<Contact>();
 		
 		UserSearchManager search = new UserSearchManager(con);
 		
@@ -170,7 +170,7 @@ public class XMPPUtils {
 				
 				if (usernameValues != null && nameValues != null) {
 					for (int i = 0; i < usernameValues.size() && i < nameValues.size(); i ++) {
-						result.add(new ContactSearchResult(usernameValues.get(i), nameValues.get(i)));
+						result.add(new Contact(usernameValues.get(i), nameValues.get(i)));
 					}
 				} else {
 					return null;

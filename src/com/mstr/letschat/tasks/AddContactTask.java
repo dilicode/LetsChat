@@ -5,7 +5,8 @@ import java.lang.ref.WeakReference;
 import android.os.AsyncTask;
 
 import com.mstr.letschat.ContactSearchResultActivity;
-import com.mstr.letschat.model.ContactSearchResult;
+import com.mstr.letschat.databases.ContactTableHelper;
+import com.mstr.letschat.model.Contact;
 import com.mstr.letschat.utils.XMPPUtils;
 
 public class AddContactTask extends AsyncTask<Void, Void, Boolean> {
@@ -21,8 +22,15 @@ public class AddContactTask extends AsyncTask<Void, Void, Boolean> {
 	protected Boolean doInBackground(Void... params) {
 		ContactSearchResultActivity activity = activityWrapper.get();
 		if (activity != null) {
-			ContactSearchResult contact = (ContactSearchResult)activity.getListView().getItemAtPosition(position);
-			return XMPPUtils.addContact(contact.getUser(), contact.getName());
+			Contact contact = (Contact)activity.getListView().getItemAtPosition(position);
+			boolean result = false;
+			if (XMPPUtils.addContact(contact.getUser(), contact.getName())) {
+				ContactTableHelper tableHelper = new ContactTableHelper(activity);
+				result = tableHelper.insert(contact);
+				tableHelper.close();
+			}
+			
+			return result;
 		} else {
 			return false;
 		}

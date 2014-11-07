@@ -7,9 +7,8 @@ public final class ChatContract {
 
 	public static abstract class ContactTableEntry implements BaseColumns {
 		public static final String TABLE_NAME = "contact";
-		public static final String COLUMN_NAME_ENTRY_ID = "id";
+		public static final String COLUMN_NAME_CONTACT_ID = "contactid";
+		public static final String COLUMN_NAME_CONTACT_NAME = "contactname";
 		public static final String COLUMN_NAME_USER = "user";
-		public static final String COLUMN_NAME_NAME = "name";
-		public static final String COLUMN_NAME_OWNER = "owner";
 	}
 }
