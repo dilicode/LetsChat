@@ -19,6 +19,7 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
+import org.jivesoftware.smack.RosterListener;
 import org.jivesoftware.smack.SmackAndroid;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.SmackException.NoResponseException;
@@ -28,6 +29,7 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.XMPPException.XMPPErrorException;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.XMPPError.Condition;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smackx.search.ReportedData;
@@ -42,7 +44,6 @@ import com.mstr.letschat.model.ContactSearchResult;
 import com.mstr.letschat.tasks.CreateAccountTask.AccountCreationResult;
 
 public class XMPPUtils {
-	private static final boolean DEBUG = true;
 	private static final String LOG_TAG = "XMPPUtils";
 	
 	private static final String HOST = "10.197.34.151";
@@ -64,6 +65,24 @@ public class XMPPUtils {
 			
 			if (!con.isAuthenticated()) {
 				con.login(username, password);
+				
+				Roster roster = con.getRoster();
+				if (roster != null) {
+					roster.addRosterListener(new RosterListener() {
+						@Override
+						public void entriesAdded(Collection<String> arg0) {
+						}
+
+						@Override
+						public void entriesDeleted(Collection<String> arg0) {}
+
+						@Override
+						public void entriesUpdated(Collection<String> arg0) {}
+
+						@Override
+						public void presenceChanged(Presence arg0) {}
+					});
+				}
 			}
 			
 			return true;
@@ -196,9 +215,6 @@ public class XMPPUtils {
 				ConnectionConfiguration config = new ConnectionConfiguration(HOST, PORT);
 				loadCA(config);
 				con = new XMPPTCPConnection(config);
-				
-				Log.d(LOG_TAG, "is secure connection " + con.isSecureConnection());
-				
 				con.connect();
 			} else {
 				if (!con.isConnected()) {
@@ -250,5 +266,17 @@ public class XMPPUtils {
 				}
 			}
 		}
+	}
+	
+	public static String getThreadSignature(){
+		Thread t = Thread.currentThread();
+		long l = t.getId();
+		String name = t.getName();
+		long p = t.getPriority();
+		String gname = t.getThreadGroup().getName();
+		return (name
+		+ ":(id)" + l
+		+ ":(priority)" + p
+		+ ":(group)" + gname);
 	}
 }

@@ -3,6 +3,7 @@ package com.mstr.letschat.databases;
 import org.jivesoftware.smack.RosterEntry;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.mstr.letschat.databases.ChatContract.ContactTableEntry;
@@ -22,10 +23,10 @@ public class ContactTableHelper {
 	private static final String SQL_DELETE_ENTRIES =
 		    "DROP TABLE IF EXISTS " + ContactTableEntry.TABLE_NAME;
 	
-	private static ChatDbHelper dbHelper;
+	private ChatDbHelper dbHelper;
 	
-	public static void init(ChatDbHelper helper) {
-		dbHelper = helper;
+	public ContactTableHelper(Context context) {
+		dbHelper = new ChatDbHelper(context);
 	}
 	
 	public static void onCreate(SQLiteDatabase database) {
@@ -36,14 +37,18 @@ public class ContactTableHelper {
 		database.execSQL(SQL_DELETE_ENTRIES);
 	}
 	
-	public static boolean insert(String user, RosterEntry entry) {
+	public void close() {
+		dbHelper.close();
+	}
+	
+	public boolean insert(String user, RosterEntry entry) {
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
 		values.put(ContactTableEntry.COLUMN_NAME_NAME, entry.getName());
 		values.put(ContactTableEntry.COLUMN_NAME_USER, entry.getUser());
 		values.put(ContactTableEntry.COLUMN_NAME_OWNER, user);
-
+		
 		// Insert the new row, returning the primary key value of the new row
 		return db.insert(ContactTableEntry.TABLE_NAME, null, values) != -1;
 	}

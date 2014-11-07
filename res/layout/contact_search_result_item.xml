@@ -22,17 +22,17 @@
 	    
 	    <TextView
 	        android:id="@+id/tv_user"
-	        android:layout_width="match_parent"
+	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:textAppearance="?android:attr/textAppearanceLarge" />
 	    
 	    <TextView
 	        android:id="@+id/tv_name"
-	        android:layout_width="match_parent"
+	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content" />
 	</LinearLayout>
 	
-	<TextView
+	<Button
 		android:id="@+id/btn_add"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -41,6 +41,9 @@
 		android:paddingRight="20dp"
 		android:paddingTop="5dp"
 		android:paddingBottom="5dp"
+		android:minHeight="0dp"
+		android:minWidth="0dp"
 		android:textColor="@android:color/white"
-		android:background="@drawable/btn_green" />
+		android:background="@drawable/btn_green"
+		android:layout_gravity="center_vertical" />
 </LinearLayout>

@@ -10,7 +10,6 @@ public class ChatDbHelper extends SQLiteOpenHelper {
 	 
 	 public ChatDbHelper(Context context) {
 		 super(context, DATABASE_NAME, null, DATABASE_VERSION);
-		 ContactTableHelper.init(this);
 	 }
 
 	@Override

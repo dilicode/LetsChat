@@ -5,8 +5,10 @@ import java.util.List;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,8 +16,14 @@ import com.mstr.letschat.R;
 import com.mstr.letschat.model.ContactSearchResult;
 
 public class ContactSearchResultAdapter extends BaseAdapter {
+	
+	public static interface OnAddButtonClickListener {
+		public void onAddButtonClick(int position, View v);
+	}
+	
 	private Context context;
 	private List<ContactSearchResult> list;
+	private OnAddButtonClickListener addButtonListener;
 	
 	public ContactSearchResultAdapter(Context context, List<ContactSearchResult> list) {
 		this.context = context;
@@ -36,9 +44,13 @@ public class ContactSearchResultAdapter extends BaseAdapter {
 	public long getItemId(int position) {
 		return position;
 	}
-
+	
+	public void setAddButtonListener(OnAddButtonClickListener addButtonListener) {
+		this.addButtonListener = addButtonListener;
+	}
+	
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(final int position, View convertView, ViewGroup parent) {
 		ViewHolder viewHolder = null;
 		
 		if (convertView != null) {
@@ -48,22 +60,35 @@ public class ContactSearchResultAdapter extends BaseAdapter {
 			
 			viewHolder = new ViewHolder();
 			viewHolder.avatar = (ImageView)convertView.findViewById(R.id.avatar);
-			viewHolder.user = (TextView)convertView.findViewById(R.id.tv_user);
-			viewHolder.name = (TextView)convertView.findViewById(R.id.tv_name);
+			viewHolder.userText = (TextView)convertView.findViewById(R.id.tv_user);
+			viewHolder.nameText = (TextView)convertView.findViewById(R.id.tv_name);
+			viewHolder.addButton = (Button)convertView.findViewById(R.id.btn_add);
 			
 			convertView.setTag(viewHolder);
 		}
 		
 		ContactSearchResult item = (ContactSearchResult)getItem(position);
-		viewHolder.user.setText(item.getUser());
-		viewHolder.name.setText(item.getName());
+		viewHolder.userText.setText(item.getUser());
+		viewHolder.nameText.setText(item.getName());
+		viewHolder.addButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				if (addButtonListener != null) {
+					addButtonListener.onAddButtonClick(position, v);
+				}
+			}
+		});
+		viewHolder.addButton.setText(item.isAdded() ? R.string.added : R.string.add);
+		if (item.isAdded()) {
+			viewHolder.addButton.setEnabled(false);
+		}
 		
 		return convertView;
 	}
-	
+
 	static class ViewHolder {
 		ImageView avatar;
-		TextView user;
-		TextView name;
+		TextView userText;
+		TextView nameText;
+		Button addButton;
 	}
 }

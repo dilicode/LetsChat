@@ -7,6 +7,8 @@ public class ContactSearchResult implements Parcelable {
 	private String user;
 	private String name;
 	
+	private boolean added;
+	
 	public ContactSearchResult(String user, String name) {
 		this.user = user;
 		this.name = name;
@@ -17,6 +19,7 @@ public class ContactSearchResult implements Parcelable {
 	private ContactSearchResult(Parcel in) {
 		user = in.readString();
 		name = in.readString();
+		added = in.readByte() != 0;
 	}
 
 	public String getUser() {
@@ -35,6 +38,14 @@ public class ContactSearchResult implements Parcelable {
 		this.name = name;
 	}
 	
+	public boolean isAdded() {
+		return added;
+	}
+
+	public void setAdded(boolean added) {
+		this.added = added;
+	}
+	
 	@Override
 	public int describeContents() {
 		return 0;
@@ -44,6 +55,7 @@ public class ContactSearchResult implements Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(user);
 		dest.writeString(name);
+		dest.writeByte((byte)(added ? 1 : 0));
 	}
 	
 	public static final Parcelable.Creator<ContactSearchResult> CREATOR = new Parcelable.Creator<ContactSearchResult>() {

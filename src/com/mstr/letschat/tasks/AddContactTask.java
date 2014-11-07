@@ -2,35 +2,36 @@ package com.mstr.letschat.tasks;
 
 import java.lang.ref.WeakReference;
 
-import com.mstr.letschat.utils.XMPPUtils;
-
 import android.os.AsyncTask;
 
+import com.mstr.letschat.ContactSearchResultActivity;
+import com.mstr.letschat.model.ContactSearchResult;
+import com.mstr.letschat.utils.XMPPUtils;
+
 public class AddContactTask extends AsyncTask<Void, Void, Boolean> {
+	private WeakReference<ContactSearchResultActivity> activityWrapper;
+	private int position;
 	
-	public static interface AddContactListener {
-		public void onContactAdded(boolean result);
-	}
-	
-	private WeakReference<AddContactListener> listener;
-	private String user;
-	private String name;
-	
-	public AddContactTask(AddContactListener listener, String user, String name) {
-		this.listener = new WeakReference<AddContactListener>(listener);
-		this.user = user;
-		this.name = name;
+	public AddContactTask(ContactSearchResultActivity activity, int position) {
+		this.activityWrapper = new WeakReference<ContactSearchResultActivity>(activity);
+		this.position = position;
 	}
 	
 	@Override
 	protected Boolean doInBackground(Void... params) {
-		return XMPPUtils.addContact(user, name);
+		ContactSearchResultActivity activity = activityWrapper.get();
+		if (activity != null) {
+			ContactSearchResult contact = (ContactSearchResult)activity.getListView().getItemAtPosition(position);
+			return XMPPUtils.addContact(contact.getUser(), contact.getName());
+		} else {
+			return false;
+		}
 	}
 	
 	protected void onPostExecute(Boolean result) {
-		AddContactListener l = listener.get();
-		if (l != null) {
-			l.onContactAdded(result);
+		ContactSearchResultActivity activity = activityWrapper.get();
+		if (activity != null) {
+			activity.onContactAdded(position);
 		}
 	}
 }

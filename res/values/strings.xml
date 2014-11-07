@@ -27,4 +27,5 @@
 	<string name="create_account_error">Create account error</string>
 	<string name="account_already_exists">Account already exists</string>
 	<string name="login_error">Login error</string>
+	<string name="added">Added</string>
 </resources>
