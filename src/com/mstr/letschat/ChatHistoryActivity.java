@@ -16,7 +16,7 @@ public class ChatHistoryActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.action_add:
-			startActivity(new Intent(this, SearchContactActivity.class));
+			startActivity(new Intent(this, SearchUserActivity.class));
 			
 			return true;
 		}

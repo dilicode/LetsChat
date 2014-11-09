@@ -1,33 +1,23 @@
 package com.mstr.letschat.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.Service;
 import android.content.Intent;
-import android.os.Binder;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
-
-import com.mstr.letschat.utils.XMPPUtils;
+import android.os.Messenger;
 
 public class MessageService extends Service {
-	private Looper serviceLooper;
-	private ServiceHandler serviceHandler;
+	private Messenger messenger;
+	private List<Messenger> clients = new ArrayList<Messenger>();
 	
-	private final IBinder binder = new LocalBinder();
-	
-	public static final int MSG_ADD_CONTACT = 1;
-	
-	public static final String KEY_USER = "user";
-	public static final String KEY_NAME = "name";
-	
-	public final class LocalBinder extends Binder {
-		public MessageService getService() {
-			return MessageService.this;
-		}
-	}
+	public static final int MSG_REGISTER_CLIENT = 1;
+	public static final int MSG_UNREGISTER_CLIENT = 2;
 	
 	private final class ServiceHandler extends Handler {
 		public ServiceHandler(Looper looper) {
@@ -37,12 +27,11 @@ public class MessageService extends Service {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case MSG_ADD_CONTACT:
-				Bundle data = msg.getData();
-				String user = data.getString(KEY_USER);
-				String name = data.getString(KEY_NAME);
-				
-				XMPPUtils.addContact(user, name);
+			case MSG_REGISTER_CLIENT:
+				clients.add(msg.replyTo);
+				break;
+			case MSG_UNREGISTER_CLIENT:
+				clients.remove(msg.replyTo);
 				break;
 			}
 		}
@@ -53,29 +42,11 @@ public class MessageService extends Service {
 		HandlerThread thread = new HandlerThread("MessageService");
 		thread.start();
 		
-		serviceLooper = thread.getLooper();
-		serviceHandler = new ServiceHandler(serviceLooper);
+		messenger = new Messenger(new ServiceHandler(thread.getLooper()));
 	}
 	
 	@Override
 	public IBinder onBind(Intent intent) {
-		return binder;
-	}
-	
-	public void addContact(String user, String name) {
-		Bundle data = new Bundle();
-		data.putString(KEY_USER, user);
-		data.putString(KEY_NAME, name);
-		
-		Message msg = serviceHandler.obtainMessage();
-		msg.what = MSG_ADD_CONTACT;
-		msg.setData(data);
-		
-		serviceHandler.sendMessage(msg);
-	}
-	
-	@Override
-	public void onDestroy() {
-		serviceLooper.quit();
+		return messenger.getBinder();
 	}
 }

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-public class PreferenceUtils {
+public class UserUtils {
 	private static final String KEY_USER = "user";
 	
 	public static void setUser(Context context, String user) {

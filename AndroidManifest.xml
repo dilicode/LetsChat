@@ -40,13 +40,13 @@
 		    android:name=".ChatHistoryActivity"
 		    android:label="@string/chats" />
 		<activity
-		    android:name=".SearchContactActivity"
+		    android:name=".SearchUserActivity"
 		    android:label="@string/search_contact" />
 		<activity
 		    android:name=".ContactListActivity"
 		    android:label="@string/select_contact" />
 		<activity
-		    android:name=".ContactSearchResultActivity"
+		    android:name=".UserSearchResultActivity"
 		    android:label="@string/search_contact_result" />
     </application>
 </manifest>

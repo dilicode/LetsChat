@@ -26,7 +26,7 @@ public class ContactListActivity extends ListActivity implements OnQueryTextList
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.action_add:
-			startActivity(new Intent(this, SearchContactActivity.class));
+			startActivity(new Intent(this, SearchUserActivity.class));
 			
 			return true;
 			

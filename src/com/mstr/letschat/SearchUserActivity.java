@@ -15,12 +15,12 @@ import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mstr.letschat.model.Contact;
-import com.mstr.letschat.tasks.SearchContactTask;
-import com.mstr.letschat.tasks.SearchContactTask.SearchContactListener;
+import com.mstr.letschat.model.UserSearchResult;
+import com.mstr.letschat.tasks.SearchUserTask;
+import com.mstr.letschat.tasks.SearchUserTask.SearchUserListener;
 
-public class SearchContactActivity extends Activity implements OnQueryTextListener, SearchContactListener, OnClickListener {
-	private SearchContactTask task;
+public class SearchUserActivity extends Activity implements OnQueryTextListener, SearchUserListener, OnClickListener {
+	private SearchUserTask task;
 	
 	private LinearLayout hintWrapper;
 	private TextView hintText;
@@ -87,10 +87,10 @@ public class SearchContactActivity extends Activity implements OnQueryTextListen
 	}
 
 	@Override
-	public void onSearchResult(ArrayList<Contact> result) {
+	public void onSearchResult(ArrayList<UserSearchResult> result) {
 		if (result != null && result.size() > 0) {
-			Intent intent = new Intent(this, ContactSearchResultActivity.class);
-			intent.putParcelableArrayListExtra(ContactSearchResultActivity.EXTRA_DATA_NAME_CONTACT_LIST, result);
+			Intent intent = new Intent(this, UserSearchResultActivity.class);
+			intent.putParcelableArrayListExtra(UserSearchResultActivity.EXTRA_DATA_NAME_USER_SEARCH_RESULT, result);
 			startActivity(intent);
 		} else {
 			Toast.makeText(this, R.string.search_contact_no_result, Toast.LENGTH_SHORT).show();
@@ -114,7 +114,7 @@ public class SearchContactActivity extends Activity implements OnQueryTextListen
 	}
 	
 	private void executeSearchTask(String query) {
-		task = new SearchContactTask(this, query);
+		task = new SearchUserTask(this, query);
 		task.execute();
 	}
 }

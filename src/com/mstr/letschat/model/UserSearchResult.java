@@ -3,20 +3,20 @@ package com.mstr.letschat.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Contact implements Parcelable {
+public class UserSearchResult implements Parcelable {
 	private String user;
 	private String name;
 	
 	private boolean added;
 	
-	public Contact(String user, String name) {
+	public UserSearchResult(String user, String name) {
 		this.user = user;
 		this.name = name;
 	}
 	
-	public Contact() {}
+	public UserSearchResult() {}
 	
-	private Contact(Parcel in) {
+	private UserSearchResult(Parcel in) {
 		user = in.readString();
 		name = in.readString();
 		added = in.readByte() != 0;
@@ -50,6 +50,23 @@ public class Contact implements Parcelable {
 	public int describeContents() {
 		return 0;
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		
+		if (o == null) {
+			return false;
+		}
+		
+		if (!(o instanceof UserSearchResult)) {
+			return false;
+		}
+		
+		return name.equals(((UserSearchResult)o).name);
+	}
 
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
@@ -58,15 +75,15 @@ public class Contact implements Parcelable {
 		dest.writeByte((byte)(added ? 1 : 0));
 	}
 	
-	public static final Parcelable.Creator<Contact> CREATOR = new Parcelable.Creator<Contact>() {
+	public static final Parcelable.Creator<UserSearchResult> CREATOR = new Parcelable.Creator<UserSearchResult>() {
 		@Override
-		public Contact createFromParcel(Parcel source) {
-			return new Contact(source);
+		public UserSearchResult createFromParcel(Parcel source) {
+			return new UserSearchResult(source);
 		}
 
 		@Override
-		public Contact[] newArray(int size) {
-			return new Contact[size];
+		public UserSearchResult[] newArray(int size) {
+			return new UserSearchResult[size];
 		}
 		
 	};

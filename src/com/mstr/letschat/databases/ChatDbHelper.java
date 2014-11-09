@@ -8,6 +8,16 @@ public class ChatDbHelper extends SQLiteOpenHelper {
 	 public static final int DATABASE_VERSION = 1;
 	 public static final String DATABASE_NAME = "chat.db";
 	 
+	 private static ChatDbHelper instance;
+	 
+	 public static synchronized ChatDbHelper getInstance(Context context) {
+		 if (instance == null) {
+			 instance = new ChatDbHelper(context);
+		 }
+		 
+		 return instance;
+	 }
+	 
 	 public ChatDbHelper(Context context) {
 		 super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	 }
