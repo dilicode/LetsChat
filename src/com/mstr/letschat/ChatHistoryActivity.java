@@ -19,6 +19,10 @@ public class ChatHistoryActivity extends Activity {
 			startActivity(new Intent(this, SearchUserActivity.class));
 			
 			return true;
+		case R.id.action_new_chat:
+			startActivity(new Intent(this, ContactListActivity.class));
+			
+			return true;
 		}
 		
 		return super.onOptionsItemSelected(item);

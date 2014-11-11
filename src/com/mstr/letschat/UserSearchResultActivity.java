@@ -24,7 +24,10 @@ public class UserSearchResultActivity extends ListActivity implements OnAddButto
 		super.onCreate(savedInstanceState);
 		
 		users = getIntent().getExtras().getParcelableArrayList(EXTRA_DATA_NAME_USER_SEARCH_RESULT);
-		setListAdapter(new UserSearchResultAdapter(this, users));
+		
+		UserSearchResultAdapter adapter = new UserSearchResultAdapter(this, users);
+		adapter.setAddButtonListener(this);
+		setListAdapter(adapter);
 		
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 	}

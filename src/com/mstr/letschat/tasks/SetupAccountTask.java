@@ -12,7 +12,7 @@ import android.os.AsyncTask;
 import android.os.Debug;
 import android.provider.ContactsContract;
 
-import com.mstr.letschat.utils.XMPPUtils;
+import com.mstr.letschat.xmpp.XMPPHelper;
 
 public class SetupAccountTask extends AsyncTask<Void, Void, Void> {
 	private static final String LOG_TAG = "SetupAccountTask";
@@ -50,7 +50,7 @@ public class SetupAccountTask extends AsyncTask<Void, Void, Void> {
 					String number = cursor.getString(numberIndex);
 					String name = cursor.getString(nameIndex);
 					
-					XMPPUtils.search(number);
+					XMPPHelper.search(number);
 				}
 			}
 		}

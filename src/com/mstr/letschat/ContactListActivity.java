@@ -1,16 +1,32 @@
 package com.mstr.letschat;
 
+import java.util.List;
+
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 
-public class ContactListActivity extends ListActivity implements OnQueryTextListener {
+import com.mstr.letschat.model.Contact;
+import com.mstr.letschat.tasks.GetContactsTask;
+import com.mstr.letschat.tasks.GetContactsTask.GetContactsListener;
+
+public class ContactListActivity extends ListActivity implements OnQueryTextListener, GetContactsListener {
+	private ArrayAdapter<Contact> adapter;
+	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		adapter = new ArrayAdapter<Contact>(this, android.R.layout.simple_list_item_1, android.R.id.text1);
+		setListAdapter(adapter);
+		
+		new GetContactsTask(this, this).execute();
 	}
 	
 	@Override
@@ -46,5 +62,17 @@ public class ContactListActivity extends ListActivity implements OnQueryTextList
 	@Override
 	public boolean onQueryTextChange(String newText) {
 		return false;
+	}
+
+	@Override
+	public void onContactsObtained(List<Contact> result) {
+		adapter.addAll(result);
+	}
+	
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		Intent intent = new Intent(this, ChatActivity.class);
+		intent.putExtra(ChatActivity.EXTRA_DATA_NAME_TO_JID, ((Contact)adapter.getItem(position)).getJid());
+		startActivity(intent);
 	}
 }

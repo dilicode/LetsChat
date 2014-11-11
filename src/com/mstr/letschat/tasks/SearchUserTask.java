@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import android.os.AsyncTask;
 
 import com.mstr.letschat.model.UserSearchResult;
-import com.mstr.letschat.utils.XMPPUtils;
+import com.mstr.letschat.xmpp.XMPPHelper;
 
 public class SearchUserTask extends AsyncTask<Void, Void, ArrayList<UserSearchResult>> {
 	public static interface SearchUserListener {
@@ -23,7 +23,7 @@ public class SearchUserTask extends AsyncTask<Void, Void, ArrayList<UserSearchRe
 
 	@Override
 	protected ArrayList<UserSearchResult> doInBackground(Void... params) {
-		return XMPPUtils.search(username);
+		return XMPPHelper.search(username);
 	}
 	
 	@Override

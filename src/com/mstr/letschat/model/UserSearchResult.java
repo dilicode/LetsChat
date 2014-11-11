@@ -6,12 +6,14 @@ import android.os.Parcelable;
 public class UserSearchResult implements Parcelable {
 	private String user;
 	private String name;
+	private String jid;
 	
 	private boolean added;
 	
-	public UserSearchResult(String user, String name) {
+	public UserSearchResult(String user, String name, String jid) {
 		this.user = user;
 		this.name = name;
+		this.jid = jid;
 	}
 	
 	public UserSearchResult() {}
@@ -19,6 +21,7 @@ public class UserSearchResult implements Parcelable {
 	private UserSearchResult(Parcel in) {
 		user = in.readString();
 		name = in.readString();
+		jid = in.readString();
 		added = in.readByte() != 0;
 	}
 
@@ -46,6 +49,14 @@ public class UserSearchResult implements Parcelable {
 		this.added = added;
 	}
 	
+	public String getJid() {
+		return jid;
+	}
+
+	public void setJid(String jid) {
+		this.jid = jid;
+	}
+	
 	@Override
 	public int describeContents() {
 		return 0;
@@ -65,13 +76,14 @@ public class UserSearchResult implements Parcelable {
 			return false;
 		}
 		
-		return name.equals(((UserSearchResult)o).name);
+		return jid.equals(((UserSearchResult)o).jid);
 	}
 
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(user);
 		dest.writeString(name);
+		dest.writeString(jid);
 		dest.writeByte((byte)(added ? 1 : 0));
 	}
 	

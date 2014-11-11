@@ -8,6 +8,9 @@ public class ChatDbHelper extends SQLiteOpenHelper {
 	 public static final int DATABASE_VERSION = 1;
 	 public static final String DATABASE_NAME = "chat.db";
 	 
+	 public static final String TEXT_TYPE = " TEXT";
+	 public static final String COMMA_SEP = ",";
+	 
 	 private static ChatDbHelper instance;
 	 
 	 public static synchronized ChatDbHelper getInstance(Context context) {
@@ -25,11 +28,13 @@ public class ChatDbHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		ContactTableHelper.onCreate(db);
+		ChatMessageTableHelper.onCreate(db);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		ContactTableHelper.onUpgrade(db);
+		ChatMessageTableHelper.onUpgrade(db);
 		
 		onCreate(db);
 	}

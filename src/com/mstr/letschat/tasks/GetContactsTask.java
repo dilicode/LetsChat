@@ -3,33 +3,39 @@ package com.mstr.letschat.tasks;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-import org.jivesoftware.smack.RosterEntry;
-
-import com.mstr.letschat.utils.XMPPUtils;
-
+import android.content.Context;
 import android.os.AsyncTask;
 
-public class GetContactsTask extends AsyncTask<Void, Void, List<RosterEntry>> {
+import com.mstr.letschat.databases.ContactTableHelper;
+import com.mstr.letschat.model.Contact;
 
-	public static interface GetRosterEntriesInterface {
-		public void onRosterEntriesReceived(List<RosterEntry> entries);
+public class GetContactsTask extends AsyncTask<Void, Void, List<Contact>> {
+	public static interface GetContactsListener {
+		public void onContactsObtained(List<Contact> result);
 	}
 	
-	private WeakReference<GetRosterEntriesInterface> listener;
+	private WeakReference<GetContactsListener> listenerWrapper;
+	private WeakReference<Context> contextWrapper;
 	
-	public GetContactsTask(GetRosterEntriesInterface listener) {
-		this.listener = new WeakReference<GetRosterEntriesInterface>(listener);
+	public GetContactsTask(GetContactsListener listener, Context context) {
+		listenerWrapper = new WeakReference<GetContactsListener>(listener);
+		contextWrapper = new WeakReference<Context>(context);
 	}
 	
 	@Override
-	protected List<RosterEntry> doInBackground(Void... params) {
-		return XMPPUtils.getRosterEntries();
+	protected List<Contact> doInBackground(Void... params) {
+		Context context = contextWrapper.get();
+		if (context != null) {
+			return ContactTableHelper.getInstance(context).query();
+		}
+		
+		return null;
 	}
 	
-	public void onPostExecute(List<RosterEntry> entries) {
-		GetRosterEntriesInterface l = listener.get();
-		if (l != null) {
-			l.onRosterEntriesReceived(entries);
+	public void onPostExecute(List<Contact> result) {
+		GetContactsListener listener = listenerWrapper.get();
+		if (listener != null) {
+			listener.onContactsObtained(result);
 		}
 	}
 }

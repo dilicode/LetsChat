@@ -4,7 +4,7 @@ import java.lang.ref.WeakReference;
 
 import android.os.AsyncTask;
 
-import com.mstr.letschat.utils.XMPPUtils;
+import com.mstr.letschat.xmpp.XMPPHelper;
 
 public class LoginTask extends AsyncTask<Void, Void, Boolean> {
 	
@@ -26,7 +26,7 @@ public class LoginTask extends AsyncTask<Void, Void, Boolean> {
 	
 	@Override
 	public Boolean doInBackground(Void... params) {
-		return XMPPUtils.login(username, password);
+		return XMPPHelper.login(username, password);
 	}
 	
 	@Override

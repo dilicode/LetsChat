@@ -1,4 +1,4 @@
-package com.mstr.letschat.utils;
+package com.mstr.letschat.xmpp;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,10 +16,10 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.jivesoftware.smack.AccountManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
-import org.jivesoftware.smack.RosterListener;
 import org.jivesoftware.smack.SmackAndroid;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.SmackException.NoResponseException;
@@ -28,8 +28,8 @@ import org.jivesoftware.smack.SmackException.NotLoggedInException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.XMPPException.XMPPErrorException;
+import org.jivesoftware.smack.filter.MessageTypeFilter;
 import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.XMPPError.Condition;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smackx.search.ReportedData;
@@ -38,16 +38,17 @@ import org.jivesoftware.smackx.search.UserSearchManager;
 import org.jivesoftware.smackx.xdata.Form;
 
 import android.app.Application;
-import android.util.Log;
 
 import com.mstr.letschat.model.UserSearchResult;
 import com.mstr.letschat.tasks.CreateAccountTask.AccountCreationResult;
 
-public class XMPPUtils {
-	private static final String LOG_TAG = "XMPPUtils";
+public class XMPPHelper {
+	private static final String LOG_TAG = "XMPPHelper";
 	
 	private static final String HOST = "10.197.34.151";
 	private static final int PORT = 5223;
+	
+	public static final String RESOURCE_PART = "Smack";
 	
 	private static XMPPConnection con;
 	
@@ -64,25 +65,7 @@ public class XMPPUtils {
 			connectIfNecessary();
 			
 			if (!con.isAuthenticated()) {
-				con.login(username, password);
-				
-				Roster roster = con.getRoster();
-				if (roster != null) {
-					roster.addRosterListener(new RosterListener() {
-						@Override
-						public void entriesAdded(Collection<String> arg0) {
-						}
-
-						@Override
-						public void entriesDeleted(Collection<String> arg0) {}
-
-						@Override
-						public void entriesUpdated(Collection<String> arg0) {}
-
-						@Override
-						public void presenceChanged(Presence arg0) {}
-					});
-				}
+				con.login(username, password, RESOURCE_PART);
 			}
 			
 			return true;
@@ -155,6 +138,7 @@ public class XMPPUtils {
 		final String searchService = "search." + con.getServiceName();
 		final String KEY_USERNAME = "Username";
 		final String KEY_NAME = "Name";
+		final String KEY_JID = "jid";
 		try {
 			Form searchForm = search.getSearchForm(searchService);
 			Form answerForm = searchForm.createAnswerForm();
@@ -167,13 +151,10 @@ public class XMPPUtils {
 			for (Row row: rows) {
 				List<String> usernameValues = row.getValues(KEY_USERNAME);
 				List<String> nameValues = row.getValues(KEY_NAME);
+				List<String> jids = row.getValues(KEY_JID);
 				
-				if (usernameValues != null && nameValues != null) {
-					for (int i = 0; i < usernameValues.size() && i < nameValues.size(); i ++) {
-						result.add(new UserSearchResult(usernameValues.get(i), nameValues.get(i)));
-					}
-				} else {
-					return null;
+				for (int i = 0; i < jids.size(); i ++) {
+					result.add(new UserSearchResult(usernameValues.get(i), nameValues.get(i), jids.get(i) + "/" + RESOURCE_PART));
 				}
 			}
 			
@@ -265,6 +246,12 @@ public class XMPPUtils {
 					e.printStackTrace();
 				}
 			}
+		}
+	}
+	
+	public static void addPacketListener(PacketListener packetListener) {
+		if (con != null && packetListener != null) {
+			con.addPacketListener(packetListener, new MessageTypeFilter(Message.Type.chat));
 		}
 	}
 	

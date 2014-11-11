@@ -5,7 +5,7 @@ import java.lang.ref.WeakReference;
 import android.os.AsyncTask;
 
 import com.mstr.letschat.tasks.CreateAccountTask.AccountCreationResult;
-import com.mstr.letschat.utils.XMPPUtils;
+import com.mstr.letschat.xmpp.XMPPHelper;
 
 public class CreateAccountTask extends AsyncTask<Void, Void, AccountCreationResult> {
 	public static enum AccountCreationResult {SUCCESS, FAILURE, CONFLICT};
@@ -30,7 +30,7 @@ public class CreateAccountTask extends AsyncTask<Void, Void, AccountCreationResu
 	
 	@Override
 	public AccountCreationResult doInBackground(Void... params) {
-		return XMPPUtils.createAccount(user, name, password);
+		return XMPPHelper.createAccount(user, name, password);
 	}
 	
 	public void onPostExecute(AccountCreationResult result) {

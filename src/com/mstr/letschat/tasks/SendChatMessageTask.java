@@ -4,12 +4,12 @@ import java.lang.ref.WeakReference;
 
 import android.os.AsyncTask;
 
-import com.mstr.letschat.utils.XMPPUtils;
+import com.mstr.letschat.xmpp.XMPPHelper;
 
 public class SendChatMessageTask extends AsyncTask<Void, Void, Boolean> {
 	
 	public static interface SendChatMessageListener {
-		public void onChatMessageSent(boolean result);
+		public void onChatMessageSent(boolean result, String message);
 	}
 	
 	private String to;
@@ -26,7 +26,7 @@ public class SendChatMessageTask extends AsyncTask<Void, Void, Boolean> {
 	
 	@Override
 	public Boolean doInBackground(Void... params) {
-		return XMPPUtils.sendChatMessage(to, body);
+		return XMPPHelper.sendChatMessage(to, body);
 	}
 	
 	@Override
@@ -34,7 +34,7 @@ public class SendChatMessageTask extends AsyncTask<Void, Void, Boolean> {
 		SendChatMessageListener l = listener.get();
 		
 		if (l != null) {
-			l.onChatMessageSent(result);
+			l.onChatMessageSent(result, body);
 		}
 	}
 }
