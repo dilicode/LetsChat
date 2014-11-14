@@ -24,7 +24,7 @@ public class LoginActivity extends Activity implements LoginListener, OnClickLis
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.activity_login);
-			
+		
 		phoneNumberText = (EditText)findViewById(R.id.et_phone_number);
 		passwordText = (EditText)findViewById(R.id.et_password);
 		loginButton = (Button)findViewById(R.id.btn_login);
@@ -37,7 +37,7 @@ public class LoginActivity extends Activity implements LoginListener, OnClickLis
 		if (result) {
 			startActivity(new Intent(this, ChatHistoryActivity.class));
 			
-			startMessageService();
+			postLogin();
 			
 			finish();
 		} else {
@@ -45,7 +45,7 @@ public class LoginActivity extends Activity implements LoginListener, OnClickLis
 		}
 	}
 
-	private void startMessageService() {
+	private void postLogin() {
 		UserUtils.setUser(this, phoneNumberText.getText().toString());
 		UserUtils.setPassword(this, passwordText.getText().toString());
 		

@@ -50,7 +50,7 @@ public class SetupAccountTask extends AsyncTask<Void, Void, Void> {
 					String number = cursor.getString(numberIndex);
 					String name = cursor.getString(nameIndex);
 					
-					XMPPHelper.search(number);
+					XMPPHelper.getInstance().search(number);
 				}
 			}
 		}

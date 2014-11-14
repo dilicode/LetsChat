@@ -26,7 +26,7 @@ public class SendChatMessageTask extends AsyncTask<Void, Void, Boolean> {
 	
 	@Override
 	public Boolean doInBackground(Void... params) {
-		return XMPPHelper.sendChatMessage(to, body);
+		return XMPPHelper.getInstance().sendChatMessage(to, body);
 	}
 	
 	@Override

@@ -7,7 +7,7 @@ import android.os.AsyncTask;
 import com.mstr.letschat.UserSearchResultActivity;
 import com.mstr.letschat.databases.ContactTableHelper;
 import com.mstr.letschat.model.UserSearchResult;
-import com.mstr.letschat.xmpp.XMPPHelper;
+import com.mstr.letschat.xmpp.XMPPContactHelper;
 
 public class AddContactTask extends AsyncTask<Void, Void, Boolean> {
 	private WeakReference<UserSearchResultActivity> activityWrapper;
@@ -22,9 +22,9 @@ public class AddContactTask extends AsyncTask<Void, Void, Boolean> {
 	protected Boolean doInBackground(Void... params) {
 		UserSearchResultActivity activity = activityWrapper.get();
 		if (activity != null) {
-			UserSearchResult user = (UserSearchResult)activity.getListView().getItemAtPosition(position);
+			UserSearchResult user = activity.getUser(position);
 			
-			return XMPPHelper.addContact(user.getUser(), user.getName()) && 
+			return XMPPContactHelper.getInstance().addContact(user) && 
 					ContactTableHelper.getInstance(activity).insert(user);
 		}
 		

@@ -50,6 +50,10 @@ public class UserSearchResultActivity extends ListActivity implements OnAddButto
 		}
 	}
 	
+	public UserSearchResult getUser(int position) {
+		return users.get(position);
+	}
+	
 	@Override
 	public void onAddButtonClick(int position, View v) {
 		new AddContactTask(this, position).execute();

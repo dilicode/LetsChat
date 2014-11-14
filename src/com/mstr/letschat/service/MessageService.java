@@ -18,7 +18,7 @@ import com.mstr.letschat.model.ChatMessage;
 import com.mstr.letschat.utils.UserUtils;
 import com.mstr.letschat.xmpp.XMPPHelper;
 
-public class MessageService extends Service implements PacketListener {
+public class MessageService extends Service {
 	private static final String LOG_TAG = "MessageService";
 	
 	private Looper serviceLooper;
@@ -44,7 +44,7 @@ public class MessageService extends Service implements PacketListener {
 			}
 			
 			if (action.equals(ACTION_POST_LOGIN)) {
-				handlePostLoginMessage(intent);
+				//handlePostLoginMessage(intent);
 				return;
 			}
 		}
@@ -87,18 +87,11 @@ public class MessageService extends Service implements PacketListener {
 	private void handleConnectMessage(Intent intent) {
 		Log.d(LOG_TAG, "handleStartupMessage");
 		
-		String user = UserUtils.getUser(this);
-		String password = UserUtils.getPassword(this);
-		
-		if (user != null && password != null) {
-			if (XMPPHelper.login(user, password)) {
-				XMPPHelper.addPacketListener(this);
-			}
-		}
+		XMPPHelper.getInstance().connect(UserUtils.getUser(this), UserUtils.getPassword(this));
 	}
 	
-	private void handlePostLoginMessage(Intent intent) {
-		XMPPHelper.addPacketListener(this);
+	/*private void handlePostLoginMessage(Intent intent) {
+		XMPPHelper.getInstance().addPacketListener(this);
 	}
 	
 	@Override
@@ -112,5 +105,5 @@ public class MessageService extends Service implements PacketListener {
 		Intent i = new Intent(ACTION_MESSAGE_RECEIVED);
 		i.putExtra("message", chatMessage);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(i);
-	}
+	}*/
 }

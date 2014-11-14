@@ -30,7 +30,7 @@ public class CreateAccountTask extends AsyncTask<Void, Void, AccountCreationResu
 	
 	@Override
 	public AccountCreationResult doInBackground(Void... params) {
-		return XMPPHelper.createAccount(user, name, password);
+		return XMPPHelper.getInstance().createAccount(user, name, password);
 	}
 	
 	public void onPostExecute(AccountCreationResult result) {

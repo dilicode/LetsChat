@@ -12,10 +12,7 @@ public class BootReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		if (UserUtils.getUser(context) != null && UserUtils.getPassword(context) != null) {
-			Intent serviceIntent = new Intent(context, MessageService.class);
-			serviceIntent.setAction(MessageService.ACTION_CONNECT);
-			
-			context.startService(serviceIntent);
+			context.startService(new Intent(MessageService.ACTION_CONNECT, null, context, MessageService.class));
 		}
 	}
 }

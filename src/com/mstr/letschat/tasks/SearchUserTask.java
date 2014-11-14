@@ -23,7 +23,7 @@ public class SearchUserTask extends AsyncTask<Void, Void, ArrayList<UserSearchRe
 
 	@Override
 	protected ArrayList<UserSearchResult> doInBackground(Void... params) {
-		return XMPPHelper.search(username);
+		return XMPPHelper.getInstance().search(username);
 	}
 	
 	@Override

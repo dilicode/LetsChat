@@ -37,7 +37,8 @@ import org.jivesoftware.smackx.search.ReportedData.Row;
 import org.jivesoftware.smackx.search.UserSearchManager;
 import org.jivesoftware.smackx.xdata.Form;
 
-import android.app.Application;
+import android.content.Context;
+import android.util.Log;
 
 import com.mstr.letschat.model.UserSearchResult;
 import com.mstr.letschat.tasks.CreateAccountTask.AccountCreationResult;
@@ -49,41 +50,48 @@ public class XMPPHelper {
 	private static final int PORT = 5223;
 	
 	public static final String RESOURCE_PART = "Smack";
+
+	private XMPPConnection con;
 	
-	private static XMPPConnection con;
+	private Context context;
 	
-	private static Application application;
+	private List<XMPPConnectionChangeListener> listeners = new ArrayList<XMPPConnectionChangeListener>();
 	
-	public static void init(Application app) {
-		SmackAndroid.init(app);
+	private State state;
+	
+	private static XMPPHelper instance;
+	
+	private XMPPHelper(Context context) {
+		SmackAndroid.init(context);
 		
-		application = app;
+		this.context = context;
+		
+		XMPPContactHelper.init(context);
+		listeners.add(XMPPContactHelper.getInstance());
 	}
 	
-	public static boolean login(String username, String password) {
-		try {
-			connectIfNecessary();
-			
-			if (!con.isAuthenticated()) {
-				con.login(username, password, RESOURCE_PART);
-			}
-			
-			return true;
-		} catch (SmackException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (XMPPException e) {
-			e.printStackTrace();
+	/**
+	 * This method is called when application is created, so instance is available afterwards.
+	 * @param context
+	 */
+	public static void init(Context context) {
+		if (instance == null) {
+			instance = new XMPPHelper(context);
 		}
-		
-		return false;
 	}
 	
-	public static AccountCreationResult createAccount(String user, String name, String password) {
+	public static XMPPHelper getInstance() {
+		return instance;
+	}
+	
+	public void setState(State state) {
+		Log.d(LOG_TAG, "state: " + state.name());
+		
+		this.state = state;
+	}
+	
+	public AccountCreationResult createAccount(String user, String name, String password) {
 		try {
-			connectIfNecessary();
-			
 			Map<String, String> attributes = new HashMap<String, String>();
 			attributes.put("name", name);
 			AccountManager.getInstance(con).createAccount(user, password, attributes);
@@ -100,9 +108,7 @@ public class XMPPHelper {
 		return AccountCreationResult.FAILURE;
 	}
 	
-	public static boolean sendChatMessage(String to, String body) {
-		connectIfNecessary();
-		
+	public boolean sendChatMessage(String to, String body) {
 		Message message = new Message(to, Message.Type.chat);
 		message.setBody(body);
 		try {
@@ -114,8 +120,7 @@ public class XMPPHelper {
 		}
 	}
 	
-	public static List<RosterEntry> getRosterEntries() {
-		connectIfNecessary();
+	public List<RosterEntry> getRosterEntries() {
 		
 		List<RosterEntry> result = new ArrayList<RosterEntry>();
 		
@@ -128,9 +133,7 @@ public class XMPPHelper {
 		return result;
 	}
 	
-	public static ArrayList<UserSearchResult> search(String username) {
-		connectIfNecessary();
-		
+	public ArrayList<UserSearchResult> search(String username) {
 		ArrayList<UserSearchResult> result = new ArrayList<UserSearchResult>();
 		
 		UserSearchManager search = new UserSearchManager(con);
@@ -170,7 +173,7 @@ public class XMPPHelper {
 		return null;
 	}
 	
-	public static boolean addContact(String user, String name) {
+	public boolean addContact(String user, String name) {
 		Roster roster = con.getRoster();
 		if (roster != null) {
 			try {
@@ -190,11 +193,15 @@ public class XMPPHelper {
 		return false;
 	}
 	
-	private static void connectIfNecessary() {
+	public boolean connect(String user, String password) {
+		setState(State.CONNECTING);
+		
 		try {
 			if (con == null) {
 				ConnectionConfiguration config = new ConnectionConfiguration(HOST, PORT);
 				loadCA(config);
+				config.setReconnectionAllowed(false);
+				
 				con = new XMPPTCPConnection(config);
 				con.connect();
 			} else {
@@ -202,6 +209,14 @@ public class XMPPHelper {
 					con.connect();
 				}
 			}
+			
+			if (!con.isAuthenticated()) {
+				con.login(user, password, RESOURCE_PART);
+			}
+			
+			onConnectionEstablished();
+			
+			return true;
 		} catch(SmackException e) {
 			e.printStackTrace();
 		} catch(IOException e) {
@@ -209,14 +224,23 @@ public class XMPPHelper {
 		} catch(XMPPException e) {
 			e.printStackTrace();
 		}
+		
+		return false;
 	}
 	
-	private static void loadCA(ConnectionConfiguration config){
+	private void onConnectionEstablished() {
+		setState(State.CONNECTED);
+		
+		for (XMPPConnectionChangeListener listener : listeners) {
+			listener.onConnectionChange(con);
+		}
+	}
+	
+	private void loadCA(ConnectionConfiguration config){
 		// Load CAs from an InputStream
-		// (could be from a resource or ByteArrayInputStream or ...)
 		InputStream caInput = null;
 		try {
-			caInput = application.getAssets().open("server.crt");
+			caInput = context.getAssets().open("server.crt");
 			CertificateFactory cf = CertificateFactory.getInstance("X.509");
 			// From https://www.washington.edu/itconnect/security/ca/load-der.crt
 			Certificate ca = cf.generateCertificate(caInput);
@@ -249,10 +273,18 @@ public class XMPPHelper {
 		}
 	}
 	
-	public static void addPacketListener(PacketListener packetListener) {
+	public void addPacketListener(PacketListener packetListener) {
 		if (con != null && packetListener != null) {
 			con.addPacketListener(packetListener, new MessageTypeFilter(Message.Type.chat));
 		}
+	}
+	
+	private static enum State {
+		CONNECTING,
+		
+		CONNECTED,
+		
+		DISCONNECTED;
 	}
 	
 	public static String getThreadSignature(){
