@@ -26,7 +26,7 @@ public class LoginTask extends AsyncTask<Void, Void, Boolean> {
 	
 	@Override
 	public Boolean doInBackground(Void... params) {
-		return XMPPHelper.getInstance().connect(username, password);
+		return XMPPHelper.getInstance().connectAndLogin(username, password);
 	}
 	
 	@Override

@@ -2,16 +2,14 @@ package com.mstr.letschat.xmpp;
 
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.Roster.SubscriptionMode;
 import org.jivesoftware.smack.RosterEntry;
-import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.SmackException.NoResponseException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
-import org.jivesoftware.smack.SmackException.NotLoggedInException;
 import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException.XMPPErrorException;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.RosterPacket.ItemType;
 import org.jivesoftware.smack.util.StringUtils;
 
 import android.content.Context;
@@ -47,6 +45,7 @@ public class XMPPContactHelper implements XMPPConnectionChangeListener, PacketLi
 	public void onConnectionChange(XMPPConnection newConnection) {
 		connection = newConnection;
 		roster = newConnection.getRoster();
+		roster.setSubscriptionMode(SubscriptionMode.manual);
 		
 		connection.addPacketListener(this, new PacketTypeFilter(Presence.class));
 	}
@@ -59,9 +58,7 @@ public class XMPPContactHelper implements XMPPConnectionChangeListener, PacketLi
 			
 			if (!roster.contains(jid)) {
 				try {
-					roster.createEntry(jid, user.getName(), null);
-					
-					requestSubscription(jid);
+					roster.createEntry(user.getJid(), user.getName(), null);
 				} catch (Exception e) {
 					e.printStackTrace();
 					result = false;
@@ -119,10 +116,28 @@ public class XMPPContactHelper implements XMPPConnectionChangeListener, PacketLi
 		Presence presence = (Presence)packet;
 		String fromJID = StringUtils.parseBareAddress(presence.getFrom());
 		
-		Log.d(LOG_TAG, "processPacket, jid, type, " + fromJID + " " + presence.getType().name());
+		RosterEntry rosterEntry = roster.getEntry(fromJID);
+		ItemType type = null;
+		if (rosterEntry != null) {
+			type = rosterEntry.getType();
+		}
 		
-		if (presence.getType().equals(Presence.Type.subscribe)) {
+		Log.d(LOG_TAG, "roster type, " + fromJID + " " + type == null ? "null" : type.name());
+		
+		Presence.Type presenceType = presence.getType();
+		if (presenceType.equals(Presence.Type.subscribe)) {
 			grantSubscription(fromJID);
+			
+			Log.d(LOG_TAG, "grant to, " + fromJID);
+			
+			// subscribe to jid if has not
+			if (type == null || (type != ItemType.to && type != ItemType.both)) {
+				requestSubscription(fromJID);
+				
+				Log.d(LOG_TAG, "request, " + fromJID);
+			}
+		} else if (presenceType.equals(Presence.Type.subscribed)) {
+			Log.d(LOG_TAG, "subscribed, " + type.name());
 		}
 	}
 }

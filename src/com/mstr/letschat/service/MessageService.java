@@ -87,7 +87,13 @@ public class MessageService extends Service {
 	private void handleConnectMessage(Intent intent) {
 		Log.d(LOG_TAG, "handleStartupMessage");
 		
-		XMPPHelper.getInstance().connect(UserUtils.getUser(this), UserUtils.getPassword(this));
+		String user = UserUtils.getUser(this);
+		String password = UserUtils.getPassword(this);
+		if (user != null && password != null) {
+			XMPPHelper.getInstance().connectAndLogin(user, password);
+		} else {
+			XMPPHelper.getInstance().connect();
+		}
 	}
 	
 	/*private void handlePostLoginMessage(Intent intent) {

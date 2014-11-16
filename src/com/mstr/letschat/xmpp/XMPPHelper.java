@@ -22,6 +22,7 @@ import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.SmackAndroid;
 import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
 import org.jivesoftware.smack.SmackException.NoResponseException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.SmackException.NotLoggedInException;
@@ -46,8 +47,10 @@ import com.mstr.letschat.tasks.CreateAccountTask.AccountCreationResult;
 public class XMPPHelper {
 	private static final String LOG_TAG = "XMPPHelper";
 	
-	private static final String HOST = "10.197.34.151";
-	private static final int PORT = 5223;
+	//private static final String HOST = "10.197.34.151";
+	
+	private static final String HOST = "192.168.1.103";
+	private static final int PORT = 5222;
 	
 	public static final String RESOURCE_PART = "Smack";
 
@@ -90,10 +93,12 @@ public class XMPPHelper {
 		this.state = state;
 	}
 	
-	public AccountCreationResult createAccount(String user, String name, String password) {
+	public AccountCreationResult signup(String user, String name, String password) {
+		connect();
+		
+		Map<String, String> attributes = new HashMap<String, String>();
+		attributes.put("name", name);
 		try {
-			Map<String, String> attributes = new HashMap<String, String>();
-			attributes.put("name", name);
 			AccountManager.getInstance(con).createAccount(user, password, attributes);
 			
 			return AccountCreationResult.SUCCESS;
@@ -193,35 +198,42 @@ public class XMPPHelper {
 		return false;
 	}
 	
-	public boolean connect(String user, String password) {
-		setState(State.CONNECTING);
+	public void connect() {
+		if (con == null || !con.isConnected()) {
+			Log.d(LOG_TAG, "connecting server...");
+			setState(State.CONNECTING);
+			
+			try {
+				if (con == null) {
+					ConnectionConfiguration config = new ConnectionConfiguration(HOST, PORT);
+					//loadCA(config);
+					config.setReconnectionAllowed(false);
+					config.setSecurityMode(SecurityMode.disabled);
+					
+					con = new XMPPTCPConnection(config);
+				}
+				
+				con.connect();
+				
+				setState(State.CONNECTED);
+				Log.d(LOG_TAG, "server connected...");
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public boolean connectAndLogin(String user, String password) {
+		connect();
 		
 		try {
-			if (con == null) {
-				ConnectionConfiguration config = new ConnectionConfiguration(HOST, PORT);
-				loadCA(config);
-				config.setReconnectionAllowed(false);
-				
-				con = new XMPPTCPConnection(config);
-				con.connect();
-			} else {
-				if (!con.isConnected()) {
-					con.connect();
-				}
-			}
-			
 			if (!con.isAuthenticated()) {
 				con.login(user, password, RESOURCE_PART);
+				onConnectionEstablished();
 			}
 			
-			onConnectionEstablished();
-			
 			return true;
-		} catch(SmackException e) {
-			e.printStackTrace();
-		} catch(IOException e) {
-			e.printStackTrace();
-		} catch(XMPPException e) {
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
 		
@@ -229,8 +241,6 @@ public class XMPPHelper {
 	}
 	
 	private void onConnectionEstablished() {
-		setState(State.CONNECTED);
-		
 		for (XMPPConnectionChangeListener listener : listeners) {
 			listener.onConnectionChange(con);
 		}
