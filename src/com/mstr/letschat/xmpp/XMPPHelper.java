@@ -47,9 +47,9 @@ import com.mstr.letschat.tasks.CreateAccountTask.AccountCreationResult;
 public class XMPPHelper {
 	private static final String LOG_TAG = "XMPPHelper";
 	
-	//private static final String HOST = "10.197.34.151";
+	private static final String HOST = "10.197.34.151";
 	
-	private static final String HOST = "192.168.1.103";
+	// private static final String HOST = "192.168.1.103";
 	private static final int PORT = 5222;
 	
 	public static final String RESOURCE_PART = "Smack";
@@ -162,7 +162,7 @@ public class XMPPHelper {
 				List<String> jids = row.getValues(KEY_JID);
 				
 				for (int i = 0; i < jids.size(); i ++) {
-					result.add(new UserSearchResult(usernameValues.get(i), nameValues.get(i), jids.get(i) + "/" + RESOURCE_PART));
+					result.add(new UserSearchResult(usernameValues.get(i), nameValues.get(i), jids.get(i)));
 				}
 			}
 			
@@ -176,6 +176,12 @@ public class XMPPHelper {
 		}
 		
 		return null;
+	}
+	
+	public UserSearchResult searchByCompleteUsername(String username) {
+		List<UserSearchResult> result = search(username);
+		
+		return (result != null && result.size() > 0) ? result.get(0) : null;
 	}
 	
 	public boolean addContact(String user, String name) {
@@ -200,7 +206,6 @@ public class XMPPHelper {
 	
 	public void connect() {
 		if (con == null || !con.isConnected()) {
-			Log.d(LOG_TAG, "connecting server...");
 			setState(State.CONNECTING);
 			
 			try {
@@ -216,7 +221,6 @@ public class XMPPHelper {
 				con.connect();
 				
 				setState(State.CONNECTED);
-				Log.d(LOG_TAG, "server connected...");
 			} catch(Exception e) {
 				e.printStackTrace();
 			}

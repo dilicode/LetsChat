@@ -5,6 +5,7 @@ import java.util.List;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,19 +15,21 @@ import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 
 import com.mstr.letschat.model.Contact;
-import com.mstr.letschat.tasks.GetContactsTask;
-import com.mstr.letschat.tasks.GetContactsTask.GetContactsListener;
+import com.mstr.letschat.tasks.QueryContactsTask;
+import com.mstr.letschat.tasks.QueryContactsTask.QueryContactsListener;
 
-public class ContactListActivity extends ListActivity implements OnQueryTextListener, GetContactsListener {
+public class ContactListActivity extends ListActivity implements OnQueryTextListener, QueryContactsListener {
 	private ArrayAdapter<Contact> adapter;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		getListView().addHeaderView(getHeaderView());
+		
 		adapter = new ArrayAdapter<Contact>(this, android.R.layout.simple_list_item_1, android.R.id.text1);
 		setListAdapter(adapter);
 		
-		new GetContactsTask(this, this).execute();
+		new QueryContactsTask(this, this).execute();
 	}
 	
 	@Override
@@ -65,14 +68,23 @@ public class ContactListActivity extends ListActivity implements OnQueryTextList
 	}
 
 	@Override
-	public void onContactsObtained(List<Contact> result) {
+	public void onContactsReturnd(List<Contact> result) {
 		adapter.addAll(result);
 	}
 	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		Intent intent = new Intent(this, ChatActivity.class);
-		intent.putExtra(ChatActivity.EXTRA_DATA_NAME_TO_JID, ((Contact)adapter.getItem(position)).getJid());
-		startActivity(intent);
+		if (position == 0) {
+			// header view is clicked
+			startActivity(new Intent(ContactListActivity.this, ReceivedContactRequestListActivity.class));
+		} else {
+			Intent intent = new Intent(this, ChatActivity.class);
+			intent.putExtra(ChatActivity.EXTRA_DATA_NAME_TO_JID, ((Contact)adapter.getItem(position)).getJid());
+			startActivity(intent);
+		}
+	}
+	
+	private View getHeaderView() {
+		return LayoutInflater.from(this).inflate(R.layout.contact_list_header, null);
 	}
 }

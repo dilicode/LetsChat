@@ -6,11 +6,12 @@ import android.app.ListActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.mstr.letschat.adapters.UserSearchResultAdapter;
 import com.mstr.letschat.adapters.UserSearchResultAdapter.OnAddButtonClickListener;
 import com.mstr.letschat.model.UserSearchResult;
-import com.mstr.letschat.tasks.AddContactTask;
+import com.mstr.letschat.tasks.SendContactRequestTask;
 
 public class UserSearchResultActivity extends ListActivity implements OnAddButtonClickListener {
 	public static final String LOG_TAG = "ContactSearchResultActivity";
@@ -42,11 +43,11 @@ public class UserSearchResultActivity extends ListActivity implements OnAddButto
 		return super.onOptionsItemSelected(item);
 	}
 	
-	public void onContactAdded(int position) {
-		UserSearchResult user = users.get(position);
-		if (user != null) {
-			user.setAdded(true);
-			((UserSearchResultAdapter)getListAdapter()).notifyDataSetChanged();
+	public void onContactRequestSent(Boolean result) {
+		if (result) {
+			Toast.makeText(this, R.string.contact_request_sent_message, Toast.LENGTH_SHORT).show();
+		} else {
+			Toast.makeText(this, R.string.sending_contact_request_error_message, Toast.LENGTH_SHORT).show();
 		}
 	}
 	
@@ -56,6 +57,6 @@ public class UserSearchResultActivity extends ListActivity implements OnAddButto
 	
 	@Override
 	public void onAddButtonClick(int position, View v) {
-		new AddContactTask(this, position).execute();
+		new SendContactRequestTask(this, position).execute();
 	}
 }

@@ -69,7 +69,7 @@ public class UserSearchResultAdapter extends BaseAdapter {
 		
 		UserSearchResult item = (UserSearchResult)getItem(position);
 		viewHolder.userText.setText(item.getUser());
-		viewHolder.nameText.setText(item.getName());
+		viewHolder.nameText.setText(item.getNickname());
 		viewHolder.addButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				if (addButtonListener != null) {

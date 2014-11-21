@@ -28,4 +28,11 @@
 	<string name="account_already_exists">Account already exists</string>
 	<string name="login_error">Login error</string>
 	<string name="added">Added</string>
+	<string name="accept">Accept</string>
+	<string name="new_friends">New friends</string>
+	<string name="request_contact_text">wants to add you as a friend</string>
+	<string name="contact_request_sent_message">Request sent, waiting for acceptance...</string>
+	<string name="sending_contact_request_error_message">Sending request error</string>
+	<string name="contact_request_accepted_message">You have added a new contact</string>
+	<string name="accepting_contact_request_error_message">Accepting request error</string>
 </resources>

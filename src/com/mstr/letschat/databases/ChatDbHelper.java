@@ -9,6 +9,7 @@ public class ChatDbHelper extends SQLiteOpenHelper {
 	 public static final String DATABASE_NAME = "chat.db";
 	 
 	 public static final String TEXT_TYPE = " TEXT";
+	 public static final String INTEGER_TYPE = " INTEGER";
 	 public static final String COMMA_SEP = ",";
 	 
 	 private static ChatDbHelper instance;
@@ -29,12 +30,16 @@ public class ChatDbHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		ContactTableHelper.onCreate(db);
 		ChatMessageTableHelper.onCreate(db);
+		ReceivedContactRequestTableHelper.onCreate(db);
+		SentContactRequestTableHelper.onCreate(db);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		ContactTableHelper.onUpgrade(db);
 		ChatMessageTableHelper.onUpgrade(db);
+		ReceivedContactRequestTableHelper.onUpgrade(db);
+		SentContactRequestTableHelper.onUpgrade(db);
 		
 		onCreate(db);
 	}

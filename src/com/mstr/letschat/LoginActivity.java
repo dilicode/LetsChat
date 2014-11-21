@@ -9,7 +9,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.mstr.letschat.service.MessageService;
 import com.mstr.letschat.tasks.LoginTask;
 import com.mstr.letschat.tasks.LoginTask.LoginListener;
 import com.mstr.letschat.utils.UserUtils;
@@ -48,10 +47,6 @@ public class LoginActivity extends Activity implements LoginListener, OnClickLis
 	private void postLogin() {
 		UserUtils.setUser(this, phoneNumberText.getText().toString());
 		UserUtils.setPassword(this, passwordText.getText().toString());
-		
-		Intent serviceIntent = new Intent(this, MessageService.class);
-		serviceIntent.setAction(MessageService.ACTION_POST_LOGIN);
-		startService(serviceIntent);
 	}
 	
 	@Override
