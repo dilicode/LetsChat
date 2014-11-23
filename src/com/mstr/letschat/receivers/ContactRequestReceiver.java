@@ -20,7 +20,7 @@ public class ContactRequestReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		String action  = intent.getAction();
-		if (action != null && action.equals(MessageService.ACTION_CONTACT_REQUEST_RECEIVED)) {
+		if (action != null && action.equals(MessageService.ACTION_PRESENCE_RECEIVED)) {
 			TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
 			stackBuilder.addParentStack(ReceivedContactRequestListActivity.class);
 			
@@ -28,7 +28,7 @@ public class ContactRequestReceiver extends BroadcastReceiver {
 			stackBuilder.addNextIntent(resultIntent);
 			PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 			
-			ContactRequest request = (ContactRequest)intent.getParcelableExtra(MessageService.EXTRA_DATA_NAME_CONTACT_REQUEST);
+			ContactRequest request = (ContactRequest)intent.getParcelableExtra(MessageService.EXTRA_DATA_NAME_NEW_CONTACT_REQUEST);
 			NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
 				.setSmallIcon(R.drawable.ic_launcher)
 				.setContentTitle(context.getString(R.string.app_name))

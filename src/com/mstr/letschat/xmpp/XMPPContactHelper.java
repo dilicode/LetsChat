@@ -9,22 +9,17 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.packet.Presence.Type;
 import org.jivesoftware.smack.util.StringUtils;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import com.mstr.letschat.service.MessageService;
 
 public class XMPPContactHelper implements XMPPConnectionChangeListener, PacketListener {
 	private static final String LOG_TAG = "XMPPContactHelper";
 	
-	public static final String EXTRA_DATA_NAME_CONTACT_REQUEST_TYPE = "com.mstr.letschat.ContactRequestType";
-	
-	public static final int CONTACT_REQUEST_TYPE_SUBSCRIBE = 1;
-	public static final int CONTACT_REQUEST_TYPE_SUBSCRIBED = 2;
+	public static final String EXTRA_DATA_NAME_PRESENCE_TYPE = "com.mstr.letschat.PresenceType";
 	
 	private Context context;
 	
@@ -95,9 +90,16 @@ public class XMPPContactHelper implements XMPPConnectionChangeListener, PacketLi
 		Presence presence = (Presence)packet;
 		String fromJid = presence.getFrom();
         Presence.Type presenceType = presence.getType();
+        
+        
+        Intent intent = new Intent(MessageService.ACTION_PRESENCE_RECEIVED, null, context, MessageService.class);
+		intent.putExtra(MessageService.EXTRA_DATA_NAME_JID, fromJid);
+		intent.putExtra(EXTRA_DATA_NAME_PRESENCE_TYPE, presenceType.ordinal());
+        
         RosterEntry rosterEntry = roster.getEntry(fromJid);
         
-        if (presenceType == Type.subscribe || presenceType == Type.subscribed) {
+        
+        	
         	/**
         	 *  if (presenceType == Presence.Type.subscribe)
         {
@@ -141,6 +143,6 @@ public class XMPPContactHelper implements XMPPConnectionChangeListener, PacketLi
     		
     		context.startService(intent);
         	*/
-        }
+        
 	}
 }

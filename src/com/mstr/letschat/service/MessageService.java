@@ -1,6 +1,7 @@
 package com.mstr.letschat.service;
 
 import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.util.StringUtils;
 
 import android.app.Service;
@@ -12,8 +13,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import com.mstr.letschat.databases.ContactTableHelper;
-import com.mstr.letschat.databases.ReceivedContactRequestTableHelper;
-import com.mstr.letschat.databases.SentContactRequestTableHelper;
+import com.mstr.letschat.databases.IncomingRequestTableHelper;
 import com.mstr.letschat.model.Contact;
 import com.mstr.letschat.model.ContactRequest;
 import com.mstr.letschat.model.UserSearchResult;
@@ -28,16 +28,17 @@ public class MessageService extends Service {
 	private ServiceHandler serviceHandler;
 	
 	public static final String EXTRA_DATA_NAME_JID = "com.mstr.letschat.Jid";
-	public static final String EXTRA_DATA_NAME_CONTACT_REQUEST = "com.mstr.letschat.ContactRequest";
+	public static final String EXTRA_DATA_NAME_NEW_CONTACT_REQUEST = "com.mstr.letschat.NewContactRequest";
 	public static final String EXTRA_DATA_NAME_NEW_CONTACT = "com.mstr.letschat.NewContact";
 	
 	// Service Actions
 	public static final String ACTION_CONNECT = "com.mstr.letschat.intent.action.CONNECT";
 	public static final String ACTION_MESSAGE_RECEIVED = "com.mstr.letschat.intent.action.MESSAGE_RECEIVED";
-	public static final String ACTION_CONTACT_REQUEST_RECEIVED = "com.mstr.letschat.intent.action.CONTACT_REQUEST_RECEIVED";
+	public static final String ACTION_PRESENCE_RECEIVED = "com.mstr.letschat.intent.action.PRESENCE_RECEIVED";
 	
 	// Broadcast Actions
-	public static final String ACTION_CONTACT_ADDED = "com.mstr.letschat.intent.action.CONTACT_ADDED";
+	public static final String ACTION_NEW_CONTACT_REQUEST = "com.mstr.letschat.intent.action.NEW_CONTACT_REQUEST";
+	public static final String ACTION_NEW_CONTACT = "com.mstr.letschat.intent.action.NEW_CONTACT";
 	
 	private final class ServiceHandler extends Handler {
 		public ServiceHandler(Looper looper) {
@@ -54,8 +55,8 @@ public class MessageService extends Service {
 				return;
 			}
 			
-			if (action.equals(ACTION_CONTACT_REQUEST_RECEIVED)) {
-				handleContactRequestMessage(intent);
+			if (action.equals(ACTION_PRESENCE_RECEIVED)) {
+				handlePrensencePacket(intent);
 				return;
 			}
 		}
@@ -107,25 +108,30 @@ public class MessageService extends Service {
 		}
 	}
 	
-	private void handleContactRequestMessage(Intent intent) {
+	private void handlePrensencePacket(Intent intent) {
 		String jid = intent.getStringExtra(EXTRA_DATA_NAME_JID);
-		int requestType = intent.getIntExtra(XMPPContactHelper.EXTRA_DATA_NAME_CONTACT_REQUEST_TYPE, 0);
+		int presenceTypeValue = intent.getIntExtra(XMPPContactHelper.EXTRA_DATA_NAME_PRESENCE_TYPE, 0);
 		
-		switch (requestType) {
-		case XMPPContactHelper.CONTACT_REQUEST_TYPE_SUBSCRIBE:
-			processSubscribeRequest(jid);
+		Presence.Type type = Presence.Type.values()[presenceTypeValue];
+		switch (type) {
+		case subscribe:
+			processSubscribe(jid);
 			break;
 			
-		case XMPPContactHelper.CONTACT_REQUEST_TYPE_SUBSCRIBED:
-			processSubscribedRequest(jid);
+		case subscribed:
+			processSubscribed(jid);
 			break;
 			
+		default:
+			break;
 		}
 	}
 	
-	private void processSubscribeRequest(String jid) {
-		// this is a request sent from initiator asking for permission
-		if (!SentContactRequestTableHelper.getInstance(this).checkExistence(jid)) {
+	private void processSubscribe(String jid) {
+		RosterEntry rosterEntry = XMPPContactHelper.getInstance().getEntry(jid);
+		
+		// this is a request sent from new user asking for permission
+		if (rosterEntry == null) {
 			// get nick name
 			String username = StringUtils.parseName(jid);
 			UserSearchResult userSearchResult = XMPPHelper.getInstance().searchByCompleteUsername(username);
@@ -133,11 +139,11 @@ public class MessageService extends Service {
 			
 			// save request to db
 			ContactRequest request = new ContactRequest(jid, nickname);
-			ReceivedContactRequestTableHelper.getInstance(this).insert(request);
+			IncomingRequestTableHelper.getInstance(this).insert(request);
 			
 			// send ordered broadcast
-			Intent receiverIntent = new Intent(ACTION_CONTACT_REQUEST_RECEIVED);
-			receiverIntent.putExtra(EXTRA_DATA_NAME_CONTACT_REQUEST, request);
+			Intent receiverIntent = new Intent(ACTION_NEW_CONTACT_REQUEST);
+			receiverIntent.putExtra(EXTRA_DATA_NAME_NEW_CONTACT_REQUEST, request);
 			receiverIntent.setPackage(getPackageName());
 			sendOrderedBroadcast(receiverIntent, null);
 		} else { // this is a request sent back to initiator, directly accept 
@@ -145,14 +151,14 @@ public class MessageService extends Service {
 		}
 	}
 	
-	private void processSubscribedRequest(String jid) {
+	private void processSubscribed(String jid) {
 		RosterEntry rosterEntry = XMPPContactHelper.getInstance().getEntry(jid);
 		String nickname = rosterEntry.getName();
 		
 		Contact contact = new Contact(jid, nickname);
 		// save new contact to db and send ordered broadcast
 		if (ContactTableHelper.getInstance(this).insert(contact)) {
-			Intent intent = new Intent(ACTION_CONTACT_ADDED);
+			Intent intent = new Intent(ACTION_NEW_CONTACT);
 			intent.putExtra(EXTRA_DATA_NAME_NEW_CONTACT, contact);
 			intent.setPackage(getPackageName());
 			

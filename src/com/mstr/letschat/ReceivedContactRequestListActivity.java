@@ -55,7 +55,7 @@ public class ReceivedContactRequestListActivity extends ListActivity
 	protected void onResume() {
 		super.onResume();
 		
-		IntentFilter filter = new IntentFilter(MessageService.ACTION_CONTACT_REQUEST_RECEIVED);
+		IntentFilter filter = new IntentFilter(MessageService.ACTION_PRESENCE_RECEIVED);
 		filter.setPriority(10);
 		registerReceiver(receiver, filter);
 	}
@@ -88,7 +88,7 @@ public class ReceivedContactRequestListActivity extends ListActivity
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
-			if (action != null && action.equals(MessageService.ACTION_CONTACT_REQUEST_RECEIVED)) {
+			if (action != null && action.equals(MessageService.ACTION_PRESENCE_RECEIVED)) {
 				requests.addFirst((ContactRequest)intent.getParcelableExtra(MessageService.EXTRA_DATA_NAME_JID));
 				adapter.notifyDataSetChanged();
 				

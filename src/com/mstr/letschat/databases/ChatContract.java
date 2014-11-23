@@ -19,15 +19,10 @@ public final class ChatContract {
 		public static final String COLUMN_NAME_TIME = "time";
 	}
 	
-	public static abstract class ReceivedContactRequestTableEntry implements BaseColumns {
-		public static final String TABLE_NAME = "receivedrequest";
+	public static abstract class IncomingContactRequestTableEntry implements BaseColumns {
+		public static final String TABLE_NAME = "contactrequest";
 		public static final String COLUMN_NAME_JID = "jid";
 		public static final String COLUMN_NAME_NICKNAME = "nickname";
 		public static final String COLUMN_NAME_STATUS = "status";
-	}
-	
-	public static abstract class SentContactRequestTableEntry implements BaseColumns {
-		public static final String TABLE_NAME = "sentrequest";
-		public static final String COLUMN_NAME_JID = "jid";
 	}
 }

@@ -9,7 +9,6 @@ import android.widget.Toast;
 import com.mstr.letschat.R;
 import com.mstr.letschat.UserSearchResultActivity;
 import com.mstr.letschat.databases.ContactTableHelper;
-import com.mstr.letschat.databases.SentContactRequestTableHelper;
 import com.mstr.letschat.model.Contact;
 import com.mstr.letschat.model.UserSearchResult;
 import com.mstr.letschat.xmpp.XMPPContactHelper;
@@ -42,11 +41,6 @@ public class SendContactRequestTask extends AsyncTask<Void, Void, Integer> {
 					result = REQUEST_SENT;
 				} else {
 					result = SENDING_REQUEST_ERROR;
-				}
-				
-				// save the request into db if not existing
-				if (contact == null && (result == REQUEST_SENT)) {
-					SentContactRequestTableHelper.getInstance(activity).insertIfNonExisting(user.getJid());
 				}
 			}
 		}

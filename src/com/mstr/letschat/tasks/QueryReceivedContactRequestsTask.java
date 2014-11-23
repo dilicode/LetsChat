@@ -6,7 +6,7 @@ import java.util.List;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.mstr.letschat.databases.ReceivedContactRequestTableHelper;
+import com.mstr.letschat.databases.IncomingRequestTableHelper;
 import com.mstr.letschat.model.ContactRequest;
 
 public class QueryReceivedContactRequestsTask extends AsyncTask<Void, Void, List<ContactRequest>> {
@@ -28,7 +28,7 @@ public class QueryReceivedContactRequestsTask extends AsyncTask<Void, Void, List
 		Context context = contextWrapper.get();
 		
 		if (context != null) {
-			return ReceivedContactRequestTableHelper.getInstance(context).query();
+			return IncomingRequestTableHelper.getInstance(context).query();
 		}
 		
 		return null;
