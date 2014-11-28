@@ -22,4 +22,8 @@ public class UserUtils {
 	public static String getPassword(Context context) {
 		return PreferenceManager.getDefaultSharedPreferences(context).getString(KEY_PASSWORD, null);
 	}
+	
+	public static boolean isLoginUser(Context context, String user) {
+		return getUser(context).equals(user);
+	}
 }

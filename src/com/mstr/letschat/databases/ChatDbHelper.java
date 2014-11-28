@@ -30,14 +30,14 @@ public class ChatDbHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		ContactTableHelper.onCreate(db);
 		ChatMessageTableHelper.onCreate(db);
-		IncomingRequestTableHelper.onCreate(db);
+		ContactRequestTableHelper.onCreate(db);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		ContactTableHelper.onUpgrade(db);
 		ChatMessageTableHelper.onUpgrade(db);
-		IncomingRequestTableHelper.onUpgrade(db);
+		ContactRequestTableHelper.onUpgrade(db);
 		
 		onCreate(db);
 	}

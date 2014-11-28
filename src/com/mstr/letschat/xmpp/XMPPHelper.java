@@ -16,22 +16,16 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.jivesoftware.smack.AccountManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.SmackAndroid;
-import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
-import org.jivesoftware.smack.SmackException.NoResponseException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
-import org.jivesoftware.smack.SmackException.NotLoggedInException;
 import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.XMPPException.XMPPErrorException;
 import org.jivesoftware.smack.filter.MessageTypeFilter;
 import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.XMPPError.Condition;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smackx.search.ReportedData;
 import org.jivesoftware.smackx.search.ReportedData.Row;
@@ -41,8 +35,9 @@ import org.jivesoftware.smackx.xdata.Form;
 import android.content.Context;
 import android.util.Log;
 
+import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.model.UserSearchResult;
-import com.mstr.letschat.tasks.CreateAccountTask.AccountCreationResult;
+import com.mstr.letschat.utils.AppLog;
 
 public class XMPPHelper {
 	private static final String LOG_TAG = "XMPPHelper";
@@ -93,40 +88,33 @@ public class XMPPHelper {
 		this.state = state;
 	}
 	
-	public AccountCreationResult signup(String user, String name, String password) {
+	public void signup(String user, String name, String password) throws SmackInvocationException {
 		connect();
 		
 		Map<String, String> attributes = new HashMap<String, String>();
 		attributes.put("name", name);
 		try {
 			AccountManager.getInstance(con).createAccount(user, password, attributes);
+		} catch (Exception e) {
+			AppLog.e(e, "Unhandled exception %s", e.toString());
 			
-			return AccountCreationResult.SUCCESS;
-		} catch (SmackException e) {
-			e.printStackTrace();
-		} catch(XMPPErrorException e) {
-			if (e.getXMPPError().getCondition().equals(Condition.conflict)) {
-				return AccountCreationResult.CONFLICT;
-			}
+			throw new SmackInvocationException(e);
 		}
-		
-		return AccountCreationResult.FAILURE;
 	}
 	
-	public boolean sendChatMessage(String to, String body) {
+	public void sendChatMessage(String to, String body) throws SmackInvocationException {
 		Message message = new Message(to, Message.Type.chat);
 		message.setBody(body);
 		try {
 			con.sendPacket(message);
-			return true;
 		} catch (NotConnectedException e) {
-			e.printStackTrace();
-			return false;
+			AppLog.e(e, "Unhandled exception %s", e.toString());
+			
+			throw new SmackInvocationException(e);
 		}
 	}
 	
 	public List<RosterEntry> getRosterEntries() {
-		
 		List<RosterEntry> result = new ArrayList<RosterEntry>();
 		
 		Roster roster = con.getRoster();
@@ -138,7 +126,7 @@ public class XMPPHelper {
 		return result;
 	}
 	
-	public ArrayList<UserSearchResult> search(String username) {
+	public ArrayList<UserSearchResult> search(String username) throws SmackInvocationException {
 		ArrayList<UserSearchResult> result = new ArrayList<UserSearchResult>();
 		
 		UserSearchManager search = new UserSearchManager(con);
@@ -167,44 +155,42 @@ public class XMPPHelper {
 			}
 			
 			return result;
-		} catch (NoResponseException e) {
-			e.printStackTrace();
-		} catch (XMPPErrorException e) {
-			e.printStackTrace();
-		} catch (NotConnectedException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			AppLog.e(e, "Unhandled exception %s", e.toString());
+			
+			throw new SmackInvocationException(e);
 		}
-		
-		return null;
 	}
 	
-	public UserSearchResult searchByCompleteUsername(String username) {
+	public UserSearchResult searchByCompleteUsername(String username) throws SmackInvocationException {
 		List<UserSearchResult> result = search(username);
 		
 		return (result != null && result.size() > 0) ? result.get(0) : null;
 	}
 	
-	public boolean addContact(String user, String name) {
+	public String getNickname(String username) {
+		UserSearchResult userSearchResult = null;
+		try {
+			userSearchResult = searchByCompleteUsername(username);
+		} catch (SmackInvocationException e) {}
+		
+		return userSearchResult != null ? userSearchResult.getNickname() : username;
+	}
+	
+	public void addContact(String user, String name) throws SmackInvocationException {
 		Roster roster = con.getRoster();
 		if (roster != null) {
 			try {
 				roster.createEntry(user, name, null);
-				return true;
-			} catch (NotLoggedInException e) {
-				e.printStackTrace();
-			} catch (NoResponseException e) {
-				e.printStackTrace();
-			} catch (XMPPErrorException e) {
-				e.printStackTrace();
-			} catch (NotConnectedException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
+				AppLog.e(e, "Unhandled exception %s", e.toString());
+				
+				throw new SmackInvocationException(e);
 			}
 		}
-		
-		return false;
 	}
 	
-	public void connect() {
+	public void connect() throws SmackInvocationException {
 		if (con == null || !con.isConnected()) {
 			setState(State.CONNECTING);
 			
@@ -222,26 +208,31 @@ public class XMPPHelper {
 				
 				setState(State.CONNECTED);
 			} catch(Exception e) {
-				e.printStackTrace();
+				AppLog.e(e, "Unhandled exception %s", e.toString());
+				
+				throw new SmackInvocationException(e);
 			}
 		}
 	}
 	
-	public boolean connectAndLogin(String user, String password) {
+	public void connectAndLogin(String username, String password) throws SmackInvocationException {
 		connect();
 		
 		try {
 			if (!con.isAuthenticated()) {
-				con.login(user, password, RESOURCE_PART);
+				con.login(username, password, RESOURCE_PART);
 				onConnectionEstablished();
 			}
 			
-			return true;
 		} catch(Exception e) {
-			e.printStackTrace();
+			AppLog.e(e, "Unhandled exception %s", e.toString());
+			
+			throw new SmackInvocationException(e);
 		}
-		
-		return false;
+	}
+	
+	public String getUser() {
+		return con.getUser();
 	}
 	
 	private void onConnectionEstablished() {
@@ -299,17 +290,5 @@ public class XMPPHelper {
 		CONNECTED,
 		
 		DISCONNECTED;
-	}
-	
-	public static String getThreadSignature(){
-		Thread t = Thread.currentThread();
-		long l = t.getId();
-		String name = t.getName();
-		long p = t.getPriority();
-		String gname = t.getThreadGroup().getName();
-		return (name
-		+ ":(id)" + l
-		+ ":(priority)" + p
-		+ ":(group)" + gname);
 	}
 }

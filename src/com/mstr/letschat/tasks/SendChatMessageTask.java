@@ -1,40 +1,41 @@
 package com.mstr.letschat.tasks;
 
-import java.lang.ref.WeakReference;
-
-import android.os.AsyncTask;
-
+import com.mstr.letschat.SmackInvocationException;
+import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.xmpp.XMPPHelper;
 
-public class SendChatMessageTask extends AsyncTask<Void, Void, Boolean> {
-	
-	public static interface SendChatMessageListener {
-		public void onChatMessageSent(boolean result, String message);
-	}
-	
+public class SendChatMessageTask extends BaseAsyncTask<Void, Void, Boolean> {
 	private String to;
 	private String body;
 	
-	private WeakReference<SendChatMessageListener> listener;
-	
-	public SendChatMessageTask(SendChatMessageListener listener, String to, String body) {
-		this.listener = new WeakReference<SendChatMessageListener>(listener);
+	public SendChatMessageTask(Listener<Boolean> listener, String to, String body) {
+		super(listener);
 		
 		this.to = to;
 		this.body = body;
 	}
 	
 	@Override
-	public Boolean doInBackground(Void... params) {
-		return XMPPHelper.getInstance().sendChatMessage(to, body);
+	public Response<Boolean> doInBackground(Void... params) {
+		try {
+			XMPPHelper.getInstance().sendChatMessage(to, body);
+			
+			return Response.success(true);
+		} catch(SmackInvocationException e) {
+			return Response.error(e);
+		}
 	}
 	
 	@Override
-	public void onPostExecute(Boolean result) {
-		SendChatMessageListener l = listener.get();
+	public void onPostExecute(Response<Boolean> response) {
+		Listener<Boolean> listener = getListener();
 		
-		if (l != null) {
-			l.onChatMessageSent(result, body);
+		if (listener != null) {
+			if (response.isSuccess()) {
+				listener.onResponse(response.getResult());
+			} else {
+				listener.onErrorResponse(response.getException());
+			}
 		}
 	}
 }

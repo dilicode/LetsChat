@@ -16,17 +16,16 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.mstr.letschat.model.ChatMessage;
+import com.mstr.letschat.model.Contact;
 import com.mstr.letschat.service.MessageService;
+import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.tasks.SendChatMessageTask;
-import com.mstr.letschat.tasks.SendChatMessageTask.SendChatMessageListener;
 
-public class ChatActivity extends Activity implements OnClickListener, SendChatMessageListener {
-	public static final String EXTRA_DATA_NAME_TO_JID = "com.mstr.letschat.ToJid";
-	
+public class ChatActivity extends Activity implements OnClickListener, Listener<Boolean> {
 	private EditText messageText;
 	private ListView messageListView;
 	
-	private String toJid;
+	private Contact contact;
 	
 	private ArrayAdapter<String> adapter;
 	
@@ -35,7 +34,7 @@ public class ChatActivity extends Activity implements OnClickListener, SendChatM
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		toJid = getIntent().getStringExtra(EXTRA_DATA_NAME_TO_JID);
+		contact = getIntent().getParcelableExtra(MessageService.EXTRA_DATA_NAME_CONTACT);
 		
 		setContentView(R.layout.activity_chat);
 	
@@ -57,6 +56,8 @@ public class ChatActivity extends Activity implements OnClickListener, SendChatM
 				}
 			}
 		};
+		
+		setTitle(contact.getNickname());
 	}
 	
 	@Override
@@ -73,18 +74,26 @@ public class ChatActivity extends Activity implements OnClickListener, SendChatM
 		super.onPause();
 	}
 	
-	@Override
-	public void onChatMessageSent(boolean result, String body) {
-		if (result) {
-			Toast.makeText(this, "success: " + body, Toast.LENGTH_SHORT).show();
-			adapter.add(body);
-		} else {
-			Toast.makeText(this, "failure: " + body, Toast.LENGTH_SHORT).show();
+	public void onClick(View v) {
+		if (v.getId() == R.id.btn_send) {
+			new SendChatMessageTask(this, new String(contact.getJid()), getMessage()).execute();
 		}
 	}
 
-	public void onClick(View v) {
-		if (v.getId() == R.id.btn_send) {
-			new SendChatMessageTask(ChatActivity.this, toJid, messageText.getText().toString()).execute();
+	private String getMessage() {
+		return messageText.getText().toString();
+	}
+	
+	@Override
+	public void onResponse(Boolean result) {
+		if (result) {
+			Toast.makeText(this, "success", Toast.LENGTH_SHORT).show();
+			adapter.add(getMessage());
 		}
-	}}
+	}
+
+	@Override
+	public void onErrorResponse(SmackInvocationException exception) {
+		Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();		
+	}
+}

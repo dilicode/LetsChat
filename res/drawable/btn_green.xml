@@ -8,6 +8,12 @@
         </shape>
     </item>
     
+	<item android:state_enabled="false">
+		<shape>
+			<solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+    
     <item>
         <shape>
             <solid android:color="#45c01a" />

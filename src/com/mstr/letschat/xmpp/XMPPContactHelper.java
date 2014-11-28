@@ -4,22 +4,32 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.Roster.SubscriptionMode;
 import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.SmackException.NoResponseException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
+import org.jivesoftware.smack.SmackException.NotLoggedInException;
 import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException.XMPPErrorException;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
+import org.jivesoftware.smack.packet.DefaultPacketExtension;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smack.packet.Presence.Type;
 
 import android.content.Context;
 import android.content.Intent;
 
+import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.service.MessageService;
+import com.mstr.letschat.utils.AppLog;
 
 public class XMPPContactHelper implements XMPPConnectionChangeListener, PacketListener {
-	private static final String LOG_TAG = "XMPPContactHelper";
-	
 	public static final String EXTRA_DATA_NAME_PRESENCE_TYPE = "com.mstr.letschat.PresenceType";
+	public static final String EXTRA_DATA_NAME_FROM = "com.mstr.letschat.From";
+	public static final String EXTRA_DATA_NAME_ORIGIN = "com.mstr.letschat.Origin";
+	
+	public static final String EXTENSION_ELEMENT_NAME = "presence";
+	public static final String EXTENSION_NAMESPACE = "letschat";
+	public static final String EXTENSION_NAME_ORIGIN = "origin";
 	
 	private Context context;
 	
@@ -52,97 +62,91 @@ public class XMPPContactHelper implements XMPPConnectionChangeListener, PacketLi
 		connection.addPacketListener(this, new PacketTypeFilter(Presence.class));
 	}
 	
-	public boolean requestSubscription(String jid, String nickname) {
-		try {
-			roster.createEntry(StringUtils.parseBareAddress(jid), nickname, null);
-			
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			
-			return false;
-		}
+	public void requestSubscription(String to, String origin) throws SmackInvocationException {
+		sendPresenceTo(to, createPresence(Presence.Type.subscribe, origin));
 	}
 	
-	public boolean grantSubscription(String jid) {
-		return sendPresenceTo(jid, new Presence(Presence.Type.subscribed));
+	public void grantSubscription(String to, String origin) throws SmackInvocationException {
+		sendPresenceTo(to, createPresence(Presence.Type.subscribed, origin));
 	}
 	
-	private boolean sendPresenceTo(String to, Presence presence) {
+	public void requestSubscription(String origin) throws SmackInvocationException {
+		requestSubscription(origin, origin);
+	}
+	
+	public void grantSubscription(String origin) throws SmackInvocationException {
+		grantSubscription(origin, origin);
+	}
+	
+	private void sendPresenceTo(String to, Presence presence) throws SmackInvocationException {
 		presence.setTo(to);
 		try {
 			connection.sendPacket(presence);
-			
-			return true;
 		} catch (NotConnectedException e) {
-			e.printStackTrace();
+			AppLog.e(e, "Unhandled exception %s", e.toString());
 			
-			return false;
+			throw new SmackInvocationException(e);
 		}
 	}
 	
-	public RosterEntry getEntry(String jid) {
-		return roster.getEntry(jid);
+	public void setName(String jid, String name) throws SmackInvocationException {
+		RosterEntry rosterEntry = roster.getEntry(jid);
+		if (rosterEntry != null) {
+			try {
+				rosterEntry.setName(name);
+			} catch (NotConnectedException e) {
+				AppLog.e(e, "Unhandled exception %s", e.toString());
+				
+				throw new SmackInvocationException(e);
+			}
+		}
+	}
+	
+	private Presence createPresence(Presence.Type type, String origin) {
+		DefaultPacketExtension packetExtension = new DefaultPacketExtension(EXTENSION_ELEMENT_NAME, EXTENSION_NAMESPACE);
+		packetExtension.setValue(EXTENSION_NAME_ORIGIN, origin);
+		
+		Presence presence = new Presence(type);
+		presence.addExtension(packetExtension);
+		
+		return presence;
+	}
+	
+	private String getOrigin(Presence presence) {
+		DefaultPacketExtension extension = (DefaultPacketExtension)presence.getExtension(EXTENSION_ELEMENT_NAME, EXTENSION_NAMESPACE);
+		if (extension != null) {
+			return extension.getValue(EXTENSION_NAME_ORIGIN);
+		} else {
+			return null;
+		}
+	}
+	
+	public void delete(String jid) throws SmackInvocationException {
+		RosterEntry rosterEntry = roster.getEntry(jid);
+		if (rosterEntry != null) {
+			try {
+				roster.removeEntry(rosterEntry);
+			} catch (Exception e) {
+				AppLog.e(e, "Unhandled exception %s", e.toString());
+				
+				throw new SmackInvocationException(e);
+			}
+		}
 	}
 	
 	@Override
-	public void processPacket(Packet packet) throws NotConnectedException {
+	public void processPacket(Packet packet) {
 		Presence presence = (Presence)packet;
-		String fromJid = presence.getFrom();
-        Presence.Type presenceType = presence.getType();
-        
-        
-        Intent intent = new Intent(MessageService.ACTION_PRESENCE_RECEIVED, null, context, MessageService.class);
-		intent.putExtra(MessageService.EXTRA_DATA_NAME_JID, fromJid);
-		intent.putExtra(EXTRA_DATA_NAME_PRESENCE_TYPE, presenceType.ordinal());
-        
-        RosterEntry rosterEntry = roster.getEntry(fromJid);
-        
-        
-        	
-        	/**
-        	 *  if (presenceType == Presence.Type.subscribe)
-        {
-            //from new user
-            if (newEntry == null)
-            {
-                //save request locally for later accept/reject
-                //later accept will send back a subscribe & subscribed presence to user with fromId
-                //or accept immediately by sending back subscribe and unsubscribed right now
-            }
-            //from a user that previously accepted your request
-            else
-            {
-                //send back subscribed presence to user with fromId
-            }
-        	 */
-        	
-        	
-            /*if (presenceType == Type.subscribe) {
-            	// from new user
-            	if (rosterEntry == null) {
-            		
-            	}
-            	
-            	
-            	requestType = CONTACT_REQUEST_TYPE_SUBSCRIBE;
-            	
-            	Log.d(LOG_TAG, "subscribe from: " + fromJid);
-            } else {
-            	requestType = CONTACT_REQUEST_TYPE_SUBSCRIBED;
-            	
-            	Log.d(LOG_TAG, "subscribed from: " + fromJid);
-            }
-            
-        	
-        	
-        	
-            Intent intent = new Intent(MessageService.ACTION_CONTACT_REQUEST_RECEIVED, null, context, MessageService.class);
-    		intent.putExtra(MessageService.EXTRA_DATA_NAME_JID, fromJid);
-    		intent.putExtra(EXTRA_DATA_NAME_CONTACT_REQUEST_TYPE, requestType);
-    		
-    		context.startService(intent);
-        	*/
-        
+		String from = presence.getFrom();
+		Presence.Type presenceType = presence.getType();
+		
+		if (presenceType.equals(Type.subscribe) || presenceType.equals(Type.subscribed)) {
+			Intent intent = new Intent(MessageService.ACTION_PRESENCE_RECEIVED, null, context, MessageService.class);
+			intent.putExtra(EXTRA_DATA_NAME_FROM, from);
+			intent.putExtra(EXTRA_DATA_NAME_PRESENCE_TYPE, presenceType.ordinal());
+			intent.putExtra(EXTRA_DATA_NAME_ORIGIN, getOrigin(presence));
+			
+			context.startService(intent);
+		}
 	}
 }

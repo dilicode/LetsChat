@@ -16,7 +16,7 @@ import android.widget.TextView;
 import com.mstr.letschat.R;
 import com.mstr.letschat.model.ContactRequest;
 
-public class ContactRequestListAdapter extends BaseAdapter {
+public class ContactRequestAdapter extends BaseAdapter {
 	
 	public static interface OnAcceptButtonClickListener {
 		public void onAcceptButtonClick(View view, int position);
@@ -26,12 +26,12 @@ public class ContactRequestListAdapter extends BaseAdapter {
 	private Context context;
 	private OnAcceptButtonClickListener listener;
 	
-	public ContactRequestListAdapter(Context context, List<ContactRequest> requests) {
+	public ContactRequestAdapter(Context context, List<ContactRequest> requests) {
 		this.context = context;
 		this.requests = requests;
 	}
 	
-	public ContactRequestListAdapter(Context context) {
+	public ContactRequestAdapter(Context context) {
 		this.context = context;
 		this.requests = new ArrayList<ContactRequest>();
 	}
@@ -71,7 +71,7 @@ public class ContactRequestListAdapter extends BaseAdapter {
 		if (convertView != null) {
 			viewHolder = (ViewHolder)convertView.getTag();
 		} else {
-			convertView = LayoutInflater.from(context).inflate(R.layout.contact_request, parent, false);
+			convertView = LayoutInflater.from(context).inflate(R.layout.contact_request_list_item, parent, false);
 			
 			viewHolder = new ViewHolder();
 			viewHolder.userText = (TextView)convertView.findViewById(R.id.tv_user);
@@ -83,14 +83,20 @@ public class ContactRequestListAdapter extends BaseAdapter {
 		
 		ContactRequest request = (ContactRequest)getItem(position);
 		viewHolder.userText.setText(request.getNickname());
-		viewHolder.messageText.setText(context.getString(R.string.request_contact_text));
-		viewHolder.acceptButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				if (listener != null) {
-					listener.onAcceptButtonClick(v, position);
+		viewHolder.messageText.setText(R.string.add_contact_text);
+		
+		if (request.isAccepted()) {
+			viewHolder.acceptButton.setEnabled(false);
+			viewHolder.acceptButton.setText(R.string.accepted);
+		} else {
+			viewHolder.acceptButton.setOnClickListener(new OnClickListener() {
+				public void onClick(View v) {
+					if (listener != null) {
+						listener.onAcceptButtonClick(v, position);
+					}
 				}
-			}
-		});
+			});
+		}
 		
 		return convertView;
 	}

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.mstr.letschat.service.MessageService;
-import com.mstr.letschat.utils.UserUtils;
 
 public class BootReceiver extends BroadcastReceiver {
 

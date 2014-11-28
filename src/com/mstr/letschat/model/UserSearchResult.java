@@ -1,14 +1,20 @@
 package com.mstr.letschat.model;
 
+import com.mstr.letschat.R;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
 public class UserSearchResult implements Parcelable {
+	public static final int STATUS_CONTACT = 1;
+	public static final int STATUS_NOT_CONTACT = 2;
+	public static final int STATUS_WAITING_FOR_ACCEPTANCE = 3;
+	
 	private String user;
 	private String nickname;
 	private String jid;
 	
-	private boolean added;
+	private int status = STATUS_NOT_CONTACT;
 	
 	public UserSearchResult(String user, String nickname, String jid) {
 		this.user = user;
@@ -22,7 +28,7 @@ public class UserSearchResult implements Parcelable {
 		user = in.readString();
 		nickname = in.readString();
 		jid = in.readString();
-		added = in.readByte() != 0;
+		status = in.readInt();
 	}
 
 	public String getUser() {
@@ -41,20 +47,29 @@ public class UserSearchResult implements Parcelable {
 		this.nickname = nickname;
 	}
 	
-	public boolean isAdded() {
-		return added;
-	}
-
-	public void setAdded(boolean added) {
-		this.added = added;
-	}
-	
 	public String getJid() {
 		return jid;
 	}
 
 	public void setJid(String jid) {
 		this.jid = jid;
+	}
+	
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+	
+	public int getStatusString() {
+		return status == STATUS_CONTACT ? R.string.added : 
+			(status == STATUS_NOT_CONTACT ? R.string.add : R.string.wait_for_acceptance);
+	}
+	
+	public boolean canAddToContact() {
+		return status == STATUS_NOT_CONTACT;
 	}
 	
 	@Override
@@ -84,7 +99,7 @@ public class UserSearchResult implements Parcelable {
 		dest.writeString(user);
 		dest.writeString(nickname);
 		dest.writeString(jid);
-		dest.writeByte((byte)(added ? 1 : 0));
+		dest.writeInt(status);
 	}
 	
 	public static final Parcelable.Creator<UserSearchResult> CREATOR = new Parcelable.Creator<UserSearchResult>() {

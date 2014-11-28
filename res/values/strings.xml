@@ -6,7 +6,7 @@
 	<string name="signup">Sign up</string>
 	<string name="name_hint">Name</string>
 	<string name="cell_phone_number">Cell phone number</string>
-	<string name="send_message">Send</string>
+	<string name="send">Send</string>
 	<string name="tab_letschat">LetsChat</string>
 	<string name="tab_contacts">Contacts</string>
 	<string name="tab_discover">Discover</string>
@@ -29,10 +29,14 @@
 	<string name="login_error">Login error</string>
 	<string name="added">Added</string>
 	<string name="accept">Accept</string>
+	<string name="accepted">Accepted</string>
 	<string name="new_friends">New friends</string>
-	<string name="request_contact_text">wants to add you as a friend</string>
+	<string name="add_contact_text">wants to add you as a friend</string>
 	<string name="contact_request_sent_message">Request sent, waiting for acceptance...</string>
 	<string name="sending_contact_request_error_message">Sending request error</string>
-	<string name="contact_request_accepted_message">You have added a new contact</string>
-	<string name="accepting_contact_request_error_message">Accepting request error</string>
+	<string name="acceptance_text">I\'v accepted your request, let\'s chat</string>
+	<string name="send_message">Send message</string>
+	<string name="contact_profile">Contact profile</string>
+	<string name="wait_for_acceptance">waiting for acceptance</string>
+	<string name="delete">Delete</string>
 </resources>

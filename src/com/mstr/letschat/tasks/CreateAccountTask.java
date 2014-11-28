@@ -1,27 +1,16 @@
 package com.mstr.letschat.tasks;
 
-import java.lang.ref.WeakReference;
-
-import android.os.AsyncTask;
-
-import com.mstr.letschat.tasks.CreateAccountTask.AccountCreationResult;
+import com.mstr.letschat.SmackInvocationException;
+import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.xmpp.XMPPHelper;
 
-public class CreateAccountTask extends AsyncTask<Void, Void, AccountCreationResult> {
-	public static enum AccountCreationResult {SUCCESS, FAILURE, CONFLICT};
-	
-	private WeakReference<AddAccountListener> listener;
-	
+public class CreateAccountTask extends BaseAsyncTask<Void, Void, Boolean> {
 	private String user;
 	private String name;
 	private String password;
 	
-	public static interface AddAccountListener {
-		public void onAccountAdded(AccountCreationResult result);
-	}
-	
-	public CreateAccountTask(AddAccountListener listener, String user, String name, String password) {
-		this.listener = new WeakReference<AddAccountListener>(listener);
+	public CreateAccountTask(Listener<Boolean> listener, String user, String name, String password) {
+		super(listener);
 		
 		this.user = user;
 		this.name = name;
@@ -29,16 +18,26 @@ public class CreateAccountTask extends AsyncTask<Void, Void, AccountCreationResu
 	}
 	
 	@Override
-	public AccountCreationResult doInBackground(Void... params) {
-		return XMPPHelper.getInstance().signup(user, name, password);
+	public Response<Boolean> doInBackground(Void... params) {
+		try {
+			XMPPHelper.getInstance().signup(user, name, password);
+			
+			return Response.success(true); 
+		} catch(SmackInvocationException e) {
+			return Response.error(e);
+		}
 	}
 	
-	public void onPostExecute(AccountCreationResult result) {
-		super.onPostExecute(result);
+	@Override
+	protected void onPostExecute(Response<Boolean> response) {
+		Listener<Boolean> listener = getListener();
 		
-		AddAccountListener l = listener.get();
-		if (l != null) {
-			l.onAccountAdded(result);
+		if (listener != null) {
+			if (response.isSuccess()) {
+				listener.onResponse(response.getResult());
+			} else {
+				listener.onErrorResponse(response.getException());
+			}
 		}
 	}
 }

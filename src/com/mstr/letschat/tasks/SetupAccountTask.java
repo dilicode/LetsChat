@@ -9,10 +9,7 @@ import org.jivesoftware.smack.RosterEntry;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.os.Debug;
 import android.provider.ContactsContract;
-
-import com.mstr.letschat.xmpp.XMPPHelper;
 
 public class SetupAccountTask extends AsyncTask<Void, Void, Void> {
 	private static final String LOG_TAG = "SetupAccountTask";
@@ -49,8 +46,6 @@ public class SetupAccountTask extends AsyncTask<Void, Void, Void> {
 				while (cursor.moveToNext()) {
 					String number = cursor.getString(numberIndex);
 					String name = cursor.getString(nameIndex);
-					
-					XMPPHelper.getInstance().search(number);
 				}
 			}
 		}

@@ -1,6 +1,5 @@
 package com.mstr.letschat.service;
 
-import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.util.StringUtils;
 
@@ -12,11 +11,11 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
+import com.mstr.letschat.SmackInvocationException;
+import com.mstr.letschat.databases.ContactRequestTableHelper;
 import com.mstr.letschat.databases.ContactTableHelper;
-import com.mstr.letschat.databases.IncomingRequestTableHelper;
 import com.mstr.letschat.model.Contact;
 import com.mstr.letschat.model.ContactRequest;
-import com.mstr.letschat.model.UserSearchResult;
 import com.mstr.letschat.utils.UserUtils;
 import com.mstr.letschat.xmpp.XMPPContactHelper;
 import com.mstr.letschat.xmpp.XMPPHelper;
@@ -27,9 +26,8 @@ public class MessageService extends Service {
 	private Looper serviceLooper;
 	private ServiceHandler serviceHandler;
 	
-	public static final String EXTRA_DATA_NAME_JID = "com.mstr.letschat.Jid";
-	public static final String EXTRA_DATA_NAME_NEW_CONTACT_REQUEST = "com.mstr.letschat.NewContactRequest";
-	public static final String EXTRA_DATA_NAME_NEW_CONTACT = "com.mstr.letschat.NewContact";
+	public static final String EXTRA_DATA_NAME_CONTACT_REQUEST = "com.mstr.letschat.ContactRequest";
+	public static final String EXTRA_DATA_NAME_CONTACT = "com.mstr.letschat.Contact";
 	
 	// Service Actions
 	public static final String ACTION_CONNECT = "com.mstr.letschat.intent.action.CONNECT";
@@ -97,29 +95,31 @@ public class MessageService extends Service {
 	}
 	
 	private void handleConnectMessage(Intent intent) {
-		Log.d(LOG_TAG, "handleStartupMessage");
-		
 		String user = UserUtils.getUser(this);
 		String password = UserUtils.getPassword(this);
-		if (user != null && password != null) {
-			XMPPHelper.getInstance().connectAndLogin(user, password);
-		} else {
-			XMPPHelper.getInstance().connect();
+		try {
+			if (user != null && password != null) {
+				XMPPHelper.getInstance().connectAndLogin(StringUtils.parseName(user), password);
+			} else {
+				XMPPHelper.getInstance().connect();
+			}
+		} catch(SmackInvocationException e) {
+			Log.e(LOG_TAG, String.format("connect error, %s", e.toString()));
 		}
 	}
 	
 	private void handlePrensencePacket(Intent intent) {
-		String jid = intent.getStringExtra(EXTRA_DATA_NAME_JID);
+		String from = intent.getStringExtra(XMPPContactHelper.EXTRA_DATA_NAME_FROM);
+		String origin = intent.getStringExtra(XMPPContactHelper.EXTRA_DATA_NAME_ORIGIN);
 		int presenceTypeValue = intent.getIntExtra(XMPPContactHelper.EXTRA_DATA_NAME_PRESENCE_TYPE, 0);
-		
 		Presence.Type type = Presence.Type.values()[presenceTypeValue];
+		
+		Log.d(LOG_TAG, String.format("type %s from %s origin %s", type.name(), from, origin));
+		
 		switch (type) {
 		case subscribe:
-			processSubscribe(jid);
-			break;
+			processSubscribe(from, origin);
 			
-		case subscribed:
-			processSubscribed(jid);
 			break;
 			
 		default:
@@ -127,42 +127,40 @@ public class MessageService extends Service {
 		}
 	}
 	
-	private void processSubscribe(String jid) {
-		RosterEntry rosterEntry = XMPPContactHelper.getInstance().getEntry(jid);
+	private void processSubscribe(String from, String origin) {
+		// get nick name
+		String nickname = XMPPHelper.getInstance().getNickname(StringUtils.parseName(from));
 		
 		// this is a request sent from new user asking for permission
-		if (rosterEntry == null) {
-			// get nick name
-			String username = StringUtils.parseName(jid);
-			UserSearchResult userSearchResult = XMPPHelper.getInstance().searchByCompleteUsername(username);
-			String nickname = userSearchResult != null ? userSearchResult.getNickname() : username;
+		if (!UserUtils.isLoginUser(this, origin)) {
+			ContactRequest request = new ContactRequest(origin, nickname);
+			// save request to db if not existing to avoid multiple requests from same user
+			//ContactRequestTableHelper.getInstance(this).insertIfNonExisting(request);
+			ContactRequestTableHelper.getInstance(this).insert(request);
 			
-			// save request to db
-			ContactRequest request = new ContactRequest(jid, nickname);
-			IncomingRequestTableHelper.getInstance(this).insert(request);
-			
-			// send ordered broadcast
+			// send ordered broadcast that a new contact request is received
 			Intent receiverIntent = new Intent(ACTION_NEW_CONTACT_REQUEST);
-			receiverIntent.putExtra(EXTRA_DATA_NAME_NEW_CONTACT_REQUEST, request);
+			receiverIntent.putExtra(EXTRA_DATA_NAME_CONTACT_REQUEST, request);
 			receiverIntent.setPackage(getPackageName());
 			sendOrderedBroadcast(receiverIntent, null);
-		} else { // this is a request sent back to initiator, directly accept 
-			XMPPContactHelper.getInstance().grantSubscription(jid);
-		}
-	}
-	
-	private void processSubscribed(String jid) {
-		RosterEntry rosterEntry = XMPPContactHelper.getInstance().getEntry(jid);
-		String nickname = rosterEntry.getName();
-		
-		Contact contact = new Contact(jid, nickname);
-		// save new contact to db and send ordered broadcast
-		if (ContactTableHelper.getInstance(this).insert(contact)) {
-			Intent intent = new Intent(ACTION_NEW_CONTACT);
-			intent.putExtra(EXTRA_DATA_NAME_NEW_CONTACT, contact);
-			intent.setPackage(getPackageName());
-			
-			sendOrderedBroadcast(intent,null);
+		} else {
+			try {
+				// this is a request sent back to initiator, directly accept
+				XMPPContactHelper.getInstance().grantSubscription(from, origin);
+				
+				// notify server its nickname
+				XMPPContactHelper.getInstance().setName(from, nickname);
+				
+				// save new contact to db
+				Contact contact = new Contact(from, nickname);
+				ContactTableHelper.getInstance(this).insert(contact);
+				
+				// send ordered broadcast that a new contact is added
+				Intent intent = new Intent(ACTION_NEW_CONTACT);
+				intent.putExtra(EXTRA_DATA_NAME_CONTACT, contact);
+				intent.setPackage(getPackageName());
+				sendOrderedBroadcast(intent,null);
+			} catch (SmackInvocationException e) {}
 		}
 	}
 	

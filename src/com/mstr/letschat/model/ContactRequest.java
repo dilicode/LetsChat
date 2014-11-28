@@ -7,38 +7,30 @@ public class ContactRequest implements Parcelable {
 	public static final int STATUS_PENDING = 1;
 	public static final int STATUS_ACCPTED = 2;
 	
-	private String jid;
 	private String nickname;
+	private String origin;
 	
 	private int status = STATUS_PENDING;
 	
 	public ContactRequest() {}
 	
-	public ContactRequest(String jid, String nickname) {
-		this.jid = jid;
+	public ContactRequest(String origin, String nickname) {
+		this.origin = origin;
 		this.nickname = nickname;
 	}
 	
-	public ContactRequest(String jid, String nickname, int status) {
-		this.jid = jid;
+	public ContactRequest(String origin, String nickname, int status) {
+		this.origin = origin;
 		this.nickname = nickname;
 		this.status = status;
 	}
 	
 	public ContactRequest(Parcel in) {
-		jid = in.readString();
+		origin = in.readString();
 		nickname = in.readString();
 		status = in.readInt();
 	}
 	
-	public String getJid() {
-		return jid;
-	}
-
-	public void setJid(String jid) {
-		this.jid = jid;
-	}
-
 	public String getNickname() {
 		return nickname;
 	}
@@ -53,6 +45,22 @@ public class ContactRequest implements Parcelable {
 
 	public void setStatus(int status) {
 		this.status = status;
+	}
+	
+	public void markAsAccepted() {
+		status = STATUS_ACCPTED;
+	}
+	
+	public String getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(String origin) {
+		this.origin = origin;
+	}
+	
+	public boolean isAccepted() {
+		return status == STATUS_ACCPTED;
 	}
 
 	public String getNotificationMessage() {
@@ -80,7 +88,7 @@ public class ContactRequest implements Parcelable {
 
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeString(jid);
+		dest.writeString(origin);
 		dest.writeString(nickname);
 		dest.writeInt(status);
 	}

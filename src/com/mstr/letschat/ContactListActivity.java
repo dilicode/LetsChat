@@ -15,10 +15,11 @@ import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 
 import com.mstr.letschat.model.Contact;
+import com.mstr.letschat.service.MessageService;
 import com.mstr.letschat.tasks.QueryContactsTask;
-import com.mstr.letschat.tasks.QueryContactsTask.QueryContactsListener;
+import com.mstr.letschat.tasks.Response.Listener;
 
-public class ContactListActivity extends ListActivity implements OnQueryTextListener, QueryContactsListener {
+public class ContactListActivity extends ListActivity implements OnQueryTextListener, Listener<List<Contact>> {
 	private ArrayAdapter<Contact> adapter;
 	
 	public void onCreate(Bundle savedInstanceState) {
@@ -68,18 +69,13 @@ public class ContactListActivity extends ListActivity implements OnQueryTextList
 	}
 
 	@Override
-	public void onContactsReturnd(List<Contact> result) {
-		adapter.addAll(result);
-	}
-	
-	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		if (position == 0) {
 			// header view is clicked
-			startActivity(new Intent(ContactListActivity.this, ReceivedContactRequestListActivity.class));
+			startActivity(new Intent(ContactListActivity.this, ContactRequestListActivity.class));
 		} else {
 			Intent intent = new Intent(this, ChatActivity.class);
-			intent.putExtra(ChatActivity.EXTRA_DATA_NAME_TO_JID, ((Contact)adapter.getItem(position)).getJid());
+			intent.putExtra(MessageService.EXTRA_DATA_NAME_CONTACT, adapter.getItem(position - 1));
 			startActivity(intent);
 		}
 	}
@@ -87,4 +83,12 @@ public class ContactListActivity extends ListActivity implements OnQueryTextList
 	private View getHeaderView() {
 		return LayoutInflater.from(this).inflate(R.layout.contact_list_header, null);
 	}
+
+	@Override
+	public void onResponse(List<Contact> result) {
+		adapter.addAll(result);
+	}
+
+	@Override
+	public void onErrorResponse(SmackInvocationException exception) {}
 }

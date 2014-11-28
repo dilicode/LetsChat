@@ -2,40 +2,33 @@ package com.mstr.letschat.tasks;
 
 import java.lang.ref.WeakReference;
 
-import org.jivesoftware.smack.util.StringUtils;
-
 import android.content.Context;
 
 import com.mstr.letschat.SmackInvocationException;
+import com.mstr.letschat.databases.ContactTableHelper;
 import com.mstr.letschat.tasks.Response.Listener;
-import com.mstr.letschat.utils.UserUtils;
-import com.mstr.letschat.xmpp.XMPPHelper;
+import com.mstr.letschat.xmpp.XMPPContactHelper;
 
-public class LoginTask extends BaseAsyncTask<Void, Void, Boolean> {
+public class DeleteContactTask extends BaseAsyncTask<Void, Void, Boolean> {
 	private WeakReference<Context> contextWrapper;
+	private String jid;
 	
-	private String username;
-	private String password;
-	
-	public LoginTask(Listener<Boolean> listener, Context context, String username, String password) {
+	public DeleteContactTask(Listener<Boolean> listener, Context context, String jid) {
 		super(listener);
 		
 		contextWrapper = new WeakReference<Context>(context);
-		
-		this.username = username;
-		this.password = password;
+		this.jid = jid;
 	}
 	
 	@Override
-	public Response<Boolean> doInBackground(Void... params) {
+	protected Response<Boolean> doInBackground(Void... params) {
 		Context context = contextWrapper.get();
 		
 		if (context != null) {
 			try {
-				XMPPHelper.getInstance().connectAndLogin(username, password);
+				XMPPContactHelper.getInstance().delete(jid);
 				
-				UserUtils.setUser(context, StringUtils.parseBareAddress(XMPPHelper.getInstance().getUser()));
-				UserUtils.setPassword(context, password);
+				ContactTableHelper.getInstance(context).delete(jid);
 				
 				return Response.success(true);
 			} catch(SmackInvocationException e) {
@@ -46,8 +39,7 @@ public class LoginTask extends BaseAsyncTask<Void, Void, Boolean> {
 		}
 	}
 	
-	@Override
-	public void onPostExecute(Response<Boolean> response) {
+	protected void onPostExecute(Response<Boolean> response) {
 		Listener<Boolean> listener = getListener();
 		
 		if (listener != null && response != null) {

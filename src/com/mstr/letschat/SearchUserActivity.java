@@ -16,10 +16,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mstr.letschat.model.UserSearchResult;
+import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.tasks.SearchUserTask;
-import com.mstr.letschat.tasks.SearchUserTask.SearchUserListener;
 
-public class SearchUserActivity extends Activity implements OnQueryTextListener, SearchUserListener, OnClickListener {
+public class SearchUserActivity extends Activity implements OnQueryTextListener, Listener<ArrayList<UserSearchResult>>, OnClickListener {
 	private SearchUserTask task;
 	
 	private LinearLayout hintWrapper;
@@ -85,17 +85,6 @@ public class SearchUserActivity extends Activity implements OnQueryTextListener,
 		
 		return true;
 	}
-
-	@Override
-	public void onSearchResult(ArrayList<UserSearchResult> result) {
-		if (result != null && result.size() > 0) {
-			Intent intent = new Intent(this, UserSearchResultActivity.class);
-			intent.putParcelableArrayListExtra(UserSearchResultActivity.EXTRA_DATA_NAME_USER_SEARCH_RESULT, result);
-			startActivity(intent);
-		} else {
-			Toast.makeText(this, R.string.search_contact_no_result, Toast.LENGTH_SHORT).show();
-		}
-	}
 	
 	@Override
 	public void onBackPressed() {
@@ -114,7 +103,21 @@ public class SearchUserActivity extends Activity implements OnQueryTextListener,
 	}
 	
 	private void executeSearchTask(String query) {
-		task = new SearchUserTask(this, query);
+		task = new SearchUserTask(this, this, query);
 		task.execute();
 	}
+
+	@Override
+	public void onResponse(ArrayList<UserSearchResult> result) {
+		if (result != null && result.size() > 0) {
+			Intent intent = new Intent(this, UserSearchResultActivity.class);
+			intent.putParcelableArrayListExtra(UserSearchResultActivity.EXTRA_DATA_NAME_USER_SEARCH_RESULT, result);
+			startActivity(intent);
+		} else {
+			Toast.makeText(this, R.string.search_contact_no_result, Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	@Override
+	public void onErrorResponse(SmackInvocationException exception) {}
 }

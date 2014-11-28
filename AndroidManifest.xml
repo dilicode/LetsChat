@@ -31,7 +31,12 @@
 		
 		<activity android:name=".LoginActivity" />
 		
-		<activity android:name=".ChatActivity" />
+		<activity android:name=".ChatActivity"
+		    android:parentActivityName=".ChatHistoryActivity" >
+		    <meta-data
+		        android:name="android.support.PARENT_ACTIVITY"
+		        android:value=".ChatHistoryActivity" />
+		</activity>
 		
 		<activity android:name=".MainActivity" />
 		
@@ -39,7 +44,8 @@
 		
 		<activity
 		    android:name=".ChatHistoryActivity"
-		    android:label="@string/chats" />
+		    android:label="@string/chats"/>
+		
 		<activity
 		    android:name=".SearchUserActivity"
 		    android:label="@string/search_contact" />
@@ -58,12 +64,17 @@
 		    android:label="@string/search_contact_result" />
 		
 		<activity
-		    android:name=".ReceivedContactRequestListActivity"
+		    android:name=".ContactRequestListActivity"
 		    android:parentActivityName=".ContactListActivity"
 		    android:label="@string/new_friends">
 			<meta-data
 			    android:name="android.support.PARENT_ACTIVITY"
 			    android:value=".ContactListActivity" />
+		</activity>
+		
+		<activity
+		    android:name=".ContactProfileActivity"
+		    android:label="@string/contact_profile">
 		</activity>
 		
 		<receiver android:name=".receivers.BootReceiver">
@@ -72,9 +83,15 @@
 		    </intent-filter>
 		</receiver>
 		
-		<receiver android:name=".receivers.ContactRequestReceiver" android:exported="false">
+		<receiver android:name=".receivers.IncomingContactRequestReceiver" android:exported="false">
 		    <intent-filter>
-		        <action android:name="com.mstr.letschat.intent.action.CONTACT_REQUEST_RECEIVED"/>
+		        <action android:name="com.mstr.letschat.intent.action.NEW_CONTACT_REQUEST"/>
+		    </intent-filter>
+		</receiver>
+		
+		<receiver android:name=".receivers.NewContactReceiver" android:exported="false">
+		    <intent-filter>
+		        <action android:name="com.mstr.letschat.intent.action.NEW_CONTACT" />
 		    </intent-filter>
 		</receiver>
 		

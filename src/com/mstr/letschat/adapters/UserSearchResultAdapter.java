@@ -56,7 +56,7 @@ public class UserSearchResultAdapter extends BaseAdapter {
 		if (convertView != null) {
 			viewHolder = (ViewHolder)convertView.getTag();
 		} else {
-			convertView = LayoutInflater.from(context).inflate(R.layout.contact_search_result_item, parent, false);
+			convertView = LayoutInflater.from(context).inflate(R.layout.user_search_result_list_item, parent, false);
 			
 			viewHolder = new ViewHolder();
 			viewHolder.avatar = (ImageView)convertView.findViewById(R.id.avatar);
@@ -77,8 +77,10 @@ public class UserSearchResultAdapter extends BaseAdapter {
 				}
 			}
 		});
-		viewHolder.addButton.setText(item.isAdded() ? R.string.added : R.string.add);
-		if (item.isAdded()) {
+		viewHolder.addButton.setText(item.getStatusString());
+		if (item.canAddToContact()) {
+			viewHolder.addButton.setEnabled(true);
+		} else {
 			viewHolder.addButton.setEnabled(false);
 		}
 		

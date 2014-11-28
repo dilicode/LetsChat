@@ -10,12 +10,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.mstr.letschat.tasks.CreateAccountTask;
-import com.mstr.letschat.tasks.CreateAccountTask.AccountCreationResult;
-import com.mstr.letschat.tasks.CreateAccountTask.AddAccountListener;
 import com.mstr.letschat.tasks.LoginTask;
-import com.mstr.letschat.tasks.LoginTask.LoginListener;
+import com.mstr.letschat.tasks.Response.Listener;
 
-public class SignupActivity extends Activity implements OnClickListener, AddAccountListener, LoginListener {
+public class SignupActivity extends Activity implements OnClickListener {
 	private EditText nameText;
 	private EditText phoneNumberText;
 	private EditText passwordText;
@@ -38,36 +36,38 @@ public class SignupActivity extends Activity implements OnClickListener, AddAcco
 	@Override
 	public void onClick(View v) {
 		if (v == submitButton) {
-			new CreateAccountTask(this, phoneNumberText.getText().toString(), nameText.getText().toString(),
+			new CreateAccountTask(createAccountListener, phoneNumberText.getText().toString(), nameText.getText().toString(),
 					passwordText.getText().toString()).execute();
 		}
 	}
 
-	@Override
-	public void onAccountAdded(AccountCreationResult result) {
-		switch (result) {
-		case SUCCESS:
-			new LoginTask(this, phoneNumberText.getText().toString(), passwordText.getText().toString()).execute();
-			break;
-			
-		case FAILURE:
-			Toast.makeText(this, R.string.create_account_error, Toast.LENGTH_SHORT).show();
-			break;
-			
-		case CONFLICT:
-			Toast.makeText(this, R.string.account_already_exists, Toast.LENGTH_SHORT).show();
-			break;
+	private Listener<Boolean> createAccountListener = new Listener<Boolean>() {
+		@Override
+		public void onResponse(Boolean result) {
+			if (result) {
+				new LoginTask(loginListener, SignupActivity.this, phoneNumberText.getText().toString(), passwordText.getText().toString()).execute();
+			}
 		}
-	}
 
-	@Override
-	public void onLogin(boolean result) {
-		if (result) {
-			startActivity(new Intent(this, ChatHistoryActivity.class));
-		} else {
-			Toast.makeText(this, R.string.login_error, Toast.LENGTH_SHORT).show();
+		@Override
+		public void onErrorResponse(SmackInvocationException exception) {
+			Toast.makeText(SignupActivity.this, R.string.create_account_error, Toast.LENGTH_SHORT).show();
+		}
+	};
+	
+	private Listener<Boolean> loginListener = new Listener<Boolean>() {
+
+		@Override
+		public void onResponse(Boolean result) {
+			if (result) {
+				startActivity(new Intent(SignupActivity.this, ChatHistoryActivity.class));
+			}
+		}
+
+		@Override
+		public void onErrorResponse(SmackInvocationException exception) {
+			Toast.makeText(SignupActivity.this, R.string.login_error, Toast.LENGTH_SHORT).show();
 		}
 		
-		finish();
-	}
+	};
 }

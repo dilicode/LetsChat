@@ -10,10 +10,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.mstr.letschat.tasks.LoginTask;
-import com.mstr.letschat.tasks.LoginTask.LoginListener;
+import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.utils.UserUtils;
 
-public class LoginActivity extends Activity implements LoginListener, OnClickListener {
+public class LoginActivity extends Activity implements Listener<Boolean>, OnClickListener {
 	private EditText phoneNumberText;
 	private EditText passwordText;
 	private Button loginButton;
@@ -32,27 +32,23 @@ public class LoginActivity extends Activity implements LoginListener, OnClickLis
 	}
 
 	@Override
-	public void onLogin(boolean result) {
-		if (result) {
-			startActivity(new Intent(this, ChatHistoryActivity.class));
-			
-			postLogin();
-			
-			finish();
-		} else {
-			Toast.makeText(this, R.string.login_error, Toast.LENGTH_SHORT).show();
+	public void onClick(View v) {
+		if (v == loginButton) {
+			new LoginTask(this, this, phoneNumberText.getText().toString(), passwordText.getText().toString()).execute();
 		}
 	}
 
-	private void postLogin() {
-		UserUtils.setUser(this, phoneNumberText.getText().toString());
-		UserUtils.setPassword(this, passwordText.getText().toString());
-	}
-	
 	@Override
-	public void onClick(View v) {
-		if (v == loginButton) {
-			new LoginTask(this, phoneNumberText.getText().toString(), passwordText.getText().toString()).execute();
+	public void onResponse(Boolean response) {
+		if (response) {
+			startActivity(new Intent(this, ChatHistoryActivity.class));
+			
+			finish();
 		}
+	}
+
+	@Override
+	public void onErrorResponse(SmackInvocationException exception) {
+		Toast.makeText(this, R.string.login_error, Toast.LENGTH_SHORT).show();
 	}
 }

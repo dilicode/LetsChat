@@ -38,7 +38,7 @@
 		android:paddingBottom="5dp"
 		android:minHeight="0dp"
 		android:minWidth="0dp"
-		android:textColor="@android:color/white"
+		android:textColor="@color/btn_green_text"
 		android:background="@drawable/btn_green"
 		android:layout_gravity="center_vertical" />
 </LinearLayout>
