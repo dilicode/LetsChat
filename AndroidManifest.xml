@@ -85,7 +85,7 @@
 		
 		<receiver android:name=".receivers.IncomingContactRequestReceiver" android:exported="false">
 		    <intent-filter>
-		        <action android:name="com.mstr.letschat.intent.action.NEW_CONTACT_REQUEST"/>
+		        <action android:name="com.mstr.letschat.intent.action.CONTACT_REQUEST_RECEIVED"/>
 		    </intent-filter>
 		</receiver>
 		
@@ -95,6 +95,8 @@
 		    </intent-filter>
 		</receiver>
 		
-		<service android:name=".service.MessageService" android:exported="false"/>
+		<service android:name=".service.MessageService" android:exported="false" />
+		
+		<provider android:name=".providers.CustomProvider" android:authorities="com.mstr.letschat.provider" android:exported="false" />
     </application>
 </manifest>

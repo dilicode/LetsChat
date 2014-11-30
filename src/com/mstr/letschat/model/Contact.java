@@ -1,5 +1,9 @@
 package com.mstr.letschat.model;
 
+import com.mstr.letschat.databases.ChatContract.ContactRequestTable;
+import com.mstr.letschat.databases.ChatContract.ContactTable;
+
+import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -17,6 +21,14 @@ public class Contact implements Parcelable{
 	public Contact(Parcel source) {
 		jid = source.readString();
 		nickname = source.readString();
+	}
+	
+	public static ContentValues newContentValues(String jid, String nickname) {
+		ContentValues values = new ContentValues();
+		values.put(ContactTable.COLUMN_NAME_JID, jid);
+		values.put(ContactTable.COLUMN_NAME_NICKNAME, nickname);
+		
+		return values;
 	}
 
 	public String getNickname() {

@@ -1,38 +1,42 @@
 package com.mstr.letschat.adapters;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ResourceCursorAdapter;
+import android.widget.TextView;
 
-public class ContactListItemAdapter {
-	/*public ContactListItemAdapter(Context context, int layout, Cursor c, int flags) {
-		super(context, layout, c, flags);
+import com.mstr.letschat.R;
+import com.mstr.letschat.databases.ChatContract.ContactTable;
+
+public class ContactListItemAdapter extends ResourceCursorAdapter {
+	public ContactListItemAdapter(Context context, Cursor c, int flags) {
+		super(context, R.layout.contact_list_item, c, flags);
 	}
-
+	
 	@Override
-    public void bindView(View view, Context context, Cursor cursor) {
-        final ContactListItemCache cache = (ContactListItemCache) view.getTag();
-        // Set the name
-        cursor.copyStringToBuffer(SUMMARY_NAME_COLUMN_INDEX, cache.nameBuffer);
-        int size = cache.nameBuffer.sizeCopied;
-        cache.nameView.setText(cache.nameBuffer.data, 0, size);
-        final long contactId = cursor.getLong(SUMMARY_ID_COLUMN_INDEX);
-        final String lookupKey = cursor.getString(SUMMARY_LOOKUP_KEY);
-        cache.photoView.assignContactUri(Contacts.getLookupUri(contactId, lookupKey));
-    }
-
-    @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        View view = super.newView(context, cursor, parent);
-        ContactListItemCache cache = new ContactListItemCache();
-        cache.nameView = (TextView) view.findViewById(R.id.name);
-        cache.photoView = (QuickContactBadge) view.findViewById(R.id.badge);
-        view.setTag(cache);
-
-        return view;
-    }
-}
-
-final static class ContactListItemCache {
-    public TextView nameView;
-    public QuickContactBadge photoView;
-    public CharArrayBuffer nameBuffer = new CharArrayBuffer(128);
-}*/
+	public void bindView(View view, Context context, Cursor cursor) {
+		ViewHolder viewHolder = (ViewHolder)view.getTag();
+		
+		viewHolder.nameText.setText(cursor.getString(cursor.getColumnIndex(ContactTable.COLUMN_NAME_NICKNAME)));
+		viewHolder.statusText.setText("available");
+	}
+	
+	@Override
+	public View newView(Context context, Cursor cursor, ViewGroup parent) {
+		View view = super.newView(context, cursor, parent);
+		
+		ViewHolder viewHolder = new ViewHolder();
+		viewHolder.nameText = (TextView)view.findViewById(R.id.tv_nickname);
+		viewHolder.statusText = (TextView)view.findViewById(R.id.tv_status);
+		view.setTag(viewHolder);
+		
+		return view;
+	 }
+	
+	static class ViewHolder {
+		TextView nameText;
+		TextView statusText;
+	}
 }

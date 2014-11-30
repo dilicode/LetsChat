@@ -34,7 +34,7 @@ public class ChatActivity extends Activity implements OnClickListener, Listener<
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		contact = getIntent().getParcelableExtra(MessageService.EXTRA_DATA_NAME_CONTACT);
+		//contact = getIntent().getParcelableExtra(MessageService.EXTRA_DATA_NAME_CONTACT);
 		
 		setContentView(R.layout.activity_chat);
 	

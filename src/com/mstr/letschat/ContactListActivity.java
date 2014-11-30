@@ -1,36 +1,37 @@
 package com.mstr.letschat;
 
-import java.util.List;
-
 import android.app.ListActivity;
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 
-import com.mstr.letschat.model.Contact;
-import com.mstr.letschat.service.MessageService;
-import com.mstr.letschat.tasks.QueryContactsTask;
-import com.mstr.letschat.tasks.Response.Listener;
+import com.mstr.letschat.adapters.ContactListItemAdapter;
+import com.mstr.letschat.databases.ChatContract.ContactTable;
 
-public class ContactListActivity extends ListActivity implements OnQueryTextListener, Listener<List<Contact>> {
-	private ArrayAdapter<Contact> adapter;
+public class ContactListActivity extends ListActivity 
+	implements OnQueryTextListener, LoaderManager.LoaderCallbacks<Cursor> {
+	
+	private ContactListItemAdapter adapter;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		getListView().addHeaderView(getHeaderView());
 		
-		adapter = new ArrayAdapter<Contact>(this, android.R.layout.simple_list_item_1, android.R.id.text1);
+		adapter = new ContactListItemAdapter(this, null, 0);
 		setListAdapter(adapter);
 		
-		new QueryContactsTask(this, this).execute();
+		getLoaderManager().initLoader(0, null, this);
 	}
 	
 	@Override
@@ -74,9 +75,7 @@ public class ContactListActivity extends ListActivity implements OnQueryTextList
 			// header view is clicked
 			startActivity(new Intent(ContactListActivity.this, ContactRequestListActivity.class));
 		} else {
-			Intent intent = new Intent(this, ChatActivity.class);
-			intent.putExtra(MessageService.EXTRA_DATA_NAME_CONTACT, adapter.getItem(position - 1));
-			startActivity(intent);
+			
 		}
 	}
 	
@@ -85,10 +84,18 @@ public class ContactListActivity extends ListActivity implements OnQueryTextList
 	}
 
 	@Override
-	public void onResponse(List<Contact> result) {
-		adapter.addAll(result);
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		String[] projection = new String[] { ContactTable._ID, ContactTable.COLUMN_NAME_NICKNAME };
+		return new CursorLoader(this, ContactTable.CONTENT_URI, projection, null, null, null);
 	}
 
 	@Override
-	public void onErrorResponse(SmackInvocationException exception) {}
+	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+		adapter.swapCursor(data);
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+		adapter.swapCursor(null);
+	}
 }

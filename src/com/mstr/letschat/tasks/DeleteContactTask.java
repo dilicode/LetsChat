@@ -28,7 +28,7 @@ public class DeleteContactTask extends BaseAsyncTask<Void, Void, Boolean> {
 			try {
 				XMPPContactHelper.getInstance().delete(jid);
 				
-				ContactTableHelper.getInstance(context).delete(jid);
+				//ContactTableHelper.getInstance(context).delete(jid);
 				
 				return Response.success(true);
 			} catch(SmackInvocationException e) {

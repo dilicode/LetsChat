@@ -18,7 +18,7 @@ public class ContactProfileActivity extends Activity implements OnClickListener 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		contact = getIntent().getParcelableExtra(MessageService.EXTRA_DATA_NAME_CONTACT);
+		//contact = getIntent().getParcelableExtra(MessageService.EXTRA_DATA_NAME_CONTACT);
 		
 		setContentView(R.layout.activity_user_profile);
 		findViewById(R.id.btn_send_message).setOnClickListener(this);
@@ -32,7 +32,7 @@ public class ContactProfileActivity extends Activity implements OnClickListener 
 		switch (v.getId()) {
 		case R.id.btn_send_message:
 			Intent intent = new Intent(this, ChatActivity.class);
-			intent.putExtra(MessageService.EXTRA_DATA_NAME_CONTACT, contact);
+			//intent.putExtra(MessageService.EXTRA_DATA_NAME_CONTACT, contact);
 			startActivity(intent);
 			
 			break;

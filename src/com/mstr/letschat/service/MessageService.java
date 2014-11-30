@@ -4,7 +4,9 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.util.StringUtils;
 
 import android.app.Service;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -12,8 +14,8 @@ import android.os.Looper;
 import android.util.Log;
 
 import com.mstr.letschat.SmackInvocationException;
-import com.mstr.letschat.databases.ContactRequestTableHelper;
-import com.mstr.letschat.databases.ContactTableHelper;
+import com.mstr.letschat.databases.ChatContract.ContactRequestTable;
+import com.mstr.letschat.databases.ChatContract.ContactTable;
 import com.mstr.letschat.model.Contact;
 import com.mstr.letschat.model.ContactRequest;
 import com.mstr.letschat.utils.UserUtils;
@@ -35,8 +37,8 @@ public class MessageService extends Service {
 	public static final String ACTION_PRESENCE_RECEIVED = "com.mstr.letschat.intent.action.PRESENCE_RECEIVED";
 	
 	// Broadcast Actions
-	public static final String ACTION_NEW_CONTACT_REQUEST = "com.mstr.letschat.intent.action.NEW_CONTACT_REQUEST";
-	public static final String ACTION_NEW_CONTACT = "com.mstr.letschat.intent.action.NEW_CONTACT";
+	public static final String ACTION_CONTACT_REQUEST_RECEIVED = "com.mstr.letschat.intent.action.CONTACT_REQUEST_RECEIVED";
+	public static final String ACTION_CONTACT_ADDED = "com.mstr.letschat.intent.action.CONTACT_ADDED";
 	
 	private final class ServiceHandler extends Handler {
 		public ServiceHandler(Looper looper) {
@@ -133,14 +135,12 @@ public class MessageService extends Service {
 		
 		// this is a request sent from new user asking for permission
 		if (!UserUtils.isLoginUser(this, origin)) {
-			ContactRequest request = new ContactRequest(origin, nickname);
-			// save request to db if not existing to avoid multiple requests from same user
-			//ContactRequestTableHelper.getInstance(this).insertIfNonExisting(request);
-			ContactRequestTableHelper.getInstance(this).insert(request);
+			// save request to db
+			Uri uri = getContentResolver().insert(ContactRequestTable.CONTENT_URI, ContactRequest.newContentValues(origin, nickname));
 			
 			// send ordered broadcast that a new contact request is received
-			Intent receiverIntent = new Intent(ACTION_NEW_CONTACT_REQUEST);
-			receiverIntent.putExtra(EXTRA_DATA_NAME_CONTACT_REQUEST, request);
+			Intent receiverIntent = new Intent(ACTION_CONTACT_REQUEST_RECEIVED);
+			receiverIntent.putExtra(EXTRA_DATA_NAME_CONTACT_REQUEST, uri);
 			receiverIntent.setPackage(getPackageName());
 			sendOrderedBroadcast(receiverIntent, null);
 		} else {
@@ -148,16 +148,18 @@ public class MessageService extends Service {
 				// this is a request sent back to initiator, directly accept
 				XMPPContactHelper.getInstance().grantSubscription(from, origin);
 				
-				// notify server its nickname
-				XMPPContactHelper.getInstance().setName(from, nickname);
-				
 				// save new contact to db
-				Contact contact = new Contact(from, nickname);
-				ContactTableHelper.getInstance(this).insert(contact);
+				Uri uri = getContentResolver().insert(ContactTable.CONTENT_URI, Contact.newContentValues(from, nickname));
+				
+				// update contact request status if any
+				ContentValues values = new ContentValues();
+				values.put(ContactRequestTable.COLUMN_NAME_STATUS, ContactRequest.STATUS_ACCPTED);
+				getContentResolver().update(ContactRequestTable.CONTENT_URI, values, 
+						ContactRequestTable.COLUMN_NAME_ORIGIN + " = ?", new String[]{origin});
 				
 				// send ordered broadcast that a new contact is added
-				Intent intent = new Intent(ACTION_NEW_CONTACT);
-				intent.putExtra(EXTRA_DATA_NAME_CONTACT, contact);
+				Intent intent = new Intent(ACTION_CONTACT_ADDED);
+				intent.putExtra(EXTRA_DATA_NAME_CONTACT, uri);
 				intent.setPackage(getPackageName());
 				sendOrderedBroadcast(intent,null);
 			} catch (SmackInvocationException e) {}

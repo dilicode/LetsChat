@@ -139,6 +139,10 @@ public class CustomProvider extends ContentProvider {
 	public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
 		int count;
 		switch (uriMatcher.match(uri)) {
+		case CONTACT_REQUEST:
+			count = contactRequestTableHelper.update(values, where, whereArgs);
+			break;
+		
 		case CONTACT_REQUEST_ID:
 			String finalWhere = DatabaseUtils.concatenateWhere(ContactRequestTable._ID + " = " + ContentUris.parseId(uri), where);
 			count = contactRequestTableHelper.update(values, finalWhere, whereArgs);

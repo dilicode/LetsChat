@@ -14,13 +14,13 @@ import com.mstr.letschat.R;
 import com.mstr.letschat.model.Contact;
 import com.mstr.letschat.service.MessageService;
 
-public class NewContactReceiver extends BroadcastReceiver {
+public class ContactAddedReceiver extends BroadcastReceiver {
 	private static final int NEW_CONTACT_NOTIFICATION_ID = 2;
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		String action = intent.getAction();
-		if (action != null && action.equals(MessageService.ACTION_NEW_CONTACT)) {
+		if (action != null && action.equals(MessageService.ACTION_CONTACT_ADDED)) {
 			Contact contact = (Contact)intent.getParcelableExtra(MessageService.EXTRA_DATA_NAME_CONTACT);
 			
 			TaskStackBuilder taskStackbuilder = TaskStackBuilder.create(context);

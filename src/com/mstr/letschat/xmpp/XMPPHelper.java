@@ -42,9 +42,9 @@ import com.mstr.letschat.utils.AppLog;
 public class XMPPHelper {
 	private static final String LOG_TAG = "XMPPHelper";
 	
-	private static final String HOST = "10.197.34.151";
+	//private static final String HOST = "10.197.34.151";
 	
-	// private static final String HOST = "192.168.1.103";
+	private static final String HOST = "192.168.1.104";
 	private static final int PORT = 5222;
 	
 	public static final String RESOURCE_PART = "Smack";

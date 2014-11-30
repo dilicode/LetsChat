@@ -15,6 +15,7 @@ public final class ChatContract {
 		
 		public static final String DEFAULT_SORT_ORDER = "nickname COLLATE LOCALIZED ASC";
 		
+		public static final Uri CONTENT_URI =  Uri.parse("content://" + CustomProvider.AUTHORITY + "/contact");
 		public static final Uri CONTENT_ID_URI_BASE = Uri.parse("content://" + CustomProvider.AUTHORITY + "/contact/");
 		
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + CustomProvider.AUTHORITY + ".contact";	
@@ -37,7 +38,7 @@ public final class ChatContract {
 		
 		public static final String DEFAULT_SORT_ORDER = "_id DESC";
 		
-		public static final Uri CONTENT_URI =  Uri.parse("content://" + CustomProvider.AUTHORITY + "contactrequest");
+		public static final Uri CONTENT_URI =  Uri.parse("content://" + CustomProvider.AUTHORITY + "/contactrequest");
 		public static final Uri CONTENT_ID_URI_BASE = Uri.parse("content://" + CustomProvider.AUTHORITY + "/contactrequest/");
 		
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + CustomProvider.AUTHORITY + ".contactrequest";
