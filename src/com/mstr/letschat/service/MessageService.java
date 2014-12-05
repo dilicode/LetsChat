@@ -1,25 +1,30 @@
 package com.mstr.letschat.service;
 
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.util.StringUtils;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.net.Uri;
+import android.database.Cursor;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
+import com.mstr.letschat.ChatActivity;
+import com.mstr.letschat.R;
 import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.databases.ChatContract.ContactRequestTable;
 import com.mstr.letschat.databases.ChatContract.ContactTable;
-import com.mstr.letschat.model.Contact;
-import com.mstr.letschat.model.ContactRequest;
+import com.mstr.letschat.utils.DatabaseUtils;
 import com.mstr.letschat.utils.UserUtils;
 import com.mstr.letschat.xmpp.XMPPContactHelper;
+import com.mstr.letschat.xmpp.XMPPContactHelper.PresenceExtensionData;
 import com.mstr.letschat.xmpp.XMPPHelper;
 
 public class MessageService extends Service {
@@ -28,8 +33,9 @@ public class MessageService extends Service {
 	private Looper serviceLooper;
 	private ServiceHandler serviceHandler;
 	
-	public static final String EXTRA_DATA_NAME_CONTACT_REQUEST = "com.mstr.letschat.ContactRequest";
-	public static final String EXTRA_DATA_NAME_CONTACT = "com.mstr.letschat.Contact";
+	public static final int CONTACT_REQUEST_APPROVED_NOTIFICATION_ID = 2;
+	
+	public static final String EXTRA_DATA_NAME_NOTIFICATION_TEXT = "com.mstr.letschat.NotificationText";
 	
 	// Service Actions
 	public static final String ACTION_CONNECT = "com.mstr.letschat.intent.action.CONNECT";
@@ -38,7 +44,6 @@ public class MessageService extends Service {
 	
 	// Broadcast Actions
 	public static final String ACTION_CONTACT_REQUEST_RECEIVED = "com.mstr.letschat.intent.action.CONTACT_REQUEST_RECEIVED";
-	public static final String ACTION_CONTACT_ADDED = "com.mstr.letschat.intent.action.CONTACT_ADDED";
 	
 	private final class ServiceHandler extends Handler {
 		public ServiceHandler(Looper looper) {
@@ -101,9 +106,7 @@ public class MessageService extends Service {
 		String password = UserUtils.getPassword(this);
 		try {
 			if (user != null && password != null) {
-				XMPPHelper.getInstance().connectAndLogin(StringUtils.parseName(user), password);
-			} else {
-				XMPPHelper.getInstance().connect();
+				XMPPHelper.getInstance().login(user, password);
 			}
 		} catch(SmackInvocationException e) {
 			Log.e(LOG_TAG, String.format("connect error, %s", e.toString()));
@@ -111,17 +114,11 @@ public class MessageService extends Service {
 	}
 	
 	private void handlePrensencePacket(Intent intent) {
-		String from = intent.getStringExtra(XMPPContactHelper.EXTRA_DATA_NAME_FROM);
-		String origin = intent.getStringExtra(XMPPContactHelper.EXTRA_DATA_NAME_ORIGIN);
-		int presenceTypeValue = intent.getIntExtra(XMPPContactHelper.EXTRA_DATA_NAME_PRESENCE_TYPE, 0);
-		Presence.Type type = Presence.Type.values()[presenceTypeValue];
-		
-		Log.d(LOG_TAG, String.format("type %s from %s origin %s", type.name(), from, origin));
+		Presence.Type type = Presence.Type.values()[intent.getIntExtra(XMPPContactHelper.EXTRA_DATA_NAME_TYPE, -1)];
 		
 		switch (type) {
 		case subscribe:
-			processSubscribe(from, origin);
-			
+			processSubscribe(intent);
 			break;
 			
 		default:
@@ -129,41 +126,60 @@ public class MessageService extends Service {
 		}
 	}
 	
-	private void processSubscribe(String from, String origin) {
-		// get nick name
-		String nickname = XMPPHelper.getInstance().getNickname(StringUtils.parseName(from));
+	private void processSubscribe(Intent intent) {
+		String from = intent.getStringExtra(XMPPContactHelper.EXTRA_DATA_NAME_FROM);
+		PresenceExtensionData extensionData = (PresenceExtensionData)intent.getParcelableExtra(XMPPContactHelper.EXTRA_DATA_NAME_EXTENSION_DATA);
+		String fromNickname = extensionData.getFromNickname();
+		Log.d(LOG_TAG, String.format("from %s needApproval %s", from, extensionData.needApproval()));
 		
 		// this is a request sent from new user asking for permission
-		if (!UserUtils.isLoginUser(this, origin)) {
+		if (extensionData.needApproval()) {
 			// save request to db
-			Uri uri = getContentResolver().insert(ContactRequestTable.CONTENT_URI, ContactRequest.newContentValues(origin, nickname));
+			getContentResolver().insert(ContactRequestTable.CONTENT_URI,
+					DatabaseUtils.newContactRequestContentValues(from, fromNickname));
 			
 			// send ordered broadcast that a new contact request is received
 			Intent receiverIntent = new Intent(ACTION_CONTACT_REQUEST_RECEIVED);
-			receiverIntent.putExtra(EXTRA_DATA_NAME_CONTACT_REQUEST, uri);
+			receiverIntent.putExtra(EXTRA_DATA_NAME_NOTIFICATION_TEXT, 
+					String.format("%s %s", fromNickname, getString(R.string.add_contact_text)));
 			receiverIntent.setPackage(getPackageName());
 			sendOrderedBroadcast(receiverIntent, null);
 		} else {
 			try {
-				// this is a request sent back to initiator, directly accept
-				XMPPContactHelper.getInstance().grantSubscription(from, origin);
-				
-				// save new contact to db
-				Uri uri = getContentResolver().insert(ContactTable.CONTENT_URI, Contact.newContentValues(from, nickname));
-				
-				// update contact request status if any
-				ContentValues values = new ContentValues();
-				values.put(ContactRequestTable.COLUMN_NAME_STATUS, ContactRequest.STATUS_ACCPTED);
-				getContentResolver().update(ContactRequestTable.CONTENT_URI, values, 
-						ContactRequestTable.COLUMN_NAME_ORIGIN + " = ?", new String[]{origin});
-				
-				// send ordered broadcast that a new contact is added
-				Intent intent = new Intent(ACTION_CONTACT_ADDED);
-				intent.putExtra(EXTRA_DATA_NAME_CONTACT, uri);
-				intent.setPackage(getPackageName());
-				sendOrderedBroadcast(intent,null);
-			} catch (SmackInvocationException e) {}
+				// this is a request sent back to initiator, directly approve
+				XMPPContactHelper.getInstance().approveSubscription(from);
+			} catch (SmackInvocationException e) {
+				Log.e(LOG_TAG, String.format("send subscribed error, %s", e.toString()));
+				return;
+			}
+			
+			// save new contact to db
+			getContentResolver().insert(ContactTable.CONTENT_URI, 
+					DatabaseUtils.newContactContentValues(from, fromNickname));
+			
+			// show notification that contact request has been approved
+			showContactRequestApprovedNotification(fromNickname);
 		}
+	}
+	
+	private void showContactRequestApprovedNotification(String title) {
+		TaskStackBuilder taskStackbuilder = TaskStackBuilder.create(this);
+		taskStackbuilder.addParentStack(ChatActivity.class);
+		Intent chatActivityIntent = new Intent(this, ChatActivity.class);
+		taskStackbuilder.addNextIntent(chatActivityIntent);
+		
+		PendingIntent pendingIntent = taskStackbuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+		
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+			.setSmallIcon(R.drawable.ic_launcher)
+			.setContentTitle(title)
+			.setContentText(getString(R.string.acceptance_text))
+			.setContentIntent(pendingIntent)
+			.setAutoCancel(true);
+		
+		Notification notification = builder.build();
+		notification.defaults = Notification.DEFAULT_ALL;
+		((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(CONTACT_REQUEST_APPROVED_NOTIFICATION_ID, notification);
 	}
 	
 	/*private void handlePostLoginMessage(Intent intent) {

@@ -1,34 +1,33 @@
 package com.mstr.letschat.model;
 
-import com.mstr.letschat.databases.ChatContract.ContactRequestTable;
-import com.mstr.letschat.databases.ChatContract.ContactTable;
-
-import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Contact implements Parcelable{
+public class Contact implements Parcelable {
+	private int id;
 	private String jid;
 	private String nickname;
 	
 	public Contact() {}
 	
-	public Contact(String jid, String nickname) {
+	public Contact(int id, String jid, String nickname) {
+		this.id = id;
 		this.nickname = nickname;
 		this.jid = jid;
 	}
 	
 	public Contact(Parcel source) {
+		id = source.readInt();
 		jid = source.readString();
 		nickname = source.readString();
 	}
 	
-	public static ContentValues newContentValues(String jid, String nickname) {
-		ContentValues values = new ContentValues();
-		values.put(ContactTable.COLUMN_NAME_JID, jid);
-		values.put(ContactTable.COLUMN_NAME_NICKNAME, nickname);
-		
-		return values;
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getNickname() {
@@ -46,19 +45,15 @@ public class Contact implements Parcelable{
 	public void setJid(String jid) {
 		this.jid = jid;
 	}
-	
-	@Override
-	public String toString() {
-		return nickname;
-	}
 
 	@Override
 	public int describeContents() {
 		return 0;
 	}
-
+	
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(id);
 		dest.writeString(jid);
 		dest.writeString(nickname);
 	}
@@ -74,6 +69,5 @@ public class Contact implements Parcelable{
 		public Contact[] newArray(int size) {
 			return new Contact[size];
 		}
-		
 	};
 }

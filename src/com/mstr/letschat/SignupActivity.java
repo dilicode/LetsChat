@@ -9,9 +9,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.mstr.letschat.tasks.CreateAccountTask;
-import com.mstr.letschat.tasks.LoginTask;
 import com.mstr.letschat.tasks.Response.Listener;
+import com.mstr.letschat.tasks.SignupTask;
 
 public class SignupActivity extends Activity implements OnClickListener {
 	private EditText nameText;
@@ -36,16 +35,17 @@ public class SignupActivity extends Activity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		if (v == submitButton) {
-			new CreateAccountTask(createAccountListener, phoneNumberText.getText().toString(), nameText.getText().toString(),
-					passwordText.getText().toString()).execute();
+			new SignupTask(signupListener, phoneNumberText.getText().toString(), passwordText.getText().toString(), nameText.getText().toString()).execute();
 		}
 	}
-
-	private Listener<Boolean> createAccountListener = new Listener<Boolean>() {
+	
+	private Listener<Boolean> signupListener = new Listener<Boolean>() {
 		@Override
 		public void onResponse(Boolean result) {
 			if (result) {
-				new LoginTask(loginListener, SignupActivity.this, phoneNumberText.getText().toString(), passwordText.getText().toString()).execute();
+				Toast.makeText(SignupActivity.this, R.string.login_success, Toast.LENGTH_SHORT).show();
+				
+				startActivity(new Intent(SignupActivity.this, ChatHistoryActivity.class));
 			}
 		}
 
@@ -53,21 +53,5 @@ public class SignupActivity extends Activity implements OnClickListener {
 		public void onErrorResponse(SmackInvocationException exception) {
 			Toast.makeText(SignupActivity.this, R.string.create_account_error, Toast.LENGTH_SHORT).show();
 		}
-	};
-	
-	private Listener<Boolean> loginListener = new Listener<Boolean>() {
-
-		@Override
-		public void onResponse(Boolean result) {
-			if (result) {
-				startActivity(new Intent(SignupActivity.this, ChatHistoryActivity.class));
-			}
-		}
-
-		@Override
-		public void onErrorResponse(SmackInvocationException exception) {
-			Toast.makeText(SignupActivity.this, R.string.login_error, Toast.LENGTH_SHORT).show();
-		}
-		
 	};
 }

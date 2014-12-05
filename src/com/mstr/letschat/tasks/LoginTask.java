@@ -2,8 +2,6 @@ package com.mstr.letschat.tasks;
 
 import java.lang.ref.WeakReference;
 
-import org.jivesoftware.smack.util.StringUtils;
-
 import android.content.Context;
 
 import com.mstr.letschat.SmackInvocationException;
@@ -32,10 +30,9 @@ public class LoginTask extends BaseAsyncTask<Void, Void, Boolean> {
 		
 		if (context != null) {
 			try {
-				XMPPHelper.getInstance().connectAndLogin(username, password);
+				XMPPHelper.getInstance().login(username, password);
 				
-				UserUtils.setUser(context, StringUtils.parseBareAddress(XMPPHelper.getInstance().getUser()));
-				UserUtils.setPassword(context, password);
+				UserUtils.setLoginUser(context, username, password, XMPPHelper.getInstance().getNickname());
 				
 				return Response.success(true);
 			} catch(SmackInvocationException e) {

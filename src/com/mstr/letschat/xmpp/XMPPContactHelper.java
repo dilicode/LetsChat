@@ -4,11 +4,8 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.Roster.SubscriptionMode;
 import org.jivesoftware.smack.RosterEntry;
-import org.jivesoftware.smack.SmackException.NoResponseException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
-import org.jivesoftware.smack.SmackException.NotLoggedInException;
 import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException.XMPPErrorException;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.DefaultPacketExtension;
 import org.jivesoftware.smack.packet.Packet;
@@ -17,19 +14,22 @@ import org.jivesoftware.smack.packet.Presence.Type;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.service.MessageService;
 import com.mstr.letschat.utils.AppLog;
 
-public class XMPPContactHelper implements XMPPConnectionChangeListener, PacketListener {
-	public static final String EXTRA_DATA_NAME_PRESENCE_TYPE = "com.mstr.letschat.PresenceType";
+public class XMPPContactHelper implements XMPPConnectionStateListener, PacketListener {
 	public static final String EXTRA_DATA_NAME_FROM = "com.mstr.letschat.From";
-	public static final String EXTRA_DATA_NAME_ORIGIN = "com.mstr.letschat.Origin";
+	public static final String EXTRA_DATA_NAME_TYPE = "com.mstr.letschat.Type";
+	public static final String EXTRA_DATA_NAME_EXTENSION_DATA = "com.mstr.letschat.ExtensionData";
 	
 	public static final String EXTENSION_ELEMENT_NAME = "presence";
-	public static final String EXTENSION_NAMESPACE = "letschat";
-	public static final String EXTENSION_NAME_ORIGIN = "origin";
+	public static final String EXTENSION_NAMESPACE = "custom";
+	public static final String EXTENSION_NAME_NEED_APPROVAL = "needapproval";
+	public static final String EXTENSION_NAME_FROM_NICKNAME = "fromnickname";
 	
 	private Context context;
 	
@@ -55,27 +55,16 @@ public class XMPPContactHelper implements XMPPConnectionChangeListener, PacketLi
 	}
 
 	@Override
-	public void onConnectionChange(XMPPConnection newConnection) {
-		connection = newConnection;
-		roster = newConnection.getRoster();
+	public void onConnected(XMPPConnection newConnection) {
 		
-		connection.addPacketListener(this, new PacketTypeFilter(Presence.class));
 	}
 	
-	public void requestSubscription(String to, String origin) throws SmackInvocationException {
-		sendPresenceTo(to, createPresence(Presence.Type.subscribe, origin));
+	public void requestSubscription(String to, String nickname, boolean needApproval) throws SmackInvocationException {
+		sendPresenceTo(to, createPresence(Presence.Type.subscribe, needApproval, nickname));
 	}
 	
-	public void grantSubscription(String to, String origin) throws SmackInvocationException {
-		sendPresenceTo(to, createPresence(Presence.Type.subscribed, origin));
-	}
-	
-	public void requestSubscription(String origin) throws SmackInvocationException {
-		requestSubscription(origin, origin);
-	}
-	
-	public void grantSubscription(String origin) throws SmackInvocationException {
-		grantSubscription(origin, origin);
+	public void approveSubscription(String to) throws SmackInvocationException {
+		sendPresenceTo(to, new Presence(Presence.Type.subscribed));
 	}
 	
 	private void sendPresenceTo(String to, Presence presence) throws SmackInvocationException {
@@ -102,9 +91,10 @@ public class XMPPContactHelper implements XMPPConnectionChangeListener, PacketLi
 		}
 	}
 	
-	private Presence createPresence(Presence.Type type, String origin) {
+	private Presence createPresence(Presence.Type type, Boolean needApproval, String nickname) {
 		DefaultPacketExtension packetExtension = new DefaultPacketExtension(EXTENSION_ELEMENT_NAME, EXTENSION_NAMESPACE);
-		packetExtension.setValue(EXTENSION_NAME_ORIGIN, origin);
+		packetExtension.setValue(EXTENSION_NAME_NEED_APPROVAL, needApproval ? String.valueOf(true) : String.valueOf(false));
+		packetExtension.setValue(EXTENSION_NAME_FROM_NICKNAME, nickname);
 		
 		Presence presence = new Presence(type);
 		presence.addExtension(packetExtension);
@@ -112,13 +102,16 @@ public class XMPPContactHelper implements XMPPConnectionChangeListener, PacketLi
 		return presence;
 	}
 	
-	private String getOrigin(Presence presence) {
+	private PresenceExtensionData getPresenceData(Presence presence) {
+		PresenceExtensionData data = new PresenceExtensionData();
+		
 		DefaultPacketExtension extension = (DefaultPacketExtension)presence.getExtension(EXTENSION_ELEMENT_NAME, EXTENSION_NAMESPACE);
 		if (extension != null) {
-			return extension.getValue(EXTENSION_NAME_ORIGIN);
-		} else {
-			return null;
+			data.needApproval = Boolean.valueOf(extension.getValue(EXTENSION_NAME_NEED_APPROVAL));
+			data.fromNickname = extension.getValue(EXTENSION_NAME_FROM_NICKNAME);
 		}
+		
+		return data;
 	}
 	
 	public void delete(String jid) throws SmackInvocationException {
@@ -143,10 +136,73 @@ public class XMPPContactHelper implements XMPPConnectionChangeListener, PacketLi
 		if (presenceType.equals(Type.subscribe) || presenceType.equals(Type.subscribed)) {
 			Intent intent = new Intent(MessageService.ACTION_PRESENCE_RECEIVED, null, context, MessageService.class);
 			intent.putExtra(EXTRA_DATA_NAME_FROM, from);
-			intent.putExtra(EXTRA_DATA_NAME_PRESENCE_TYPE, presenceType.ordinal());
-			intent.putExtra(EXTRA_DATA_NAME_ORIGIN, getOrigin(presence));
+			intent.putExtra(EXTRA_DATA_NAME_TYPE, presenceType.ordinal());
+			
+			// if it is subscribe request, we have a couple of additional values in packet extension
+			if (presenceType.equals(Type.subscribe)) {
+				intent.putExtra(EXTRA_DATA_NAME_EXTENSION_DATA, getPresenceData(presence));
+			}
 			
 			context.startService(intent);
 		}
+	}
+	
+	public static final class PresenceExtensionData implements Parcelable {
+		private boolean needApproval;
+		private String fromNickname;
+		
+		public PresenceExtensionData() {}
+		
+		private PresenceExtensionData(Parcel in) {
+			needApproval = in.readByte() != 0;
+			fromNickname = in.readString();
+		}
+
+		public String getFromNickname() {
+			return fromNickname;
+		}
+
+		public boolean needApproval() {
+			return needApproval;
+		}
+
+		public void setNeedApproval(boolean needApproval) {
+			this.needApproval = needApproval;
+		}
+
+		public void setFromNickname(String fromNickname) {
+			this.fromNickname = fromNickname;
+		}
+
+		@Override
+		public int describeContents() {
+			return 0;
+		}
+
+		@Override
+		public void writeToParcel(Parcel dest, int flags) {
+			dest.writeByte((byte)(needApproval ? 1 : 0));
+			dest.writeString(fromNickname);
+		}
+		
+		public static final Creator<PresenceExtensionData> CREATOR = new Creator<PresenceExtensionData>() {
+			@Override
+			public PresenceExtensionData createFromParcel(Parcel source) {
+				return new PresenceExtensionData(source);
+			}
+			
+			@Override
+			public PresenceExtensionData[] newArray(int size) {
+				return new PresenceExtensionData[size];
+			}
+		};
+	}
+
+	@Override
+	public void onLogin(XMPPConnection newConnection) {
+		connection = newConnection;
+		connection.addPacketListener(this, new PacketTypeFilter(Presence.class));
+		//roster = newConnection.getRoster();
+		
 	}
 }

@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import com.mstr.letschat.tasks.LoginTask;
 import com.mstr.letschat.tasks.Response.Listener;
-import com.mstr.letschat.utils.UserUtils;
 
 public class LoginActivity extends Activity implements Listener<Boolean>, OnClickListener {
 	private EditText phoneNumberText;
@@ -42,8 +41,6 @@ public class LoginActivity extends Activity implements Listener<Boolean>, OnClic
 	public void onResponse(Boolean response) {
 		if (response) {
 			startActivity(new Intent(this, ChatHistoryActivity.class));
-			
-			finish();
 		}
 	}
 

@@ -1,7 +1,5 @@
 package com.mstr.letschat;
 
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,11 +13,11 @@ import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mstr.letschat.model.UserSearchResult;
+import com.mstr.letschat.model.UserProfile;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.tasks.SearchUserTask;
 
-public class SearchUserActivity extends Activity implements OnQueryTextListener, Listener<ArrayList<UserSearchResult>>, OnClickListener {
+public class SearchUserActivity extends Activity implements OnQueryTextListener, Listener<UserProfile>, OnClickListener {
 	private SearchUserTask task;
 	
 	private LinearLayout hintWrapper;
@@ -108,10 +106,10 @@ public class SearchUserActivity extends Activity implements OnQueryTextListener,
 	}
 
 	@Override
-	public void onResponse(ArrayList<UserSearchResult> result) {
-		if (result != null && result.size() > 0) {
-			Intent intent = new Intent(this, UserSearchResultActivity.class);
-			intent.putParcelableArrayListExtra(UserSearchResultActivity.EXTRA_DATA_NAME_USER_SEARCH_RESULT, result);
+	public void onResponse(UserProfile result) {
+		if (result != null) {
+			Intent intent = new Intent(this, UserProfileActivity.class);
+			intent.putExtra(UserProfileActivity.EXTRA_DATA_NAME_USER_PROFILE, result);
 			startActivity(intent);
 		} else {
 			Toast.makeText(this, R.string.search_contact_no_result, Toast.LENGTH_SHORT).show();
@@ -119,5 +117,7 @@ public class SearchUserActivity extends Activity implements OnQueryTextListener,
 	}
 
 	@Override
-	public void onErrorResponse(SmackInvocationException exception) {}
+	public void onErrorResponse(SmackInvocationException exception) {
+		Toast.makeText(this, R.string.search_user_error, Toast.LENGTH_SHORT).show();
+	}
 }

@@ -7,6 +7,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.net.Uri;
+import android.util.Log;
 
 import com.mstr.letschat.databases.ChatContract.ContactRequestTable;
 import com.mstr.letschat.databases.ChatContract.ContactTable;
@@ -75,6 +76,8 @@ public class CustomProvider extends ContentProvider {
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
 		
+		Log.d("ThreadUtils", getThreadSignature());
+		
 		result.setNotificationUri(getContext().getContentResolver(), uri);
 		
 		return result;
@@ -116,6 +119,8 @@ public class CustomProvider extends ContentProvider {
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
 		
+		Log.d("ThreadUtils", getThreadSignature());
+		
 		getContext().getContentResolver().notifyChange(result, null);
 		
 		return result;
@@ -156,4 +161,16 @@ public class CustomProvider extends ContentProvider {
 		
 		return count;
 	}
+	
+	public static String getThreadSignature(){
+		Thread t = Thread.currentThread();
+		long l = t.getId();
+		String name = t.getName();
+		long p = t.getPriority();
+		String gname = t.getThreadGroup().getName();
+		return (name
+		+ ":(id)" + l
+		+ ":(priority)" + p
+		+ ":(group)" + gname);
+		}
 }
