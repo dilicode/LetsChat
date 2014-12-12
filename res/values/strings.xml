@@ -27,6 +27,7 @@
 	<string name="create_account_error">Create account error</string>
 	<string name="account_already_exists">Account already exists</string>
 	<string name="login_error">Login error</string>
+	<string name="invalid_credentials">Invalid username/password</string>
 	<string name="login_success">Login success</string>
 	<string name="added">Added</string>
 	<string name="accept">Accept</string>
@@ -41,4 +42,5 @@
 	<string name="wait_for_acceptance">waiting for acceptance</string>
 	<string name="delete">Delete</string>
 	<string name="search_user_error">Search user error</string>
+	<string name="no_network_connected">No network connected</string>
 </resources>

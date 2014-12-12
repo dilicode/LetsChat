@@ -46,6 +46,10 @@ public class LoginActivity extends Activity implements Listener<Boolean>, OnClic
 
 	@Override
 	public void onErrorResponse(SmackInvocationException exception) {
-		Toast.makeText(this, R.string.login_error, Toast.LENGTH_SHORT).show();
+		if (exception.isCausedBySASLError()) {
+			Toast.makeText(this, R.string.invalid_credentials, Toast.LENGTH_SHORT).show();
+		} else {
+			Toast.makeText(this, R.string.login_error, Toast.LENGTH_SHORT).show();
+		}
 	}
 }

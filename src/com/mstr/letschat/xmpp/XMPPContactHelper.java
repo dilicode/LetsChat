@@ -1,21 +1,21 @@
 package com.mstr.letschat.xmpp;
 
+import java.util.Collection;
+
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.Roster.SubscriptionMode;
 import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterListener;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
-import org.jivesoftware.smack.packet.DefaultPacketExtension;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Type;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.service.MessageService;
@@ -24,12 +24,6 @@ import com.mstr.letschat.utils.AppLog;
 public class XMPPContactHelper implements XMPPConnectionStateListener, PacketListener {
 	public static final String EXTRA_DATA_NAME_FROM = "com.mstr.letschat.From";
 	public static final String EXTRA_DATA_NAME_TYPE = "com.mstr.letschat.Type";
-	public static final String EXTRA_DATA_NAME_EXTENSION_DATA = "com.mstr.letschat.ExtensionData";
-	
-	public static final String EXTENSION_ELEMENT_NAME = "presence";
-	public static final String EXTENSION_NAMESPACE = "custom";
-	public static final String EXTENSION_NAME_NEED_APPROVAL = "needapproval";
-	public static final String EXTENSION_NAME_FROM_NICKNAME = "fromnickname";
 	
 	private Context context;
 	
@@ -56,11 +50,46 @@ public class XMPPContactHelper implements XMPPConnectionStateListener, PacketLis
 
 	@Override
 	public void onConnected(XMPPConnection newConnection) {
-		
+		if (connection == null) {
+			connection = newConnection;
+			connection.addPacketListener(this, new PacketTypeFilter(Presence.class));
+			roster = connection.getRoster();
+			roster.addRosterListener(new RosterListener() {
+				@Override
+				public void entriesAdded(Collection<String> arg0) {
+					AppLog.d("entriesAdded");
+					
+				}
+
+				@Override
+				public void entriesDeleted(Collection<String> arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void entriesUpdated(Collection<String> arg0) {
+					AppLog.d("entriesUpdated");
+					
+				}
+
+				@Override
+				public void presenceChanged(Presence arg0) {
+					AppLog.d("presenceChanged");
+					
+				}
+			});
+		}
 	}
 	
-	public void requestSubscription(String to, String nickname, boolean needApproval) throws SmackInvocationException {
-		sendPresenceTo(to, createPresence(Presence.Type.subscribe, needApproval, nickname));
+	public void addContact(String to, String nickname) throws SmackInvocationException {
+		try {
+			roster.createEntry(to, nickname, null);
+		} catch (Exception e) {
+			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
+			
+			throw new SmackInvocationException(e);
+		}
 	}
 	
 	public void approveSubscription(String to) throws SmackInvocationException {
@@ -72,7 +101,7 @@ public class XMPPContactHelper implements XMPPConnectionStateListener, PacketLis
 		try {
 			connection.sendPacket(presence);
 		} catch (NotConnectedException e) {
-			AppLog.e(e, "Unhandled exception %s", e.toString());
+			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
 			
 			throw new SmackInvocationException(e);
 		}
@@ -84,34 +113,11 @@ public class XMPPContactHelper implements XMPPConnectionStateListener, PacketLis
 			try {
 				rosterEntry.setName(name);
 			} catch (NotConnectedException e) {
-				AppLog.e(e, "Unhandled exception %s", e.toString());
+				AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
 				
 				throw new SmackInvocationException(e);
 			}
 		}
-	}
-	
-	private Presence createPresence(Presence.Type type, Boolean needApproval, String nickname) {
-		DefaultPacketExtension packetExtension = new DefaultPacketExtension(EXTENSION_ELEMENT_NAME, EXTENSION_NAMESPACE);
-		packetExtension.setValue(EXTENSION_NAME_NEED_APPROVAL, needApproval ? String.valueOf(true) : String.valueOf(false));
-		packetExtension.setValue(EXTENSION_NAME_FROM_NICKNAME, nickname);
-		
-		Presence presence = new Presence(type);
-		presence.addExtension(packetExtension);
-		
-		return presence;
-	}
-	
-	private PresenceExtensionData getPresenceData(Presence presence) {
-		PresenceExtensionData data = new PresenceExtensionData();
-		
-		DefaultPacketExtension extension = (DefaultPacketExtension)presence.getExtension(EXTENSION_ELEMENT_NAME, EXTENSION_NAMESPACE);
-		if (extension != null) {
-			data.needApproval = Boolean.valueOf(extension.getValue(EXTENSION_NAME_NEED_APPROVAL));
-			data.fromNickname = extension.getValue(EXTENSION_NAME_FROM_NICKNAME);
-		}
-		
-		return data;
 	}
 	
 	public void delete(String jid) throws SmackInvocationException {
@@ -120,11 +126,15 @@ public class XMPPContactHelper implements XMPPConnectionStateListener, PacketLis
 			try {
 				roster.removeEntry(rosterEntry);
 			} catch (Exception e) {
-				AppLog.e(e, "Unhandled exception %s", e.toString());
+				AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
 				
 				throw new SmackInvocationException(e);
 			}
 		}
+	}
+	
+	public RosterEntry getRosterEntry(String from) {
+		return roster.getEntry(from);
 	}
 	
 	@Override
@@ -138,71 +148,7 @@ public class XMPPContactHelper implements XMPPConnectionStateListener, PacketLis
 			intent.putExtra(EXTRA_DATA_NAME_FROM, from);
 			intent.putExtra(EXTRA_DATA_NAME_TYPE, presenceType.ordinal());
 			
-			// if it is subscribe request, we have a couple of additional values in packet extension
-			if (presenceType.equals(Type.subscribe)) {
-				intent.putExtra(EXTRA_DATA_NAME_EXTENSION_DATA, getPresenceData(presence));
-			}
-			
 			context.startService(intent);
 		}
-	}
-	
-	public static final class PresenceExtensionData implements Parcelable {
-		private boolean needApproval;
-		private String fromNickname;
-		
-		public PresenceExtensionData() {}
-		
-		private PresenceExtensionData(Parcel in) {
-			needApproval = in.readByte() != 0;
-			fromNickname = in.readString();
-		}
-
-		public String getFromNickname() {
-			return fromNickname;
-		}
-
-		public boolean needApproval() {
-			return needApproval;
-		}
-
-		public void setNeedApproval(boolean needApproval) {
-			this.needApproval = needApproval;
-		}
-
-		public void setFromNickname(String fromNickname) {
-			this.fromNickname = fromNickname;
-		}
-
-		@Override
-		public int describeContents() {
-			return 0;
-		}
-
-		@Override
-		public void writeToParcel(Parcel dest, int flags) {
-			dest.writeByte((byte)(needApproval ? 1 : 0));
-			dest.writeString(fromNickname);
-		}
-		
-		public static final Creator<PresenceExtensionData> CREATOR = new Creator<PresenceExtensionData>() {
-			@Override
-			public PresenceExtensionData createFromParcel(Parcel source) {
-				return new PresenceExtensionData(source);
-			}
-			
-			@Override
-			public PresenceExtensionData[] newArray(int size) {
-				return new PresenceExtensionData[size];
-			}
-		};
-	}
-
-	@Override
-	public void onLogin(XMPPConnection newConnection) {
-		connection = newConnection;
-		connection.addPacketListener(this, new PacketTypeFilter(Presence.class));
-		//roster = newConnection.getRoster();
-		
 	}
 }

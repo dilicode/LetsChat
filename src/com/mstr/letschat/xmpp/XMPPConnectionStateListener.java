@@ -4,6 +4,4 @@ import org.jivesoftware.smack.XMPPConnection;
 
 public interface XMPPConnectionStateListener {
 	public void onConnected(XMPPConnection newConnection);
-	
-	public void onLogin(XMPPConnection newConnection);
 }

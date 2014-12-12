@@ -14,7 +14,6 @@ import com.mstr.letschat.databases.ChatContract.ContactTable;
 import com.mstr.letschat.model.Contact;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.utils.DatabaseUtils;
-import com.mstr.letschat.utils.UserUtils;
 import com.mstr.letschat.xmpp.XMPPContactHelper;
 
 public class AcceptContactRequestTask extends BaseAsyncTask<Void, Void, Contact> {
@@ -32,7 +31,6 @@ public class AcceptContactRequestTask extends BaseAsyncTask<Void, Void, Contact>
 		Uri requestUri = uriWrapper.get();
 		Context context = contextWrapper.get();
 		
-		
 		if (requestUri != null && context != null) {
 			Cursor cursor = context.getContentResolver().query(requestUri, 
 					new String[]{ContactRequestTable.COLUMN_NAME_NICKNAME, ContactRequestTable.COLUMN_NAME_JID},
@@ -46,7 +44,7 @@ public class AcceptContactRequestTask extends BaseAsyncTask<Void, Void, Contact>
 					XMPPContactHelper.getInstance().approveSubscription(from);
 					
 					// 2. request permission to initiator
-					XMPPContactHelper.getInstance().requestSubscription(from, UserUtils.getNickname(context), false);
+					XMPPContactHelper.getInstance().addContact(from, fromNickname);
 				} catch(SmackInvocationException e) {
 					return Response.error(e);
 				}

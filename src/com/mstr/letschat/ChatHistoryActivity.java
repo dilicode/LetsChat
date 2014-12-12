@@ -2,7 +2,6 @@ package com.mstr.letschat;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -28,11 +27,4 @@ public class ChatHistoryActivity extends Activity {
 		
 		return super.onOptionsItemSelected(item);
 	}
-	
-	protected void onDestroy() {
-		super.onDestroy();
-		
-		Log.d("PendingIntent", "ChatHistoryActivity ondestroy");
-	}
-	
 }

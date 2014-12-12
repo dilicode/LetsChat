@@ -8,16 +8,18 @@ import android.os.Parcelable;
 public class UserProfile implements Parcelable {
 	public static final int STATUS_CONTACT = 1;
 	public static final int STATUS_NOT_CONTACT = 2;
-	public static final int STATUS_UNKNOWN = 3;
+	public static final int STATUS_MYSELF = 3;
+	public static final int STATUS_UNKNOWN = 4;
 	
 	private String nickname;
 	private String jid;
 	
-	private int status = STATUS_UNKNOWN;
+	private int status;
 	
 	public UserProfile(String nickname, String jid) {
 		this.nickname = nickname;
 		this.jid = jid;
+		status = STATUS_UNKNOWN;
 	}
 	
 	public UserProfile(String nickname, String jid, int status) {
@@ -64,8 +66,8 @@ public class UserProfile implements Parcelable {
 		this.status = status;
 	}
 	
-	public boolean isContact() {
-		return status == STATUS_CONTACT;
+	public boolean canAddToContact() {
+		return status == STATUS_NOT_CONTACT;
 	}
 	
 	public void markAsContact() {

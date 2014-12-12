@@ -17,6 +17,7 @@ import javax.net.ssl.TrustManagerFactory;
 import org.jivesoftware.smack.AccountManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
+import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
@@ -27,16 +28,19 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.MessageTypeFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.search.ReportedData;
 import org.jivesoftware.smackx.search.ReportedData.Row;
 import org.jivesoftware.smackx.search.UserSearchManager;
 import org.jivesoftware.smackx.xdata.Form;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.model.UserProfile;
+import com.mstr.letschat.service.MessageService;
 import com.mstr.letschat.utils.AppLog;
 import com.mstr.letschat.utils.UserUtils;
 
@@ -52,20 +56,26 @@ public class XMPPHelper {
 
 	private XMPPConnection con;
 	
+	private ConnectionListener connectionListener;
+	
 	private Context context;
 	
 	private List<XMPPConnectionStateListener> listeners = new ArrayList<XMPPConnectionStateListener>();
 	
 	private State state;
 	
+
+	private SmackAndroid smackAndroid;
+	
 	private static XMPPHelper instance;
 	
 	private XMPPHelper(Context context) {
-		SmackAndroid.init(context);
-		
 		this.context = context;
 		
+		smackAndroid = SmackAndroid.init(context);
+		
 		XMPPContactHelper.init(context);
+		
 		listeners.add(XMPPContactHelper.getInstance());
 	}
 	
@@ -73,7 +83,7 @@ public class XMPPHelper {
 	 * This method is called when application is created, so instance is available afterwards.
 	 * @param context
 	 */
-	public static void init(Context context) {
+	public static synchronized void init(Context context) {
 		if (instance == null) {
 			instance = new XMPPHelper(context);
 		}
@@ -84,21 +94,19 @@ public class XMPPHelper {
 	}
 	
 	public void setState(State state) {
-		Log.d(LOG_TAG, "state: " + state.name());
-		
-		this.state = state;
-		switch (state) {
-		case CONNECTED:
-			for (XMPPConnectionStateListener listener : listeners) {
-				listener.onConnected(con);
-			}
-			break;
+		if (this.state != state) {
+			Log.d(LOG_TAG, "enter state: " + state.name());
 			
-		case LOGIN:
-			for (XMPPConnectionStateListener listener : listeners) {
-				listener.onLogin(con);
+			this.state = state;
+			switch (state) {
+			case CONNECTED:
+				con.addConnectionListener(createConnectionListener());
+				
+				for (XMPPConnectionStateListener listener : listeners) {
+					listener.onConnected(con);
+				}
+				break;
 			}
-			break;
 		}
 	}
 	
@@ -110,7 +118,7 @@ public class XMPPHelper {
 		try {
 			AccountManager.getInstance(con).createAccount(user, password, attributes);
 		} catch (Exception e) {
-			AppLog.e(e, "Unhandled exception %s", e.toString());
+			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
 			
 			throw new SmackInvocationException(e);
 		}
@@ -126,7 +134,7 @@ public class XMPPHelper {
 		try {
 			con.sendPacket(message);
 		} catch (NotConnectedException e) {
-			AppLog.e(e, "Unhandled exception %s", e.toString());
+			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
 			
 			throw new SmackInvocationException(e);
 		}
@@ -169,7 +177,7 @@ public class XMPPHelper {
 			
 			return result;
 		} catch (Exception e) {
-			AppLog.e(e, "Unhandled exception %s", e.toString());
+			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
 			
 			throw new SmackInvocationException(e);
 		}
@@ -189,6 +197,7 @@ public class XMPPHelper {
 	}
 	
 	public String getNickname(String username) {
+		username = StringUtils.parseName(username);
 		UserProfile userSearchResult = null;
 		try {
 			userSearchResult = searchByCompleteUsername(username);
@@ -203,36 +212,48 @@ public class XMPPHelper {
 			try {
 				roster.createEntry(user, name, null);
 			} catch (Exception e) {
-				AppLog.e(e, "Unhandled exception %s", e.toString());
+				AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
 				
 				throw new SmackInvocationException(e);
 			}
 		}
 	}
 	
-	public void connect() throws SmackInvocationException {
-		if (con == null || !con.isConnected()) {
+	private void connect() throws SmackInvocationException {
+		if (!isConnected()) {
 			setState(State.CONNECTING);
 			
+			if (con == null) {
+				ConnectionConfiguration config = new ConnectionConfiguration(HOST, PORT);
+				//loadCA(config);
+				config.setReconnectionAllowed(false);
+				config.setSecurityMode(SecurityMode.disabled);
+				
+				con = new XMPPTCPConnection(config);
+			}
+			
 			try {
-				if (con == null) {
-					ConnectionConfiguration config = new ConnectionConfiguration(HOST, PORT);
-					//loadCA(config);
-					config.setReconnectionAllowed(false);
-					config.setSecurityMode(SecurityMode.disabled);
-					
-					con = new XMPPTCPConnection(config);
-				}
-				
 				con.connect();
-				
-				setState(State.CONNECTED);
 			} catch(Exception e) {
-				AppLog.e(e, "Unhandled exception %s", e.toString());
+				AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
+				
+				startReconnect();
 				
 				throw new SmackInvocationException(e);
 			}
+			
+			setState(State.CONNECTED);
 		}
+	}
+	
+	public void disconnect() {
+		if (isConnected()) {
+			try {
+				con.disconnect();
+			} catch (NotConnectedException e) {}
+		}
+		
+		setState(State.DISCONNECTED);
 	}
 	
 	public void login(String username, String password) throws SmackInvocationException {
@@ -241,13 +262,21 @@ public class XMPPHelper {
 		try {
 			if (!con.isAuthenticated()) {
 				con.login(username, password, RESOURCE_PART);
-				
-				setState(State.LOGIN);
 			}
-		} catch(Exception e) {
-			AppLog.e(e, "Unhandled exception %s", e.toString());
 			
-			throw new SmackInvocationException(e);
+			setState(State.CONNECTED);
+		} catch(Exception e) {
+			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
+			
+			SmackInvocationException exception = new SmackInvocationException(e);
+			// this is caused by wrong username/password, do not reconnect
+			if (exception.isCausedBySASLError()) {
+				disconnect();
+			} else {
+				startReconnect();
+			}
+			
+			throw exception;
 		}
 	}
 	
@@ -255,7 +284,7 @@ public class XMPPHelper {
 		try {
 			return AccountManager.getInstance(con).getAccountAttribute("name");
 		} catch (Exception e) {
-			AppLog.e(e, "Unhandled exception %s", e.toString());
+			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
 			
 			throw new SmackInvocationException(e);
 		}
@@ -298,10 +327,61 @@ public class XMPPHelper {
 		}
 	}
 	
+	private ConnectionListener createConnectionListener() {
+		connectionListener = new ConnectionListener() {
+			@Override
+			public void authenticated(XMPPConnection arg0) {}
+
+			@Override
+			public void connected(XMPPConnection arg0) {}
+
+			@Override
+			public void connectionClosed() {}
+
+			@Override
+			public void connectionClosedOnError(Exception arg0) {
+				// it may be due to network is not available or server is down, update state to WAITING_TO_CONNECT
+				// and schedule an automatic reconnect
+				AppLog.d("xmpp disconnected due to error ", arg0);
+				
+				startReconnect();
+			}
+
+			@Override
+			public void reconnectingIn(int arg0) {}
+
+			@Override
+			public void reconnectionFailed(Exception arg0) {}
+
+			@Override
+			public void reconnectionSuccessful() {}
+		};
+		
+		return connectionListener;
+	}
+	
+	private void startReconnect() {
+		setState(State.WAITING_TO_CONNECT);
+		
+		context.startService(new Intent(MessageService.ACTION_RECONNECT, null, context, MessageService.class));
+	}
+	
+	private boolean isConnected() {
+		return con != null && con.isConnected();
+	}
+	
+	public void onNetworkDisconnected() {
+		setState(State.WAITING_FOR_NETWORK);
+	}
+	
 	public void addPacketListener(PacketListener packetListener) {
 		if (con != null && packetListener != null) {
 			con.addPacketListener(packetListener, new MessageTypeFilter(Message.Type.chat));
 		}
+	}
+	
+	public void onDestroy() {
+		smackAndroid.onDestroy();
 	}
 	
 	private static enum State {
@@ -309,8 +389,11 @@ public class XMPPHelper {
 		
 		CONNECTED,
 		
-		LOGIN,
+		DISCONNECTED,
 		
-		DISCONNECTED;
+		// this is a state that client is trying to reconnect to server
+		WAITING_TO_CONNECT,
+		
+		WAITING_FOR_NETWORK;
 	}
 }

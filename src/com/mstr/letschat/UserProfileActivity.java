@@ -45,7 +45,7 @@ public class UserProfileActivity extends Activity implements OnClickListener {
 		setButtonText();
 		((TextView)findViewById(R.id.tv_nickname)).setText(profile.getNickname());
 		
-		if (!profile.isContact()) {
+		if (profile.canAddToContact()) {
 			contactObserver = new ContactContentObserver(new Handler());
 			getContentResolver().registerContentObserver(ContactTable.CONTENT_URI, true, contactObserver);
 		}
@@ -57,7 +57,7 @@ public class UserProfileActivity extends Activity implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.btn:
-			if (!profile.isContact()) {
+			if (profile.canAddToContact()) {
 				onAddClick();
 			} else {
 				onSendMessageClick();
@@ -97,10 +97,10 @@ public class UserProfileActivity extends Activity implements OnClickListener {
 	}
 	
 	private void setButtonText() {
-		if (profile.isContact()) {
-			button.setText(R.string.send_message);
-		} else {
+		if (profile.canAddToContact()) {
 			button.setText(R.string.add);
+		} else {
+			button.setText(R.string.send_message);
 		}
 	}
 	
@@ -116,7 +116,7 @@ public class UserProfileActivity extends Activity implements OnClickListener {
 				Toast.makeText(UserProfileActivity.this, R.string.sending_contact_request_error, Toast.LENGTH_SHORT).show();	
 			}
 			
-		}, this, profile.getJid()).execute();
+		}, this, profile).execute();
 	}
 	
 	private void onSendMessageClick() {
@@ -139,7 +139,7 @@ public class UserProfileActivity extends Activity implements OnClickListener {
 			ContactQueryHandler queryHandler = new ContactQueryHandler(UserProfileActivity.this);
 			
 			// Query for contact
-			queryHandler.startQuery(0, null, ContactTable.CONTENT_URI, new String[]{ContactTable._ID}, 
+			queryHandler.startQuery(0, null, ContactTable.CONTENT_URI, new String[]{ContactTable._ID},
 					ContactTable.COLUMN_NAME_JID + " = ?", new String[]{profile.getJid()}, null);
 		}
 	}

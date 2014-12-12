@@ -2,6 +2,8 @@ package com.mstr.letschat.tasks;
 
 import java.lang.ref.WeakReference;
 
+import org.jivesoftware.smack.util.StringUtils;
+
 import android.content.Context;
 
 import com.mstr.letschat.SmackInvocationException;
@@ -30,9 +32,12 @@ public class SearchUserTask extends BaseAsyncTask<Void, Void, UserProfile> {
 				UserProfile user = XMPPHelper.getInstance().searchByCompleteUsername(username);
 				
 				if (user != null) {
-					if (ContactTableHelper.getInstance(context).isContact(user.getJid()) || 
-							user.getJid().equals(UserUtils.getUser(context))) {
+					if (user.getUserName().equals(UserUtils.getUser(context))) {
+						user.setStatus(UserProfile.STATUS_MYSELF);
+					} else if (ContactTableHelper.getInstance(context).isContact(user.getJid())) {
 						user.setStatus(UserProfile.STATUS_CONTACT);
+					} else {
+						user.setStatus(UserProfile.STATUS_NOT_CONTACT);
 					}
 				}
 				return Response.success(user);
