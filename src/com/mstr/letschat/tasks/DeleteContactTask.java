@@ -5,9 +5,8 @@ import java.lang.ref.WeakReference;
 import android.content.Context;
 
 import com.mstr.letschat.SmackInvocationException;
-import com.mstr.letschat.databases.ContactTableHelper;
 import com.mstr.letschat.tasks.Response.Listener;
-import com.mstr.letschat.xmpp.XMPPContactHelper;
+import com.mstr.letschat.xmpp.SmackHelper;
 
 public class DeleteContactTask extends BaseAsyncTask<Void, Void, Boolean> {
 	private WeakReference<Context> contextWrapper;
@@ -26,7 +25,7 @@ public class DeleteContactTask extends BaseAsyncTask<Void, Void, Boolean> {
 		
 		if (context != null) {
 			try {
-				XMPPContactHelper.getInstance().delete(jid);
+				SmackHelper.getInstance(context).delete(jid);
 				
 				//ContactTableHelper.getInstance(context).delete(jid);
 				

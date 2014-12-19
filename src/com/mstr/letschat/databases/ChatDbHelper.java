@@ -16,7 +16,7 @@ public class ChatDbHelper extends SQLiteOpenHelper {
 	 
 	 public static synchronized ChatDbHelper getInstance(Context context) {
 		 if (instance == null) {
-			 instance = new ChatDbHelper(context);
+			 instance = new ChatDbHelper(context.getApplicationContext());
 		 }
 		 
 		 return instance;

@@ -2,16 +2,15 @@ package com.mstr.letschat.tasks;
 
 import java.lang.ref.WeakReference;
 
-import org.jivesoftware.smack.util.StringUtils;
-
 import android.content.Context;
+import android.database.Cursor;
 
 import com.mstr.letschat.SmackInvocationException;
-import com.mstr.letschat.databases.ContactTableHelper;
+import com.mstr.letschat.databases.ChatContract.ContactTable;
 import com.mstr.letschat.model.UserProfile;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.utils.UserUtils;
-import com.mstr.letschat.xmpp.XMPPHelper;
+import com.mstr.letschat.xmpp.SmackHelper;
 
 public class SearchUserTask extends BaseAsyncTask<Void, Void, UserProfile> {
 	private WeakReference<Context> contextWrapper;
@@ -29,17 +28,21 @@ public class SearchUserTask extends BaseAsyncTask<Void, Void, UserProfile> {
 		Context context = contextWrapper.get();
 		if (context != null) {
 			try {
-				UserProfile user = XMPPHelper.getInstance().searchByCompleteUsername(username);
-				
+				UserProfile user = SmackHelper.getInstance(context).searchByCompleteUsername(username);
 				if (user != null) {
 					if (user.getUserName().equals(UserUtils.getUser(context))) {
 						user.setStatus(UserProfile.STATUS_MYSELF);
-					} else if (ContactTableHelper.getInstance(context).isContact(user.getJid())) {
-						user.setStatus(UserProfile.STATUS_CONTACT);
 					} else {
-						user.setStatus(UserProfile.STATUS_NOT_CONTACT);
+						Cursor c = context.getContentResolver().query(ContactTable.CONTENT_URI, new String[]{ContactTable._ID},
+								ContactTable.COLUMN_NAME_JID + " = ?", new String[] {user.getJid()}, null);
+						if (c.moveToFirst()) {
+							user.setStatus(UserProfile.STATUS_CONTACT);
+						} else {
+							user.setStatus(UserProfile.STATUS_NOT_CONTACT);
+						}
 					}
 				}
+				
 				return Response.success(user);
 			} catch(SmackInvocationException e) {
 				return Response.error(e);

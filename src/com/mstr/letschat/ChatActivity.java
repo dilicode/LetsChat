@@ -1,40 +1,37 @@
 package com.mstr.letschat;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.app.LoaderManager;
+import android.content.CursorLoader;
+import android.content.Loader;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.mstr.letschat.model.ChatMessage;
-import com.mstr.letschat.model.Contact;
-import com.mstr.letschat.service.MessageService;
+import com.mstr.letschat.adapters.MessageCursorAdapter;
+import com.mstr.letschat.databases.ChatContract.ChatMessageTable;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.tasks.SendChatMessageTask;
 
-public class ChatActivity extends Activity implements OnClickListener, Listener<Boolean> {
+public class ChatActivity extends Activity implements OnClickListener, Listener<Boolean>, LoaderManager.LoaderCallbacks<Cursor> {
+	public static final String EXTRA_DATA_NAME_TO = "com.mstr.letschat.To";
+	public static final String EXTRA_DATA_NAME_NICKNAME = "com.mstr.letschat.Nickname";
+	
+	private String to;
+	
 	private EditText messageText;
 	private ListView messageListView;
 	
-	private Contact contact;
-	
-	private ArrayAdapter<String> adapter;
-	
-	private BroadcastReceiver messageReceiver;
+	private MessageCursorAdapter adapter;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		//contact = getIntent().getParcelableExtra(MessageService.EXTRA_DATA_NAME_CONTACT);
+		to = getIntent().getStringExtra(EXTRA_DATA_NAME_TO);
 		
 		setContentView(R.layout.activity_chat);
 	
@@ -42,41 +39,17 @@ public class ChatActivity extends Activity implements OnClickListener, Listener<
 		findViewById(R.id.btn_send).setOnClickListener(this);
 		
 		messageListView = (ListView)findViewById(R.id.message_list);
-		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1);
+		adapter = new MessageCursorAdapter(this, null, 0);
 		messageListView.setAdapter(adapter);
 		
-		messageReceiver = new BroadcastReceiver() {
-			public void onReceive(Context context, Intent intent) {
-				String action = intent.getAction();
-				if (action != null && action.equals(MessageService.ACTION_MESSAGE_RECEIVED)) {
-					ChatMessage chatMessage = intent.getParcelableExtra("message");
-					adapter.add(chatMessage.getBody());
-					
-					Log.d("ChatActivity", "new message: " + chatMessage.getBody());
-				}
-			}
-		};
+		setTitle(getIntent().getStringExtra(EXTRA_DATA_NAME_NICKNAME));
 		
-		setTitle(contact.getNickname());
-	}
-	
-	@Override
-	public void onResume() {
-		super.onResume();
-		
-		IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction(MessageService.ACTION_MESSAGE_RECEIVED);
-		LocalBroadcastManager.getInstance(this).registerReceiver(messageReceiver, intentFilter);
-	}
-	
-	@Override
-	public void onPause() {
-		super.onPause();
+		getLoaderManager().initLoader(0, null, this);
 	}
 	
 	public void onClick(View v) {
 		if (v.getId() == R.id.btn_send) {
-			new SendChatMessageTask(this, new String(contact.getJid()), getMessage()).execute();
+			new SendChatMessageTask(this, this, to, getMessage()).execute();
 		}
 	}
 
@@ -88,12 +61,34 @@ public class ChatActivity extends Activity implements OnClickListener, Listener<
 	public void onResponse(Boolean result) {
 		if (result) {
 			Toast.makeText(this, "success", Toast.LENGTH_SHORT).show();
-			adapter.add(getMessage());
 		}
 	}
 
 	@Override
 	public void onErrorResponse(SmackInvocationException exception) {
 		Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();		
+	}
+
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		String[] projection = new String[] {
+				ChatMessageTable._ID,
+				ChatMessageTable.COLUMN_NAME_MESSAGE,
+				ChatMessageTable.COLUMN_NAME_TIME,
+				ChatMessageTable.COLUMN_NAME_TYPE,
+				ChatMessageTable.COLUMN_NAME_STATUS
+		};
+		return new CursorLoader(this, ChatMessageTable.CONTENT_URI, projection,
+				ChatMessageTable.COLUMN_NAME_JID + "=?", new String[]{to}, null);
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+		adapter.swapCursor(data);
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+		adapter.swapCursor(null);
 	}
 }

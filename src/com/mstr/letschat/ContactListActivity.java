@@ -1,5 +1,6 @@
 package com.mstr.letschat;
 
+import android.annotation.SuppressLint;
 import android.app.ListActivity;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
@@ -15,20 +16,20 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 
-import com.mstr.letschat.adapters.ContactListItemAdapter;
+import com.mstr.letschat.adapters.ContactCursorAdapter;
 import com.mstr.letschat.databases.ChatContract.ContactTable;
 
 public class ContactListActivity extends ListActivity 
 	implements OnQueryTextListener, LoaderManager.LoaderCallbacks<Cursor> {
 	
-	private ContactListItemAdapter adapter;
+	private ContactCursorAdapter adapter;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		getListView().addHeaderView(getHeaderView());
 		
-		adapter = new ContactListItemAdapter(this, null, 0);
+		adapter = new ContactCursorAdapter(this, null, 0);
 		setListAdapter(adapter);
 		
 		getLoaderManager().initLoader(0, null, this);
@@ -60,7 +61,6 @@ public class ContactListActivity extends ListActivity
 
 	@Override
 	public boolean onQueryTextSubmit(String query) {
-		
 		return false;
 	}
 
@@ -73,19 +73,28 @@ public class ContactListActivity extends ListActivity
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		if (position == 0) {
 			// header view is clicked
-			startActivity(new Intent(ContactListActivity.this, ContactRequestListActivity.class));
+			startActivity(new Intent(this, ContactRequestListActivity.class));
 		} else {
+			Cursor cursor = (Cursor)adapter.getItem(position - 1);
 			
+			Intent intent = new Intent(this, ChatActivity.class);
+			intent.putExtra(ChatActivity.EXTRA_DATA_NAME_TO, cursor.getString(cursor.getColumnIndex(ContactTable.COLUMN_NAME_JID)));
+			intent.putExtra(ChatActivity.EXTRA_DATA_NAME_NICKNAME, cursor.getString(cursor.getColumnIndex(ContactTable.COLUMN_NAME_NICKNAME)));
+			startActivity(intent);
 		}
 	}
 	
+	@SuppressLint("InflateParams")
 	private View getHeaderView() {
 		return LayoutInflater.from(this).inflate(R.layout.contact_list_header, null);
 	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		String[] projection = new String[] { ContactTable._ID, ContactTable.COLUMN_NAME_NICKNAME };
+		String[] projection = new String[] {
+				ContactTable._ID,
+				ContactTable.COLUMN_NAME_NICKNAME,
+				ContactTable.COLUMN_NAME_JID};
 		return new CursorLoader(this, ContactTable.CONTENT_URI, projection, null, null, null);
 	}
 

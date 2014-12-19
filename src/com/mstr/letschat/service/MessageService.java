@@ -17,17 +17,22 @@ import android.os.Looper;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.mstr.letschat.ChatActivity;
 import com.mstr.letschat.R;
 import com.mstr.letschat.SmackInvocationException;
+import com.mstr.letschat.databases.ChatContract.ChatMessageTable;
 import com.mstr.letschat.databases.ChatContract.ContactRequestTable;
 import com.mstr.letschat.databases.ChatContract.ContactTable;
-import com.mstr.letschat.utils.DatabaseUtils;
+import com.mstr.letschat.databases.ChatMessageTableHelper;
+import com.mstr.letschat.databases.ContactRequestTableHelper;
+import com.mstr.letschat.databases.ContactTableHelper;
+import com.mstr.letschat.receivers.IncomingContactRequestReceiver;
+import com.mstr.letschat.receivers.NetworkReceiver;
 import com.mstr.letschat.utils.UserUtils;
-import com.mstr.letschat.xmpp.XMPPContactHelper;
-import com.mstr.letschat.xmpp.XMPPHelper;
+import com.mstr.letschat.xmpp.MessagePacketListener;
+import com.mstr.letschat.xmpp.PresencePacketListener;
+import com.mstr.letschat.xmpp.SmackHelper;
 
 public class MessageService extends Service {
 	private static final String LOG_TAG = "MessageService";
@@ -39,8 +44,7 @@ public class MessageService extends Service {
 	
 	private static final int RECONNECT_MESSAGE_WHAT = 1;
 	
-	public static final String EXTRA_DATA_NAME_NOTIFICATION_TEXT = "com.mstr.letschat.NotificationText";
-	public static final String EXTRA_DATA_NAME_NETWORK_CONNECTED = "com.mstr.letschat.NetworkConnected";
+	public static final String EXTRA_DATA_NAME_FROM = "com.mstr.letschat.From";
 	
 	// Service Actions
 	public static final String ACTION_CONNECT = "com.mstr.letschat.intent.action.CONNECT";
@@ -54,9 +58,7 @@ public class MessageService extends Service {
 	
 	private int reconnectCount = 0;
 	
-	private XMPPHelper xmppHelper;
-	
-	private XMPPContactHelper xmppContactHelper;
+	private SmackHelper smackHelper;
 	
 	private final class ServiceHandler extends Handler {
 		public ServiceHandler(Looper looper) {
@@ -70,6 +72,7 @@ public class MessageService extends Service {
 			
 			if (action.equals(ACTION_CONNECT)) {
 				connect(intent);
+				return;
 			}
 			
 			if (action.equals(ACTION_RECONNECT)) {
@@ -86,6 +89,10 @@ public class MessageService extends Service {
 				handleNetworkStatus(intent);
 				return;
 			}
+			
+			if (action.equals(ACTION_MESSAGE_RECEIVED)) {
+				handleMessagePacket(intent);
+			}
 		}
 	}
 	
@@ -98,8 +105,7 @@ public class MessageService extends Service {
 		serviceLooper = thread.getLooper();
 		serviceHandler = new ServiceHandler(serviceLooper);
 		
-		xmppHelper = XMPPHelper.getInstance();
-		xmppContactHelper = XMPPContactHelper.getInstance();
+		smackHelper = SmackHelper.getInstance(this);
 	}
 	
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -130,9 +136,7 @@ public class MessageService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		
-		xmppHelper.disconnect();
-		
-		xmppHelper.onDestroy();
+		smackHelper.onDestroy();
 		
 		serviceLooper.quit();
 	}
@@ -148,7 +152,7 @@ public class MessageService extends Service {
 		String password = UserUtils.getPassword(this);
 		if (user != null && password != null) {
 			try {
-				xmppHelper.login(user, password);
+				smackHelper.login(user, password);
 			
 				return true;
 			} catch(SmackInvocationException e) {}
@@ -158,7 +162,7 @@ public class MessageService extends Service {
 	}
 
 	private void handlePrensencePacket(Intent intent) {
-		Presence.Type type = Presence.Type.values()[intent.getIntExtra(XMPPContactHelper.EXTRA_DATA_NAME_TYPE, -1)];
+		Presence.Type type = Presence.Type.values()[intent.getIntExtra(PresencePacketListener.EXTRA_DATA_NAME_TYPE, -1)];
 		
 		switch (type) {
 		case subscribe:
@@ -171,8 +175,8 @@ public class MessageService extends Service {
 	}
 	
 	private void processSubscribe(Intent intent) {
-		String from = intent.getStringExtra(XMPPContactHelper.EXTRA_DATA_NAME_FROM);
-		RosterEntry rosterEntry = xmppContactHelper.getRosterEntry(from);
+		String from = intent.getStringExtra(EXTRA_DATA_NAME_FROM);
+		RosterEntry rosterEntry = smackHelper.getRosterEntry(from);
 		ItemType rosterType = rosterEntry != null ? rosterEntry.getType() : null;
 		
 		// this is a request sent from new user asking for permission
@@ -185,15 +189,15 @@ public class MessageService extends Service {
 	
 	private void processSubscribeFromNewUser(String from) {
 		// get the nickname
-		String fromNickname = xmppHelper.getNickname(from);
+		String fromNickname = smackHelper.getNickname(from);
 		
 		// save request to db
 		getContentResolver().insert(ContactRequestTable.CONTENT_URI,
-				DatabaseUtils.newContactRequestContentValues(from, fromNickname));
+				ContactRequestTableHelper.newContentValues(from, fromNickname));
 		
 		// send ordered broadcast that a new contact request is received
 		Intent receiverIntent = new Intent(ACTION_CONTACT_REQUEST_RECEIVED);
-		receiverIntent.putExtra(EXTRA_DATA_NAME_NOTIFICATION_TEXT, 
+		receiverIntent.putExtra(IncomingContactRequestReceiver.EXTRA_DATA_NAME_NOTIFICATION_TEXT, 
 				String.format("%s %s", fromNickname, getString(R.string.add_contact_text)));
 		receiverIntent.setPackage(getPackageName());
 		sendOrderedBroadcast(receiverIntent, null);
@@ -201,7 +205,7 @@ public class MessageService extends Service {
 	
 	private void processSubsequentSubscribe(String from, String fromNickname) {
 		try {
-			xmppContactHelper.approveSubscription(from);
+			smackHelper.approveSubscription(from);
 		} catch (SmackInvocationException e) {
 			Log.e(LOG_TAG, String.format("send subscribed error, %s", e.toString()));
 			return;
@@ -209,28 +213,30 @@ public class MessageService extends Service {
 		
 		// save new contact to db
 		getContentResolver().insert(ContactTable.CONTENT_URI,
-				DatabaseUtils.newContactContentValues(from, fromNickname));
+				ContactTableHelper.newContentValues(from, fromNickname));
 		
 		// show notification that contact request has been approved
-		showContactRequestApprovedNotification(fromNickname);
+		showContactRequestApprovedNotification(from, fromNickname);
 		
 		// are there any pending requests from sender? update them to accepted
-		ContentValues values = new ContentValues();
-		values.put(ContactRequestTable.COLUMN_NAME_STATUS, DatabaseUtils.CONTACT_REQUEST_STATUS_ACCPTED);
-		getContentResolver().update(ContactRequestTable.CONTENT_URI, values, ContactRequestTable.COLUMN_NAME_JID + " = ?", new String[]{from});
+		ContentValues values = ContactRequestTableHelper.newContentValuesWithAcceptedStatus();
+		getContentResolver().update(ContactRequestTable.CONTENT_URI, values,
+				ContactRequestTable.COLUMN_NAME_JID + " = ?", new String[]{from});
 	}
 	
-	private void showContactRequestApprovedNotification(String title) {
+	private void showContactRequestApprovedNotification(String from, String fromNickname) {
 		TaskStackBuilder taskStackbuilder = TaskStackBuilder.create(this);
 		taskStackbuilder.addParentStack(ChatActivity.class);
-		Intent chatActivityIntent = new Intent(this, ChatActivity.class);
-		taskStackbuilder.addNextIntent(chatActivityIntent);
+		Intent intent = new Intent(this, ChatActivity.class);
+		intent.putExtra(ChatActivity.EXTRA_DATA_NAME_TO, from);
+		intent.putExtra(ChatActivity.EXTRA_DATA_NAME_NICKNAME, fromNickname);
+		taskStackbuilder.addNextIntent(intent);
 		
 		PendingIntent pendingIntent = taskStackbuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 		
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
 			.setSmallIcon(R.drawable.ic_launcher)
-			.setContentTitle(title)
+			.setContentTitle(fromNickname)
 			.setContentText(getString(R.string.acceptance_text))
 			.setContentIntent(pendingIntent)
 			.setAutoCancel(true);
@@ -253,7 +259,7 @@ public class MessageService extends Service {
 	}
 	
 	private void handleNetworkStatus(Intent intent) {
-		boolean connected = intent.getBooleanExtra(EXTRA_DATA_NAME_NETWORK_CONNECTED, false);
+		boolean connected = intent.getBooleanExtra(NetworkReceiver.EXTRA_DATA_NAME_NETWORK_CONNECTED, false);
 		
 		Log.d(LOG_TAG, String.format("network connected: %b", connected));
 		
@@ -264,26 +270,15 @@ public class MessageService extends Service {
 			// remove any pending reconnect messages if any
 			serviceHandler.removeMessages(RECONNECT_MESSAGE_WHAT);
 			
-			Toast.makeText(this, R.string.no_network_connected, Toast.LENGTH_SHORT).show();
-			
-			xmppHelper.onNetworkDisconnected();
+			smackHelper.onNetworkDisconnected();
 		}
 	}
 	
-	/*private void handlePostLoginMessage(Intent intent) {
-		XMPPHelper.getInstance().addPacketListener(this);
+	private void handleMessagePacket(Intent intent) {
+		String from = intent.getStringExtra(EXTRA_DATA_NAME_FROM);
+		String body = intent.getStringExtra(MessagePacketListener.EXTRA_DATA_NAME_Message_BODY);
+		
+		getContentResolver().insert(ChatMessageTable.CONTENT_URI, 
+				ChatMessageTableHelper.newIncomingMessageContentValues(from, body));
 	}
-	
-	@Override
-	public void processPacket(Packet packet) throws NotConnectedException {
-		Message msg = (Message)packet;
-		
-		ChatMessage chatMessage = ChatMessage.newIncomingMessage();
-		chatMessage.setJid(msg.getFrom());
-		chatMessage.setBody(msg.getBody());
-		
-		Intent i = new Intent(ACTION_MESSAGE_RECEIVED);
-		i.putExtra("message", chatMessage);
-		LocalBroadcastManager.getInstance(this).sendBroadcast(i);
-	}*/
 }

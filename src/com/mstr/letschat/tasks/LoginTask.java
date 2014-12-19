@@ -7,7 +7,7 @@ import android.content.Context;
 import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.utils.UserUtils;
-import com.mstr.letschat.xmpp.XMPPHelper;
+import com.mstr.letschat.xmpp.SmackHelper;
 
 public class LoginTask extends BaseAsyncTask<Void, Void, Boolean> {
 	private WeakReference<Context> contextWrapper;
@@ -27,12 +27,13 @@ public class LoginTask extends BaseAsyncTask<Void, Void, Boolean> {
 	@Override
 	public Response<Boolean> doInBackground(Void... params) {
 		Context context = contextWrapper.get();
-		
 		if (context != null) {
 			try {
-				XMPPHelper.getInstance().login(username, password);
+				SmackHelper smackHelper = SmackHelper.getInstance(context);
 				
-				UserUtils.setLoginUser(context, username, password, XMPPHelper.getInstance().getNickname());
+				smackHelper.login(username, password);
+				
+				UserUtils.setLoginUser(context, username, password, smackHelper.getNickname());
 				
 				return Response.success(true);
 			} catch(SmackInvocationException e) {

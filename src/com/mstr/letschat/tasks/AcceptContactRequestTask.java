@@ -11,10 +11,11 @@ import android.net.Uri;
 import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.databases.ChatContract.ContactRequestTable;
 import com.mstr.letschat.databases.ChatContract.ContactTable;
+import com.mstr.letschat.databases.ContactRequestTableHelper;
+import com.mstr.letschat.databases.ContactTableHelper;
 import com.mstr.letschat.model.Contact;
 import com.mstr.letschat.tasks.Response.Listener;
-import com.mstr.letschat.utils.DatabaseUtils;
-import com.mstr.letschat.xmpp.XMPPContactHelper;
+import com.mstr.letschat.xmpp.SmackHelper;
 
 public class AcceptContactRequestTask extends BaseAsyncTask<Void, Void, Contact> {
 	private WeakReference<Context> contextWrapper;
@@ -30,7 +31,6 @@ public class AcceptContactRequestTask extends BaseAsyncTask<Void, Void, Contact>
 	protected Response<Contact> doInBackground(Void... params) {
 		Uri requestUri = uriWrapper.get();
 		Context context = contextWrapper.get();
-		
 		if (requestUri != null && context != null) {
 			Cursor cursor = context.getContentResolver().query(requestUri, 
 					new String[]{ContactRequestTable.COLUMN_NAME_NICKNAME, ContactRequestTable.COLUMN_NAME_JID},
@@ -41,21 +41,20 @@ public class AcceptContactRequestTask extends BaseAsyncTask<Void, Void, Contact>
 				
 				try {
 					// 1. grant subscription to initiator
-					XMPPContactHelper.getInstance().approveSubscription(from);
+					SmackHelper.getInstance(context).approveSubscription(from);
 					
 					// 2. request permission to initiator
-					XMPPContactHelper.getInstance().addContact(from, fromNickname);
+					SmackHelper.getInstance(context).addContact(from, fromNickname);
 				} catch(SmackInvocationException e) {
 					return Response.error(e);
 				}
 				
 				// 3. save new contact to db
-				Uri contactUri = context.getContentResolver().insert(ContactTable.CONTENT_URI, DatabaseUtils.newContactContentValues(from, fromNickname));
+				Uri contactUri = context.getContentResolver().insert(ContactTable.CONTENT_URI, ContactTableHelper.newContentValues(from, fromNickname));
 				Contact contact = new Contact((int)ContentUris.parseId(contactUri), from, fromNickname);
 				
 				// 4. update request status in db as accepted
-				ContentValues values = new ContentValues();
-				values.put(ContactRequestTable.COLUMN_NAME_STATUS, DatabaseUtils.CONTACT_REQUEST_STATUS_ACCPTED);
+				ContentValues values = ContactRequestTableHelper.newContentValuesWithAcceptedStatus();
 				context.getContentResolver().update(ContactRequestTable.CONTENT_URI, values, ContactRequestTable.COLUMN_NAME_JID + " = ?", new String[]{from});
 				
 				return Response.success(contact);

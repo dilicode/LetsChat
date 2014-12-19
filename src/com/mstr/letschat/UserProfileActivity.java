@@ -121,6 +121,9 @@ public class UserProfileActivity extends Activity implements OnClickListener {
 	
 	private void onSendMessageClick() {
 		Intent intent = new Intent(this, ChatActivity.class);
+		intent.putExtra(ChatActivity.EXTRA_DATA_NAME_TO, profile.getJid());
+		intent.putExtra(ChatActivity.EXTRA_DATA_NAME_NICKNAME, profile.getNickname());
+		
 		startActivity(intent);
 	}
 	

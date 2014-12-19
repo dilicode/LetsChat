@@ -1,29 +1,46 @@
 package com.mstr.letschat.tasks;
 
+import java.lang.ref.WeakReference;
+
+import android.content.Context;
+
 import com.mstr.letschat.SmackInvocationException;
+import com.mstr.letschat.databases.ChatMessageTableHelper;
+import com.mstr.letschat.databases.ChatContract.ChatMessageTable;
 import com.mstr.letschat.tasks.Response.Listener;
-import com.mstr.letschat.xmpp.XMPPHelper;
+import com.mstr.letschat.xmpp.SmackHelper;
 
 public class SendChatMessageTask extends BaseAsyncTask<Void, Void, Boolean> {
+	private WeakReference<Context> contextWrapper;
+	
 	private String to;
 	private String body;
 	
-	public SendChatMessageTask(Listener<Boolean> listener, String to, String body) {
+	public SendChatMessageTask(Listener<Boolean> listener, Context context, String to, String body) {
 		super(listener);
 		
+		contextWrapper = new WeakReference<Context>(context);
 		this.to = to;
 		this.body = body;
 	}
 	
 	@Override
 	public Response<Boolean> doInBackground(Void... params) {
-		try {
-			XMPPHelper.getInstance().sendChatMessage(to, body);
-			
-			return Response.success(true);
-		} catch(SmackInvocationException e) {
-			return Response.error(e);
+		Context context = contextWrapper.get();
+		if (context != null) {
+			try {
+				context.getContentResolver().insert(ChatMessageTable.CONTENT_URI, 
+						ChatMessageTableHelper.newOutgoingMessageContentValues(to, body));
+				
+				SmackHelper.getInstance(context).sendChatMessage(to, body);
+				
+				return Response.success(true);
+			} catch(SmackInvocationException e) {
+				return Response.error(e);
+			}
 		}
+		
+		return null;
 	}
 	
 	@Override

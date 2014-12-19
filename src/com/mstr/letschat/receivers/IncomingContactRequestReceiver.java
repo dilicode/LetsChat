@@ -14,6 +14,7 @@ import com.mstr.letschat.R;
 import com.mstr.letschat.service.MessageService;
 
 public class IncomingContactRequestReceiver extends BroadcastReceiver {
+	public static final String EXTRA_DATA_NAME_NOTIFICATION_TEXT = "com.mstr.letschat.NotificationText";
 	public static int INCOMING_CONTACT_REQUEST_NOTIFICATION_ID = 1;
 	
 	@Override
@@ -29,7 +30,7 @@ public class IncomingContactRequestReceiver extends BroadcastReceiver {
 			NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
 				.setSmallIcon(R.drawable.ic_launcher)
 				.setContentTitle(context.getString(R.string.app_name))
-				.setContentText(intent.getStringExtra(MessageService.EXTRA_DATA_NAME_NOTIFICATION_TEXT))
+				.setContentText(intent.getStringExtra(EXTRA_DATA_NAME_NOTIFICATION_TEXT))
 				.setContentIntent(pendingIntent)
 				.setAutoCancel(true);
 			

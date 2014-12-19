@@ -12,7 +12,7 @@ import android.widget.Toast;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.tasks.SignupTask;
 
-public class SignupActivity extends Activity implements OnClickListener {
+public class SignupActivity extends Activity implements OnClickListener, Listener<Boolean> {
 	private EditText nameText;
 	private EditText phoneNumberText;
 	private EditText passwordText;
@@ -35,23 +35,21 @@ public class SignupActivity extends Activity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		if (v == submitButton) {
-			new SignupTask(signupListener, phoneNumberText.getText().toString(), passwordText.getText().toString(), nameText.getText().toString()).execute();
+			new SignupTask(this, this, phoneNumberText.getText().toString(), passwordText.getText().toString(), nameText.getText().toString()).execute();
 		}
 	}
 	
-	private Listener<Boolean> signupListener = new Listener<Boolean>() {
-		@Override
-		public void onResponse(Boolean result) {
-			if (result) {
-				Toast.makeText(SignupActivity.this, R.string.login_success, Toast.LENGTH_SHORT).show();
-				
-				startActivity(new Intent(SignupActivity.this, ChatHistoryActivity.class));
-			}
+	@Override
+	public void onResponse(Boolean result) {
+		if (result) {
+			Toast.makeText(SignupActivity.this, R.string.login_success, Toast.LENGTH_SHORT).show();
+			
+			startActivity(new Intent(SignupActivity.this, ChatHistoryActivity.class));
 		}
+	}
 
-		@Override
-		public void onErrorResponse(SmackInvocationException exception) {
-			Toast.makeText(SignupActivity.this, R.string.create_account_error, Toast.LENGTH_SHORT).show();
-		}
-	};
+	@Override
+	public void onErrorResponse(SmackInvocationException exception) {
+		Toast.makeText(SignupActivity.this, R.string.create_account_error, Toast.LENGTH_SHORT).show();
+	}
 }

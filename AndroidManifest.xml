@@ -14,7 +14,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:name="LetsChatApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -69,6 +68,10 @@
 			    android:value=".ContactListActivity" />
 		</activity>
 		
+		<activity android:name="de.duenndns.ssl.MemorizingActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            />
+		
 		<activity
 		    android:name=".UserProfileActivity"
 		    android:label="@string/contact_profile">
@@ -92,7 +95,7 @@
 			</intent-filter>    
 		</receiver>
 		
-		<service android:name=".service.MessageService" android:exported="false" android:process=":push"/>
+		<service android:name=".service.MessageService" android:exported="false" />
 		
 		<provider android:name=".providers.CustomProvider" android:authorities="com.mstr.letschat.provider" android:exported="false" />
     </application>

@@ -7,7 +7,7 @@ import android.content.Context;
 import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.model.UserProfile;
 import com.mstr.letschat.tasks.Response.Listener;
-import com.mstr.letschat.xmpp.XMPPContactHelper;
+import com.mstr.letschat.xmpp.SmackHelper;
 
 public class SendContactRequestTask extends BaseAsyncTask<Void, Void, Boolean> {
 	private WeakReference<Context> contextWrapper;
@@ -26,8 +26,7 @@ public class SendContactRequestTask extends BaseAsyncTask<Void, Void, Boolean> {
 		UserProfile userProfile = userProfileWrapper.get();
 		if (context != null && userProfile != null) {
 			try {
-				
-				XMPPContactHelper.getInstance().addContact(userProfile.getJid(), userProfile.getNickname());
+				SmackHelper.getInstance(context).addContact(userProfile.getJid(), userProfile.getNickname());
 				
 				return Response.success(true);
 			} catch (SmackInvocationException e) {

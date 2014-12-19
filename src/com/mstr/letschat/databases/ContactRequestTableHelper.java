@@ -1,12 +1,7 @@
 package com.mstr.letschat.databases;
 
-import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 
 import com.mstr.letschat.databases.ChatContract.ContactRequestTable;
 
@@ -22,21 +17,8 @@ public class ContactRequestTableHelper {
 	private static final String SQL_DELETE_ENTRIES =
 		    "DROP TABLE IF EXISTS " + ContactRequestTable.TABLE_NAME;
 	
-	private ChatDbHelper dbHelper;
-	
-	private static ContactRequestTableHelper instance;
-	
-	private ContactRequestTableHelper(Context context) {
-		dbHelper = ChatDbHelper.getInstance(context);
-	}
-	
-	public static synchronized ContactRequestTableHelper getInstance(Context context) {
-		if (instance == null) {
-			instance = new ContactRequestTableHelper(context.getApplicationContext());
-		}
-		
-		return instance;
-	}
+	public static final int CONTACT_REQUEST_STATUS_PENDING = 1;
+	public static final int CONTACT_REQUEST_STATUS_ACCPTED = 2;
 	
 	public static void onCreate(SQLiteDatabase database) {
 		database.execSQL(SQL_CREATE_ENTRIES);
@@ -46,27 +28,23 @@ public class ContactRequestTableHelper {
 		database.execSQL(SQL_DELETE_ENTRIES);
 	}
 	
-	public Cursor query(String[] projection, String selection,
-			String[] selectionArgs, String orderBy) {
-		SQLiteDatabase db = dbHelper.getReadableDatabase();
+	public static ContentValues newContentValues(String jid, String nickname) {
+		ContentValues values = new ContentValues();
+		values.put(ContactRequestTable.COLUMN_NAME_JID, jid);
+		values.put(ContactRequestTable.COLUMN_NAME_NICKNAME, nickname);
+		values.put(ContactRequestTable.COLUMN_NAME_STATUS, CONTACT_REQUEST_STATUS_PENDING);
 		
-		if (orderBy == null) {
-			orderBy = ContactRequestTable.DEFAULT_SORT_ORDER;
-		}
-		
-		return db.query(ContactRequestTable.TABLE_NAME, projection, selection, selectionArgs, null, null, orderBy);
+		return values;
 	}
 	
-	public Uri insert(ContentValues values) {
-		long rowId = dbHelper.getWritableDatabase().insert(ContactRequestTable.TABLE_NAME, null, values);
-		if (rowId > 0) {
-			return ContentUris.withAppendedId(ContactRequestTable.CONTENT_URI, rowId);
-		}
+	public static ContentValues newContentValuesWithAcceptedStatus() {
+		ContentValues values = new ContentValues();
+		values.put(ContactRequestTable.COLUMN_NAME_STATUS, CONTACT_REQUEST_STATUS_ACCPTED);
 		
-		throw new SQLException("Failed to insert row into " + ContactRequestTable.TABLE_NAME);
+		return values;
 	}
 	
-	public int update(ContentValues values, String whereClause, String[] whereArgs) {
-		return dbHelper.getWritableDatabase().update(ContactRequestTable.TABLE_NAME, values, whereClause, whereArgs);
+	public static boolean isAcceptedStatus(int status) {
+		return status == ContactRequestTableHelper.CONTACT_REQUEST_STATUS_ACCPTED;
 	}
 }

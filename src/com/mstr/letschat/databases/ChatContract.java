@@ -22,11 +22,19 @@ public final class ChatContract {
 	}
 	
 	public static abstract class ChatMessageTable implements BaseColumns {
-		public static final String TABLE_NAME = "chatmessage";
+		public static final String TABLE_NAME = "message";
 		public static final String COLUMN_NAME_TYPE = "type";
-		public static final String COLUMN_NAME_SENDER = "sender";
+		public static final String COLUMN_NAME_JID = "jid";
 		public static final String COLUMN_NAME_MESSAGE = "message";
 		public static final String COLUMN_NAME_TIME = "time";
+		public static final String COLUMN_NAME_STATUS = "status";
+		
+		public static final String DEFAULT_SORT_ORDER = "_id ASC";
+		
+		public static final Uri CONTENT_URI =  Uri.parse("content://" + CustomProvider.AUTHORITY + "/message");
+		
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + CustomProvider.AUTHORITY + ".message";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + CustomProvider.AUTHORITY + ".message";
 	}
 	
 	public static abstract class ContactRequestTable implements BaseColumns {

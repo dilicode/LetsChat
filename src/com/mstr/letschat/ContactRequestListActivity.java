@@ -14,8 +14,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import com.mstr.letschat.adapters.ContactRequestListItemAdapter;
-import com.mstr.letschat.adapters.ContactRequestListItemAdapter.OnAcceptButtonClickListener;
+import com.mstr.letschat.adapters.ContactRequestCursorAdapter;
+import com.mstr.letschat.adapters.ContactRequestCursorAdapter.OnAcceptButtonClickListener;
 import com.mstr.letschat.databases.ChatContract.ContactRequestTable;
 import com.mstr.letschat.model.Contact;
 import com.mstr.letschat.model.UserProfile;
@@ -27,12 +27,6 @@ import com.mstr.letschat.tasks.Response.Listener;
 public class ContactRequestListActivity extends ListActivity 
 	implements LoaderManager.LoaderCallbacks<Cursor>, OnAcceptButtonClickListener {
 	
-	private static final String[] PROJECTION = new String[] {
-		ContactRequestTable._ID,
-		ContactRequestTable.COLUMN_NAME_JID,
-		ContactRequestTable.COLUMN_NAME_NICKNAME,
-		ContactRequestTable.COLUMN_NAME_STATUS};
-
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
@@ -42,7 +36,7 @@ public class ContactRequestListActivity extends ListActivity
 		}
 	};
 	
-	private ContactRequestListItemAdapter adapter;
+	private ContactRequestCursorAdapter adapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,14 +49,13 @@ public class ContactRequestListActivity extends ListActivity
 		getActionBar().setHomeButtonEnabled(true);
 		
 		// Create an empty adapter we will use to display the loaded data.
-		adapter = new ContactRequestListItemAdapter(this, null, 0);
+		adapter = new ContactRequestCursorAdapter(this, null, 0);
 		adapter.setOnAcceptButtonClicklistener(this);
 		setListAdapter(adapter);
 		
 		getListView().setItemsCanFocus(false);
 		
 		getLoaderManager().initLoader(0, null, this);
-		
 	}
 	
 	@Override
@@ -110,6 +103,11 @@ public class ContactRequestListActivity extends ListActivity
 	
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		String[] PROJECTION = new String[] {
+			ContactRequestTable._ID,
+			ContactRequestTable.COLUMN_NAME_JID,
+			ContactRequestTable.COLUMN_NAME_NICKNAME,
+			ContactRequestTable.COLUMN_NAME_STATUS};
 		return new CursorLoader(this, ContactRequestTable.CONTENT_URI, PROJECTION, null, null, null);
 	}
 
