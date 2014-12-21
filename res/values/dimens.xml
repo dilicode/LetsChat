@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="message_sending_progress_size">30dp</dimen>
-    <dimen name="message_horizontal_padding">50dp</dimen>
+    <dimen name="message_horizontal_margin">50dp</dimen>
 </resources>

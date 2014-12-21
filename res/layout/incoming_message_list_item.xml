@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
     android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-    android:paddingRight="@dimen/message_horizontal_padding"
-    android:paddingEnd="@dimen/message_horizontal_padding"
-    android:minHeight="?android:attr/listPreferredItemHeightSmall">
+	android:paddingRight="?android:attr/listPreferredItemPaddingRight"
+    android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+    android:minHeight="?android:attr/listPreferredItemHeightSmall"
+    android:orientation="vertical">
+	
+	<include layout="@layout/message_date_section" />
 	
 	<RelativeLayout
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:padding="10dp"
+		android:layout_marginRight="@dimen/message_horizontal_margin"
+		android:layout_marginEnd="@dimen/message_horizontal_margin"
 		android:background="@drawable/incoming_message_bg">
 		
 		<include layout="@layout/message_view" />
 	</RelativeLayout>
-</FrameLayout>
+</LinearLayout>

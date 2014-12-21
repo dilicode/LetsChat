@@ -179,6 +179,11 @@ public class CustomProvider extends ContentProvider {
 			table = ContactRequestTable.TABLE_NAME;
 			where = DatabaseUtils.concatenateWhere(ContactRequestTable._ID + " = " + ContentUris.parseId(uri), where);
 			break;
+			
+		case CHAT_MESSAGE_ID:
+			table = ChatMessageTable.TABLE_NAME;
+			where = DatabaseUtils.concatenateWhere(ChatMessageTable._ID + " = " + ContentUris.parseId(uri), where);
+			break;
 		
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);

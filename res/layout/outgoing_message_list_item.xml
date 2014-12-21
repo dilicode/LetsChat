@@ -2,26 +2,36 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingLeft="@dimen/message_horizontal_padding"
-    android:paddingStart="@dimen/message_horizontal_padding"
+	android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
+    android:paddingStart="?android:attr/listPreferredItemPaddingStart"
     android:paddingRight="?android:attr/listPreferredItemPaddingRight"
     android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
-	android:orientation="horizontal"
-	android:gravity="center_vertical|end">
+	android:orientation="vertical">
 	
-	<ProgressBar
-		android:id="@+id/progress"
-		style="?android:attr/progressBarStyleSmall"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" />
-	
-	<RelativeLayout
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:padding="10dp"
-		android:background="@drawable/outgoing_message_bg">
+    <include layout="@layout/message_date_section" />
     
-		<include layout="@layout/message_view" />
-	</RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical|end"
+        android:layout_marginLeft="@dimen/message_horizontal_margin"
+        android:layout_marginStart="@dimen/message_horizontal_margin">
+	
+		<ProgressBar
+			android:id="@+id/message_sending_progress"
+			style="?android:attr/progressBarStyleSmall"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" />
+		
+		<RelativeLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:padding="10dp"
+			android:background="@drawable/outgoing_message_bg">
+	    
+			<include layout="@layout/message_view" />
+		</RelativeLayout>
+	</LinearLayout>
 </LinearLayout>

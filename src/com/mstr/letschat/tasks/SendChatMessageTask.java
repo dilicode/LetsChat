@@ -2,11 +2,13 @@ package com.mstr.letschat.tasks;
 
 import java.lang.ref.WeakReference;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.net.Uri;
 
 import com.mstr.letschat.SmackInvocationException;
-import com.mstr.letschat.databases.ChatMessageTableHelper;
 import com.mstr.letschat.databases.ChatContract.ChatMessageTable;
+import com.mstr.letschat.databases.ChatMessageTableHelper;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.xmpp.SmackHelper;
 
@@ -28,14 +30,17 @@ public class SendChatMessageTask extends BaseAsyncTask<Void, Void, Boolean> {
 	public Response<Boolean> doInBackground(Void... params) {
 		Context context = contextWrapper.get();
 		if (context != null) {
-			try {
-				context.getContentResolver().insert(ChatMessageTable.CONTENT_URI, 
+			ContentResolver contentResolver = context.getContentResolver();
+			Uri uri = contentResolver.insert(ChatMessageTable.CONTENT_URI, 
 						ChatMessageTableHelper.newOutgoingMessageContentValues(to, body));
-				
+			try {
 				SmackHelper.getInstance(context).sendChatMessage(to, body);
 				
+				contentResolver.update(uri, ChatMessageTableHelper.newSuccessStatusContentValues(), null, null);
 				return Response.success(true);
 			} catch(SmackInvocationException e) {
+				contentResolver.update(uri, ChatMessageTableHelper.newFailureStatusContentValues(), null, null);
+				
 				return Response.error(e);
 			}
 		}

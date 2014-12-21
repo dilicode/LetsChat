@@ -2,6 +2,7 @@ package com.mstr.letschat.tasks;
 
 import java.lang.ref.WeakReference;
 
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -32,7 +33,8 @@ public class AcceptContactRequestTask extends BaseAsyncTask<Void, Void, Contact>
 		Uri requestUri = uriWrapper.get();
 		Context context = contextWrapper.get();
 		if (requestUri != null && context != null) {
-			Cursor cursor = context.getContentResolver().query(requestUri, 
+			ContentResolver contentResolver = context.getContentResolver();
+			Cursor cursor = contentResolver.query(requestUri, 
 					new String[]{ContactRequestTable.COLUMN_NAME_NICKNAME, ContactRequestTable.COLUMN_NAME_JID},
 					null, null, null);
 			if (cursor.moveToFirst()) {
@@ -50,12 +52,12 @@ public class AcceptContactRequestTask extends BaseAsyncTask<Void, Void, Contact>
 				}
 				
 				// 3. save new contact to db
-				Uri contactUri = context.getContentResolver().insert(ContactTable.CONTENT_URI, ContactTableHelper.newContentValues(from, fromNickname));
+				Uri contactUri = contentResolver.insert(ContactTable.CONTENT_URI, ContactTableHelper.newContentValues(from, fromNickname));
 				Contact contact = new Contact((int)ContentUris.parseId(contactUri), from, fromNickname);
 				
 				// 4. update request status in db as accepted
 				ContentValues values = ContactRequestTableHelper.newContentValuesWithAcceptedStatus();
-				context.getContentResolver().update(ContactRequestTable.CONTENT_URI, values, ContactRequestTable.COLUMN_NAME_JID + " = ?", new String[]{from});
+				contentResolver.update(ContactRequestTable.CONTENT_URI, values, ContactRequestTable.COLUMN_NAME_JID + " = ?", new String[]{from});
 				
 				return Response.success(contact);
 			}

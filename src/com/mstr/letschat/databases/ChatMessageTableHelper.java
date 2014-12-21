@@ -58,6 +58,20 @@ public class ChatMessageTableHelper {
 		return values;
 	}
 	
+	public static ContentValues newSuccessStatusContentValues() {
+		ContentValues values = new ContentValues();
+		values.put(ChatMessageTable.COLUMN_NAME_STATUS, STATUS_SUCCESS);
+		
+		return values;
+	}
+	
+	public static ContentValues newFailureStatusContentValues() {
+		ContentValues values = new ContentValues();
+		values.put(ChatMessageTable.COLUMN_NAME_STATUS, STATUS_SUCCESS);
+		
+		return values;
+	}
+	
 	public static boolean isIncomingMessage(int type) {
 		return type == TYPE_INCOMING;
 	}
