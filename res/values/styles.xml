@@ -23,8 +23,8 @@
 		<item name="android:background">?android:attr/listDivider</item>
 	</style>
 	
-	<style name="LoginButton">
-	    <item name="android:layout_width">100dp</item>
+	<style name="DefaultButton">
+	    <item name="android:layout_width">wrap_content</item>
 	    <item name="android:layout_height">wrap_content</item>
 	    <item name="android:background">@drawable/btn_green</item>
 		<item name="android:textColor">@android:color/white</item>

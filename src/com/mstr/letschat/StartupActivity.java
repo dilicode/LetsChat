@@ -21,10 +21,8 @@ public class StartupActivity extends Activity implements OnClickListener {
 				public void run() {
 					startService(new Intent(MessageService.ACTION_CONNECT, null, StartupActivity.this, MessageService.class));
 					
-					startActivity(new Intent(StartupActivity.this, ChatHistoryActivity.class));
+					startActivity(new Intent(StartupActivity.this, ConversationActivity.class));
 					overridePendingTransition(0, 0);
-					
-					finish();
 				}
 			}, 500);
 		} else {

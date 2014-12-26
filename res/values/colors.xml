@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="incoming_message_bg_color">#fbfbfb</color>
+    <color name="outgoing_message_bg_color">#b2e866</color>
+    <color name="background_dark">#d4d4d4</color>
+	<color name="incoming_message_border_color">#c8c8c8</color>
+	<color name="outgoing_message_border_color">#79c023</color>
+	<color name="text_color_dark">#7b7b7b</color>
+	<color name="green">#45c01a</color>
+	<color name="highlighted_status_text">#4e7777</color>
+</resources>

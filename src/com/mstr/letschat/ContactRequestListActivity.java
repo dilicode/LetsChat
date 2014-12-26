@@ -42,10 +42,6 @@ public class ContactRequestListActivity extends ListActivity
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		// cancel notification if any
-		((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(
-				IncomingContactRequestReceiver.INCOMING_CONTACT_REQUEST_NOTIFICATION_ID);
-		
 		getActionBar().setHomeButtonEnabled(true);
 		
 		// Create an empty adapter we will use to display the loaded data.
@@ -76,6 +72,9 @@ public class ContactRequestListActivity extends ListActivity
 		IntentFilter filter = new IntentFilter(MessageService.ACTION_CONTACT_REQUEST_RECEIVED);
 		filter.setPriority(10);
 		registerReceiver(receiver, filter);
+	
+		// cancel notification if existing
+		cancelNotificationIfExisting();
 	}
 	
 	protected void onPause() {
@@ -119,5 +118,10 @@ public class ContactRequestListActivity extends ListActivity
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		adapter.swapCursor(null);
+	}
+	
+	private void cancelNotificationIfExisting() {
+		((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(
+				IncomingContactRequestReceiver.INCOMING_CONTACT_REQUEST_NOTIFICATION_ID);
 	}
 }

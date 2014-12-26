@@ -43,4 +43,14 @@
 	<string name="delete">Delete</string>
 	<string name="search_user_error">Search user error</string>
 	<string name="no_network_connected">No network connected</string>
+	<string name="new_messages"> new messages</string>
+	<string name="settings">Setttings</string>
+	<string name="status">Status</string>
+	<string name="current_status">Your current status</string>
+	<string name="select_status">Select your new status</string>
+	<string name="status_available">Available</string>
+	<string name="status_busy">Busy</string>
+	<string name="status_at_school">At school</string>
+	<string name="status_at_work">At work</string>
+	<string name="status_in_a_meeting">In a meeting</string>
 </resources>

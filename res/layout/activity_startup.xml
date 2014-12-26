@@ -24,14 +24,16 @@
 	
 		<Button
 	        android:id="@+id/btn_login"
-	        style="@style/LoginButton"
+	        android:layout_width="100dp"
 	        android:text="@string/login"
 	        android:layout_marginRight="50dp"
-	        android:layout_marginEnd="50dp" />
+	        android:layout_marginEnd="50dp"
+	        style="@style/DefaultButton" />
 	    
 	    <Button
 	        android:id="@+id/btn_signup"
-	        style="@style/LoginButton"
-	        android:text="@string/signup" />
+	        android:layout_width="100dp"
+	        android:text="@string/signup"
+	        style="@style/DefaultButton" />
     </LinearLayout>
 </RelativeLayout>

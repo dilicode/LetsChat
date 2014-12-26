@@ -35,23 +35,22 @@ public class ChatMessageTableHelper {
 		database.execSQL(SQL_DELETE_ENTRIES);
 	}
 	
-	public static ContentValues newIncomingMessageContentValues(String jid, String body) {
+	public static ContentValues newIncomingMessageContentValues(String jid, String body, long timeMillis) {
 		ContentValues values = new ContentValues();
 		values.put(ChatMessageTable.COLUMN_NAME_JID, jid);
 		values.put(ChatMessageTable.COLUMN_NAME_MESSAGE, body);
-		values.put(ChatMessageTable.COLUMN_NAME_TIME, System.currentTimeMillis());
+		values.put(ChatMessageTable.COLUMN_NAME_TIME, timeMillis);
 		values.put(ChatMessageTable.COLUMN_NAME_TYPE, TYPE_INCOMING);
 		values.put(ChatMessageTable.COLUMN_NAME_STATUS, STATUS_SUCCESS);
 		
 		return values;
 	}
 	
-	
-	public static ContentValues newOutgoingMessageContentValues(String jid, String body) {
+	public static ContentValues newOutgoingMessageContentValues(String jid, String body, long timeMillis) {
 		ContentValues values = new ContentValues();
 		values.put(ChatMessageTable.COLUMN_NAME_JID, jid);
 		values.put(ChatMessageTable.COLUMN_NAME_MESSAGE, body);
-		values.put(ChatMessageTable.COLUMN_NAME_TIME, System.currentTimeMillis());
+		values.put(ChatMessageTable.COLUMN_NAME_TIME, timeMillis);
 		values.put(ChatMessageTable.COLUMN_NAME_TYPE, TYPE_OUTGOING);
 		values.put(ChatMessageTable.COLUMN_NAME_STATUS, STATUS_PENDING);
 		

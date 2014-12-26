@@ -40,7 +40,7 @@ public class LoginActivity extends Activity implements Listener<Boolean>, OnClic
 	@Override
 	public void onResponse(Boolean response) {
 		if (response) {
-			startActivity(new Intent(this, ChatHistoryActivity.class));
+			startActivity(new Intent(this, ConversationActivity.class));
 		}
 	}
 
@@ -51,5 +51,13 @@ public class LoginActivity extends Activity implements Listener<Boolean>, OnClic
 		} else {
 			Toast.makeText(this, R.string.login_error, Toast.LENGTH_SHORT).show();
 		}
+	}
+	
+	@Override
+	public void onBackPressed() {
+		startActivity(new Intent(this, StartupActivity.class));
+		overridePendingTransition(0, 0);
+		
+		super.onBackPressed();
 	}
 }

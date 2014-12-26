@@ -23,6 +23,7 @@ public class MessageCursorAdapter extends CursorAdapter {
 	private static final int VIEW_TYPE_INCOMING_MESSAGE = 0;
 	private static final int VIEW_TYPE_OUTGOING_MESSAGE = 1;
 	
+	private DateFormat timeFormat;
 	private DateFormat dateFormat;
 	
 	private LayoutInflater inflater;
@@ -30,7 +31,8 @@ public class MessageCursorAdapter extends CursorAdapter {
 	public MessageCursorAdapter(Context context, Cursor c, int flags) {
 		super(context,  c, flags);
 		
-		dateFormat = new SimpleDateFormat("HH:mm");
+		timeFormat = new SimpleDateFormat("HH:mm");
+		dateFormat = DateFormat.getDateInstance();
 		
 		inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
@@ -40,9 +42,8 @@ public class MessageCursorAdapter extends CursorAdapter {
 		ViewHolder viewHolder = (ViewHolder)view.getTag();
 		
 		viewHolder.messageText.setText(cursor.getString(cursor.getColumnIndex(ChatMessageTable.COLUMN_NAME_MESSAGE)));
-		
 		long timeMillis = getTime(cursor);
-		viewHolder.timeText.setText(dateFormat.format(new Date(timeMillis)));
+		viewHolder.timeText.setText(timeFormat.format(new Date(timeMillis)));
 		
 		if (viewHolder.type == VIEW_TYPE_OUTGOING_MESSAGE) {
 			int status = cursor.getInt(cursor.getColumnIndex(ChatMessageTable.COLUMN_NAME_STATUS));
@@ -56,7 +57,7 @@ public class MessageCursorAdapter extends CursorAdapter {
 		if (isSameDayToPreviousPosition(timeMillis, cursor)) {
 			viewHolder.dateText.setVisibility(View.GONE);
 		} else {
-			viewHolder.dateText.setText(DateFormat.getDateInstance().format(new Date(timeMillis)));
+			viewHolder.dateText.setText(dateFormat.format(new Date(timeMillis)));
 			viewHolder.dateText.setVisibility(View.VISIBLE);
 		}
 	}

@@ -50,4 +50,20 @@ public final class ChatContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + CustomProvider.AUTHORITY + ".contactrequest";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + CustomProvider.AUTHORITY + ".contactrequest";
 	}
+	
+	public static abstract class ConversationTable implements BaseColumns {
+		public static final String TABLE_NAME = "conversation";
+		public static final String COLUMN_NAME_NAME = "name";
+		public static final String COLUMN_NAME_NICKNAME = "nickname";
+		public static final String COLUMN_NAME_LATEST_MESSAGE = "latestmessage";
+		public static final String COLUMN_NAME_UNREAD = "unread";
+		public static final String COLUMN_NAME_TIME = "time";
+		
+		public static final String DEFAULT_SORT_ORDER = "time DESC";
+		
+		public static final Uri CONTENT_URI =  Uri.parse("content://" + CustomProvider.AUTHORITY + "/conversation");
+		
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + CustomProvider.AUTHORITY + ".conversation";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + CustomProvider.AUTHORITY + ".conversation";
+	}
 }

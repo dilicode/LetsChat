@@ -19,8 +19,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
 		
-		<activity
-			android:name=".StartupActivity">
+		<activity android:name=".StartupActivity" android:noHistory="true">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
@@ -32,7 +31,8 @@
 		<activity android:name=".LoginActivity" android:noHistory="true" />
 		
 		<activity android:name=".ChatActivity"
-		    android:parentActivityName=".ChatHistoryActivity" >
+		    android:parentActivityName=".ConversationActivity"
+		    android:windowSoftInputMode="stateHidden|adjustResize" >
 		    <meta-data
 		        android:name="android.support.PARENT_ACTIVITY"
 		        android:value=".ChatHistoryActivity" />
@@ -43,7 +43,7 @@
 		<activity android:name=".AccountSetupActivity" />
 		
 		<activity
-		    android:name=".ChatHistoryActivity"
+		    android:name=".ConversationActivity"
 		    android:label="@string/chats"/>
 		
 		<activity
@@ -51,8 +51,12 @@
 		    android:label="@string/search_contact" />
 		
 		<activity
+		    android:name=".SetStatusActivity"
+		    android:label="@string/status" />
+		
+		<activity
 		    android:name=".ContactListActivity"
-		    android:parentActivityName=".ChatHistoryActivity"
+		    android:parentActivityName=".ConversationActivity"
 		    android:label="@string/select_contact" >
 			<meta-data
 			    android:name="android.support.PARENT_ACTIVITY"
@@ -68,9 +72,7 @@
 			    android:value=".ContactListActivity" />
 		</activity>
 		
-		<activity android:name="de.duenndns.ssl.MemorizingActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            />
+		<activity android:name="de.duenndns.ssl.MemorizingActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 		
 		<activity
 		    android:name=".UserProfileActivity"
@@ -85,7 +87,7 @@
 		
 		<receiver android:name=".receivers.IncomingContactRequestReceiver" android:exported="false">
 		    <intent-filter>
-		        <action android:name="com.mstr.letschat.intent.action.CONTACT_REQUEST_RECEIVED"/>
+		        <action android:name="com.mstr.letschat.intent.action.CONTACT_REQUEST_RECEIVED" />
 		    </intent-filter>
 		</receiver>
 		

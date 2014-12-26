@@ -18,6 +18,7 @@ import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.Roster.SubscriptionMode;
+import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.SmackAndroid;
@@ -50,9 +51,9 @@ import de.duenndns.ssl.MemorizingTrustManager;
 public class SmackHelper {
 	private static final String LOG_TAG = "SmackHelper";
 	
-	//private static final String HOST = "10.197.34.151";
+	private static final String HOST = "10.197.34.151";
 	
-	private static final String HOST = "192.168.1.103";
+	// private static final String HOST = "192.168.1.103";
 	private static final int PORT = 5222;
 	
 	public static final String RESOURCE_PART = "Smack";
@@ -67,6 +68,9 @@ public class SmackHelper {
 	
 	private State state;
 	
+	private PacketListener messagePacketListener;
+	private PacketListener presencePacketListener;
+	
 	private SmackAndroid smackAndroid;
 	
 	private static SmackHelper instance;
@@ -75,6 +79,9 @@ public class SmackHelper {
 		this.context = context;
 		
 		smackAndroid = SmackAndroid.init(context);
+		
+		messagePacketListener = new MessagePacketListener(context);
+		presencePacketListener = new PresencePacketListener(context);
 		
 		Roster.setDefaultSubscriptionMode(SubscriptionMode.manual);
 	}
@@ -94,8 +101,8 @@ public class SmackHelper {
 			this.state = state;
 			switch (state) {
 			case CONNECTED:
-				con.addPacketListener(new MessagePacketListener(context), new MessageTypeFilter(Message.Type.chat));
-				con.addPacketListener(new PresencePacketListener(context), new PacketTypeFilter(Presence.class));
+				con.addPacketListener(messagePacketListener, new MessageTypeFilter(Message.Type.chat));
+				con.addPacketListener(presencePacketListener, new PacketTypeFilter(Presence.class));
 				
 				con.addConnectionListener(createConnectionListener());
 				roster = con.getRoster();

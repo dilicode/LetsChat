@@ -1,11 +1,17 @@
 package com.mstr.letschat;
 
 import android.app.Activity;
+
 import android.app.LoaderManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -13,20 +19,25 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.mstr.letschat.adapters.MessageCursorAdapter;
 import com.mstr.letschat.databases.ChatContract.ChatMessageTable;
+import com.mstr.letschat.service.MessageService;
+import com.mstr.letschat.service.MessageService.LocalBinder;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.tasks.SendChatMessageTask;
 
 public class ChatActivity extends Activity
-		implements OnClickListener, Listener<Boolean>, LoaderManager.LoaderCallbacks<Cursor>,
-		TextWatcher {
+		implements OnClickListener, Listener<Boolean>, 
+		LoaderManager.LoaderCallbacks<Cursor>, TextWatcher {
+	
+	private static final String LOG_TAG = "ChatActivity";
+	
 	public static final String EXTRA_DATA_NAME_TO = "com.mstr.letschat.To";
 	public static final String EXTRA_DATA_NAME_NICKNAME = "com.mstr.letschat.Nickname";
 	
 	private String to;
+	private String nickname;
 	
 	private EditText messageText;
 	private Button sendButton;
@@ -34,10 +45,29 @@ public class ChatActivity extends Activity
 	
 	private MessageCursorAdapter adapter;
 	
-	public void onCreate(Bundle savedInstanceState) {
+	private MessageService messageService;
+	private boolean bound = false;
+	
+	private ServiceConnection serviceConnection = new ServiceConnection() {
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			messageService = ((LocalBinder)service).getService();
+			messageService.startConversationWith(to);
+			bound = true;
+		}
+		
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			bound = false;
+		}
+	};
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		to = getIntent().getStringExtra(EXTRA_DATA_NAME_TO);
+		nickname = getIntent().getStringExtra(EXTRA_DATA_NAME_NICKNAME);
 		
 		setContentView(R.layout.activity_chat);
 	
@@ -51,32 +81,51 @@ public class ChatActivity extends Activity
 		adapter = new MessageCursorAdapter(this, null, 0);
 		messageListView.setAdapter(adapter);
 		
-		setTitle(getIntent().getStringExtra(EXTRA_DATA_NAME_NICKNAME));
+		setTitle(nickname);
 		
 		getLoaderManager().initLoader(0, null, this);
+	}		
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		
+		// bind to MessageService
+		Intent intent = new Intent(this, MessageService.class);
+		bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 	}
 	
-	public void onClick(View v) {
-		if (v.getId() == R.id.btn_send) {
-			new SendChatMessageTask(this, this, to, getMessage()).execute();
+	@Override
+	protected void onStop() {
+		super.onStop();
+		
+		if (bound) {
+			if (messageService != null) {
+				messageService.stopConversation();
+			}
+			unbindService(serviceConnection);
+			bound = false;
 		}
 	}
-
+	
+	@Override
+	public void onClick(View v) {
+		if (v == sendButton) {
+			new SendChatMessageTask(this, this, to, nickname, getMessage()).execute();
+		}
+	}
+	
 	private String getMessage() {
 		return messageText.getText().toString();
 	}
 	
 	@Override
 	public void onResponse(Boolean result) {
-		if (result) {
-			Toast.makeText(this, "success", Toast.LENGTH_SHORT).show();
-			clearText();
-		}
+		clearText();
 	}
 
 	@Override
 	public void onErrorResponse(SmackInvocationException exception) {
-		Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();
 		clearText();
 	}
 
@@ -120,5 +169,5 @@ public class ChatActivity extends Activity
 		} else {
 			sendButton.setEnabled(false);
 		}
-	}
+	}	
 }

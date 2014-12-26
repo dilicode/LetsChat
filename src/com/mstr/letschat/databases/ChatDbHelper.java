@@ -31,6 +31,7 @@ public class ChatDbHelper extends SQLiteOpenHelper {
 		ContactTableHelper.onCreate(db);
 		ChatMessageTableHelper.onCreate(db);
 		ContactRequestTableHelper.onCreate(db);
+		ConversationTableHelper.onCreate(db);
 	}
 
 	@Override
@@ -38,6 +39,7 @@ public class ChatDbHelper extends SQLiteOpenHelper {
 		ContactTableHelper.onUpgrade(db);
 		ChatMessageTableHelper.onUpgrade(db);
 		ContactRequestTableHelper.onUpgrade(db);
+		ConversationTableHelper.onUpgrade(db);
 		
 		onCreate(db);
 	}

@@ -38,7 +38,7 @@
     
     <Button
         android:id="@+id/btn_submit"
-        style="@style/LoginButton"
+        style="@style/DefaultButton"
         android:layout_width="match_parent"
         android:text="@string/signup"
         android:layout_marginTop="20dp"

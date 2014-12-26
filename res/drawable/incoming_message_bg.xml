@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" >
+	<solid android:color="@color/incoming_message_bg_color" />
+	<stroke android:width="1dp" android:color="@color/incoming_message_border_color" />
+	<corners android:radius="3dp" />
+</shape>

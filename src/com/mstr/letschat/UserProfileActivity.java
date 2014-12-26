@@ -161,6 +161,8 @@ public class UserProfileActivity extends Activity implements OnClickListener {
 			if (activity != null && cursor.moveToFirst()) {
 				activity.profile.markAsContact();
 				activity.setButtonText();
+				
+				cursor.close();
 			}
 		}
 	}

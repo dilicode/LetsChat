@@ -20,7 +20,7 @@
     
     <Button
         android:id="@+id/btn_login"
-        style="@style/LoginButton"
+        style="@style/DefaultButton"
         android:layout_width="match_parent"
         android:text="@string/login"
         android:layout_marginTop="20dp"

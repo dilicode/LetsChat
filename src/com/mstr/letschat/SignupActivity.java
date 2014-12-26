@@ -44,12 +44,20 @@ public class SignupActivity extends Activity implements OnClickListener, Listene
 		if (result) {
 			Toast.makeText(SignupActivity.this, R.string.login_success, Toast.LENGTH_SHORT).show();
 			
-			startActivity(new Intent(SignupActivity.this, ChatHistoryActivity.class));
+			startActivity(new Intent(SignupActivity.this, ConversationActivity.class));
 		}
 	}
 
 	@Override
 	public void onErrorResponse(SmackInvocationException exception) {
 		Toast.makeText(SignupActivity.this, R.string.create_account_error, Toast.LENGTH_SHORT).show();
+	}
+	
+	@Override
+	public void onBackPressed() {
+		startActivity(new Intent(this, StartupActivity.class));
+		overridePendingTransition(0, 0);
+		
+		super.onBackPressed();
 	}
 }
