@@ -28,8 +28,10 @@ import org.jivesoftware.smack.filter.MessageTypeFilter;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.RosterPacket.ItemType;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smackx.ping.PingManager;
 import org.jivesoftware.smackx.search.ReportedData;
 import org.jivesoftware.smackx.search.ReportedData.Row;
 import org.jivesoftware.smackx.search.UserSearchManager;
@@ -51,9 +53,9 @@ import de.duenndns.ssl.MemorizingTrustManager;
 public class SmackHelper {
 	private static final String LOG_TAG = "SmackHelper";
 	
-	private static final String HOST = "10.197.34.151";
+	// private static final String HOST = "10.197.34.151";
 	
-	// private static final String HOST = "192.168.1.103";
+	private static final String HOST = "192.168.1.104";
 	private static final int PORT = 5222;
 	
 	public static final String RESOURCE_PART = "Smack";
@@ -79,6 +81,8 @@ public class SmackHelper {
 		this.context = context;
 		
 		smackAndroid = SmackAndroid.init(context);
+		
+		PingManager.setDefaultPingInterval(arg0);
 		
 		messagePacketListener = new MessagePacketListener(context);
 		presencePacketListener = new PresencePacketListener(context);
@@ -219,6 +223,7 @@ public class SmackHelper {
 			}
 			
 			try {
+
 				con.connect();
 			} catch(Exception e) {
 				AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
@@ -309,13 +314,15 @@ public class SmackHelper {
 			public void connected(XMPPConnection arg0) {}
 
 			@Override
-			public void connectionClosed() {}
+			public void connectionClosed() {
+				AppLog.e("connection closed");
+			}
 
 			@Override
 			public void connectionClosedOnError(Exception arg0) {
 				// it may be due to network is not available or server is down, update state to WAITING_TO_CONNECT
 				// and schedule an automatic reconnect
-				AppLog.d("xmpp disconnected due to error ", arg0);
+				AppLog.e("xmpp disconnected due to error ", arg0);
 				
 				startReconnect();
 			}
@@ -358,11 +365,14 @@ public class SmackHelper {
 	}
 	
 	public void approveSubscription(String to) throws SmackInvocationException {
-		sendPresenceTo(to, new Presence(Presence.Type.subscribed));
+		sendPresence(to, new Presence(Presence.Type.subscribed));
 	}
 	
-	private void sendPresenceTo(String to, Presence presence) throws SmackInvocationException {
-		presence.setTo(to);
+	private void sendPresence(String to, Presence presence) throws SmackInvocationException {
+		if (to != null) {
+			presence.setTo(to);
+		}
+		
 		try {
 			con.sendPacket(presence);
 		} catch (NotConnectedException e) {
@@ -388,6 +398,13 @@ public class SmackHelper {
 	
 	public RosterEntry getRosterEntry(String from) {
 		return roster.getEntry(from);
+	}
+	
+	public void setStatus(String status) throws SmackInvocationException {
+		Presence presence = new Presence(Presence.Type.available);
+		presence.setStatus(status);
+		
+		sendPresence(null, presence);
 	}
 	
 	public void onDestroy() {

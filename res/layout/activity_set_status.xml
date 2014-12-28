@@ -23,13 +23,14 @@
 		
 		<View
 			android:layout_width="match_parent"
-			android:layout_height="2dp"
+			android:layout_height="1dp"
 			android:background="?android:attr/listDivider" />
     	
     	<TextView
     	    android:id="@+id/tv_status"
     	    android:layout_width="match_parent"
-    	    android:layout_height="wrap_content"/>
+    	    android:layout_height="wrap_content"
+    	    android:textAppearance="?android:attr/textAppearanceLarge" />
     </LinearLayout>
     
     <LinearLayout
@@ -50,7 +51,7 @@
     	
     	<View
 			android:layout_width="match_parent"
-			android:layout_height="2dp"
+			android:layout_height="1dp"
 			android:background="?android:attr/listDivider" />
         
         <ListView android:id="@+id/status_list"

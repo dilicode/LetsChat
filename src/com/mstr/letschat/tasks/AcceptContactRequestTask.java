@@ -2,20 +2,18 @@ package com.mstr.letschat.tasks;
 
 import java.lang.ref.WeakReference;
 
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
 import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.databases.ChatContract.ContactRequestTable;
-import com.mstr.letschat.databases.ChatContract.ContactTable;
-import com.mstr.letschat.databases.ContactRequestTableHelper;
-import com.mstr.letschat.databases.ContactTableHelper;
 import com.mstr.letschat.model.Contact;
 import com.mstr.letschat.tasks.Response.Listener;
+import com.mstr.letschat.utils.ProviderUtils;
 import com.mstr.letschat.xmpp.SmackHelper;
 
 public class AcceptContactRequestTask extends BaseAsyncTask<Void, Void, Contact> {
@@ -38,29 +36,28 @@ public class AcceptContactRequestTask extends BaseAsyncTask<Void, Void, Contact>
 					new String[]{ContactRequestTable.COLUMN_NAME_NICKNAME, ContactRequestTable.COLUMN_NAME_JID},
 					null, null, null);
 			if (cursor.moveToFirst()) {
-				String from = cursor.getString(cursor.getColumnIndex(ContactRequestTable.COLUMN_NAME_JID));
-				String fromNickname = cursor.getString(cursor.getColumnIndex(ContactRequestTable.COLUMN_NAME_NICKNAME));
+				String jid = cursor.getString(cursor.getColumnIndex(ContactRequestTable.COLUMN_NAME_JID));
+				String nickname = cursor.getString(cursor.getColumnIndex(ContactRequestTable.COLUMN_NAME_NICKNAME));
 				
 				try {
+					SmackHelper smackHelper = SmackHelper.getInstance(context);
 					// 1. grant subscription to initiator
-					SmackHelper.getInstance(context).approveSubscription(from);
+					smackHelper.approveSubscription(jid);
 					
 					// 2. request permission to initiator
-					SmackHelper.getInstance(context).addContact(from, fromNickname);
+					smackHelper.addContact(jid, nickname);
 				} catch(SmackInvocationException e) {
 					return Response.error(e);
 				}
 				
-				// 3. save new contact to db
-				Uri contactUri = contentResolver.insert(ContactTable.CONTENT_URI, ContactTableHelper.newContentValues(from, fromNickname));
-				Contact contact = new Contact((int)ContentUris.parseId(contactUri), from, fromNickname);
-				
-				// 4. update request status in db as accepted
-				ContentValues values = ContactRequestTableHelper.newContentValuesWithAcceptedStatus();
-				contentResolver.update(ContactRequestTable.CONTENT_URI, values, ContactRequestTable.COLUMN_NAME_JID + " = ?", new String[]{from});
-				
+				// 3. save new contact into db
+				ContentProviderResult[] result = ProviderUtils.addNewContact(context, jid, nickname);
+				Uri contactUri = result[0].uri;
+				Contact contact = new Contact((int)ContentUris.parseId(contactUri), jid, nickname);
 				return Response.success(contact);
 			}
+			
+			cursor.close();
 		}
 		
 		return null;

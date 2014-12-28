@@ -9,9 +9,7 @@ import org.jivesoftware.smack.packet.RosterPacket.ItemType;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.AsyncQueryHandler;
 import android.content.ContentProviderOperation;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -33,11 +31,11 @@ import com.mstr.letschat.databases.ChatContract.ContactTable;
 import com.mstr.letschat.databases.ChatContract.ConversationTable;
 import com.mstr.letschat.databases.ChatMessageTableHelper;
 import com.mstr.letschat.databases.ContactRequestTableHelper;
-import com.mstr.letschat.databases.ContactTableHelper;
 import com.mstr.letschat.databases.ConversationTableHelper;
 import com.mstr.letschat.providers.CustomProvider;
 import com.mstr.letschat.receivers.NetworkReceiver;
 import com.mstr.letschat.utils.NotificationUtils;
+import com.mstr.letschat.utils.ProviderUtils;
 import com.mstr.letschat.utils.UserUtils;
 import com.mstr.letschat.xmpp.MessagePacketListener;
 import com.mstr.letschat.xmpp.PresencePacketListener;
@@ -57,7 +55,6 @@ public class MessageService extends Service {
 	public static final String EXTRA_DATA_NAME_FROM_NICKNAME = "com.mstr.letschat.FromNickname";
 	public static final String EXTRA_DATA_NAME_NOTIFICATION_TEXT = "com.mstr.letschat.NotificationText";
 	public static final String EXTRA_DATA_NAME_FROM = "com.mstr.letschat.From";
-	public static final String EXTRA_DATA_NAME_CONVERSATION_ITEM_URI = "com.mstr.letschat.ConversationItemUri";
 	
 	// Service Actions
 	public static final String ACTION_CONNECT = "com.mstr.letschat.intent.action.CONNECT";
@@ -254,19 +251,11 @@ public class MessageService extends Service {
 			return;
 		}
 		
-		ContentResolver contentResolver = getContentResolver();
-		
-		// save new contact to db
-		contentResolver.insert(ContactTable.CONTENT_URI,
-				ContactTableHelper.newContentValues(from, fromNickname));
+		// save new contact into db
+		ProviderUtils.addNewContact(this, from, fromNickname);
 		
 		// show notification that contact request has been approved
 		showContactRequestApprovedNotification(from, fromNickname);
-		
-		// are there any pending requests from sender? update them to accepted
-		ContentValues values = ContactRequestTableHelper.newContentValuesWithAcceptedStatus();
-		contentResolver.update(ContactRequestTable.CONTENT_URI, values,
-				ContactRequestTable.COLUMN_NAME_JID + " = ?", new String[]{from});
 	}
 	
 	private void showContactRequestApprovedNotification(String from, String fromNickname) {

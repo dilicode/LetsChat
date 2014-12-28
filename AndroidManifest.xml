@@ -35,7 +35,7 @@
 		    android:windowSoftInputMode="stateHidden|adjustResize" >
 		    <meta-data
 		        android:name="android.support.PARENT_ACTIVITY"
-		        android:value=".ChatHistoryActivity" />
+		        android:value=".ConversationActivity" />
 		</activity>
 		
 		<activity android:name=".MainActivity" />
@@ -60,7 +60,7 @@
 		    android:label="@string/select_contact" >
 			<meta-data
 			    android:name="android.support.PARENT_ACTIVITY"
-			    android:value=".ChatHistoryActivity" />
+			    android:value=".ConversationActivity" />
 			</activity>
 			
 		<activity
