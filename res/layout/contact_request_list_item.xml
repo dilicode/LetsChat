@@ -4,10 +4,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:orientation="horizontal"
-	android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
-	android:paddingRight="?android:attr/listPreferredItemPaddingRight"
-	android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-    android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+	android:padding="5dp"
 	android:minHeight="?android:attr/listPreferredItemHeightSmall" >
 	
 	<LinearLayout
@@ -20,7 +17,7 @@
 			android:id="@+id/tv_user"
 			android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:textAppearance="?android:attr/textAppearanceLarge" />
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
 	    
 	    <TextView
 	        android:id="@+id/tv_message"

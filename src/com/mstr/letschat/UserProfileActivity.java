@@ -45,6 +45,11 @@ public class UserProfileActivity extends Activity implements OnClickListener {
 		setButtonText();
 		((TextView)findViewById(R.id.tv_nickname)).setText(profile.getNickname());
 		
+		String status = profile.getStatus();
+		if (status != null) {
+			((TextView)findViewById(R.id.tv_status)).setText(status);
+		}
+		
 		if (profile.canAddToContact()) {
 			contactObserver = new ContactContentObserver(new Handler());
 			getContentResolver().registerContentObserver(ContactTable.CONTENT_URI, true, contactObserver);

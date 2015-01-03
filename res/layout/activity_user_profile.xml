@@ -6,9 +6,35 @@
 	
 	<TextView
         android:id="@+id/tv_nickname"
-        android:layout_margin="10dp"
+        android:layout_marginTop="10dp"
+        android:padding="10dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        style="?android:attr/textAppearanceMedium"/>
+	
+	<LinearLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_marginTop="10dp"
+	    android:layout_marginBottom="30dp"
+	    android:padding="10dp"
+	    android:background="@android:color/white"
+	    android:orientation="horizontal">
+	    
+	    <TextView
+	        android:layout_width="100dp"
+	        android:layout_height="wrap_content"
+	        android:text="@string/status"
+	        style="?android:attr/textAppearanceMedium" />
+	    
+	    <TextView
+			android:id="@+id/tv_status"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			style="?android:attr/textAppearanceMedium" />
+	</LinearLayout>
+	
     <Button
 		android:id="@+id/btn"
 		android:layout_width="match_parent"

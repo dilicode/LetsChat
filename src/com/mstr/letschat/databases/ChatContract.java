@@ -12,6 +12,7 @@ public final class ChatContract {
 		public static final String TABLE_NAME = "contact";
 		public static final String COLUMN_NAME_JID = "jid";
 		public static final String COLUMN_NAME_NICKNAME = "nickname";
+		public static final String COLUMN_NAME_STATUS = "status";
 		
 		public static final String DEFAULT_SORT_ORDER = "nickname COLLATE LOCALIZED ASC";
 		

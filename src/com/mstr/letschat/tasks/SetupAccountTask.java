@@ -52,12 +52,4 @@ public class SetupAccountTask extends AsyncTask<Void, Void, Void> {
 		
 		return null;
 	}
-	
-	@Override
-	public void onPostExecute(Void result) {
-		SetupAccountListener l = listener.get();
-		if (l != null) {
-			l.onAccountSetup();
-		}
-	}
 }

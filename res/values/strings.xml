@@ -48,9 +48,11 @@
 	<string name="status">Status</string>
 	<string name="current_status">Your current status</string>
 	<string name="select_status">Select your new status</string>
+	<string name="default_status">Hey</string>
 	<string name="status_available">Available</string>
 	<string name="status_busy">Busy</string>
 	<string name="status_at_school">At school</string>
 	<string name="status_at_work">At work</string>
 	<string name="status_in_a_meeting">In a meeting</string>
+	<string name="no_status">***no status***</string>
 </resources>

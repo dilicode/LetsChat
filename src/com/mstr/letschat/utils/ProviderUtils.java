@@ -22,10 +22,10 @@ public class ProviderUtils {
 	 * @param nickname
 	 * @return
 	 */
-	public static ContentProviderResult[] addNewContact(Context context, String jid, String nickname) {
+	public static ContentProviderResult[] addNewContact(Context context, String jid, String nickname, String status) {
 		ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 		operations.add(ContentProviderOperation.newInsert(ContactTable.CONTENT_URI).
-				withValues(ContactTableHelper.newContentValues(jid, nickname)).build());
+				withValues(ContactTableHelper.newContentValues(jid, nickname, status)).build());
 		operations.add(ContentProviderOperation.newUpdate(ContactRequestTable.CONTENT_URI).
 				withValues(ContactRequestTableHelper.newContentValuesWithAcceptedStatus()).
 				withSelection(ContactRequestTable.COLUMN_NAME_JID + " = ?", new String[]{jid}).build());

@@ -89,17 +89,4 @@ public class SendChatMessageTask extends BaseAsyncTask<Void, Void, Boolean> {
 			throw new SQLException("Failed to insert chat message");
 		}
 	}	
-	
-	@Override
-	public void onPostExecute(Response<Boolean> response) {
-		Listener<Boolean> listener = getListener();
-		
-		if (listener != null) {
-			if (response.isSuccess()) {
-				listener.onResponse(response.getResult());
-			} else {
-				listener.onErrorResponse(response.getException());
-			}
-		}
-	}
 }

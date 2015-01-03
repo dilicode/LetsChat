@@ -10,7 +10,8 @@ public class ContactTableHelper {
 		    "CREATE TABLE " + ContactTable.TABLE_NAME + " (" +
 		    ContactTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
 		    ContactTable.COLUMN_NAME_JID + ChatDbHelper.TEXT_TYPE + ChatDbHelper.COMMA_SEP +
-		    ContactTable.COLUMN_NAME_NICKNAME + ChatDbHelper.TEXT_TYPE +
+		    ContactTable.COLUMN_NAME_NICKNAME + ChatDbHelper.TEXT_TYPE + ChatDbHelper.COMMA_SEP +
+		    ContactTable.COLUMN_NAME_STATUS + ChatDbHelper.TEXT_TYPE +
 		    " )";
 	
 	private static final String SQL_DELETE_ENTRIES =
@@ -24,10 +25,11 @@ public class ContactTableHelper {
 		database.execSQL(SQL_DELETE_ENTRIES);
 	}
 	
-	public static ContentValues newContentValues(String jid, String nickname) {
+	public static ContentValues newContentValues(String jid, String nickname, String status) {
 		ContentValues values = new ContentValues();
 		values.put(ContactTable.COLUMN_NAME_JID, jid);
 		values.put(ContactTable.COLUMN_NAME_NICKNAME, nickname);
+		values.put(ContactTable.COLUMN_NAME_STATUS, status);
 		
 		return values;
 	}

@@ -16,4 +16,17 @@ public abstract class BaseAsyncTask<Params, Progress, T> extends AsyncTask<Param
 	public Listener<T> getListener() {
 		return listenerWrapper.get();
 	}
+
+	@Override
+	protected void onPostExecute(Response<T> response) {
+		Listener<T> listener = getListener();
+		
+		if (listener != null && response != null) {
+			if (response.isSuccess()) {
+				listener.onResponse(response.getResult());
+			} else {
+				listener.onErrorResponse(response.getException());
+			}
+		}
+	}
 }

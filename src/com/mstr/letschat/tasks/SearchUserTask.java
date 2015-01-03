@@ -28,17 +28,17 @@ public class SearchUserTask extends BaseAsyncTask<Void, Void, UserProfile> {
 		Context context = contextWrapper.get();
 		if (context != null) {
 			try {
-				UserProfile user = SmackHelper.getInstance(context).searchByCompleteUsername(username);
+				UserProfile user = SmackHelper.getInstance(context).search(username);
 				if (user != null) {
 					if (user.getUserName().equals(UserUtils.getUser(context))) {
-						user.setStatus(UserProfile.STATUS_MYSELF);
+						user.setType(UserProfile.TYPE_MYSELF);
 					} else {
 						Cursor c = context.getContentResolver().query(ContactTable.CONTENT_URI, new String[]{ContactTable._ID},
 								ContactTable.COLUMN_NAME_JID + " = ?", new String[] {user.getJid()}, null);
 						if (c.moveToFirst()) {
-							user.setStatus(UserProfile.STATUS_CONTACT);
+							user.setType(UserProfile.TYPE_CONTACT);
 						} else {
-							user.setStatus(UserProfile.STATUS_NOT_CONTACT);
+							user.setType(UserProfile.TYPE_NOT_CONTACT);
 						}
 					}
 				}
@@ -49,19 +49,6 @@ public class SearchUserTask extends BaseAsyncTask<Void, Void, UserProfile> {
 			}
 		} else {
 			return null;
-		}
-	}
-	
-	@Override
-	protected void onPostExecute(Response<UserProfile> response) {
-		Listener<UserProfile> listener = getListener();
-		
-		if (listener != null && response != null) {
-			if (response.isSuccess()) {
-				listener.onResponse(response.getResult());
-			} else {
-				listener.onErrorResponse(response.getException());
-			}
 		}
 	}
 }

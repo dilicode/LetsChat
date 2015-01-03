@@ -93,8 +93,10 @@ public class ContactListActivity extends ListActivity
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		String[] projection = new String[] {
 				ContactTable._ID,
+				ContactTable.COLUMN_NAME_JID,
 				ContactTable.COLUMN_NAME_NICKNAME,
-				ContactTable.COLUMN_NAME_JID};
+				ContactTable.COLUMN_NAME_STATUS
+				};
 		return new CursorLoader(this, ContactTable.CONTENT_URI, projection, null, null, null);
 	}
 

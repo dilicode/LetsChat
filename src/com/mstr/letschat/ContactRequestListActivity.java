@@ -17,7 +17,6 @@ import android.view.MenuItem;
 import com.mstr.letschat.adapters.ContactRequestCursorAdapter;
 import com.mstr.letschat.adapters.ContactRequestCursorAdapter.OnAcceptButtonClickListener;
 import com.mstr.letschat.databases.ChatContract.ContactRequestTable;
-import com.mstr.letschat.model.Contact;
 import com.mstr.letschat.model.UserProfile;
 import com.mstr.letschat.receivers.IncomingContactRequestReceiver;
 import com.mstr.letschat.service.MessageService;
@@ -85,12 +84,12 @@ public class ContactRequestListActivity extends ListActivity
 	
 	@Override
 	public void onAcceptButtonClick(Uri uri) {
-		new AcceptContactRequestTask(new Listener<Contact>() {
+		new AcceptContactRequestTask(new Listener<UserProfile>() {
 			@Override
-			public void onResponse(Contact result){ 
+			public void onResponse(UserProfile result){
 				// start contact profile activity
 				Intent intent = new Intent(ContactRequestListActivity.this, UserProfileActivity.class);
-				intent.putExtra(UserProfileActivity.EXTRA_DATA_NAME_USER_PROFILE, UserProfile.newInstance(result));
+				intent.putExtra(UserProfileActivity.EXTRA_DATA_NAME_USER_PROFILE, result);
 				startActivity(intent);
 			}
 			

@@ -52,7 +52,7 @@ public class ChatActivity extends Activity
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			messageService = ((LocalBinder)service).getService();
-			messageService.startConversationWith(to);
+			messageService.startConversation(to);
 			bound = true;
 		}
 		

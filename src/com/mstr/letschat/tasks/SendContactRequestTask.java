@@ -36,17 +36,4 @@ public class SendContactRequestTask extends BaseAsyncTask<Void, Void, Boolean> {
 			return null;
 		}
 	}
-	
-	@Override
-	protected void onPostExecute(Response<Boolean> response) {
-		Listener<Boolean> listener = getListener();
-		
-		if (listener != null && response != null) {
-			if (response.isSuccess()) {
-				listener.onResponse(response.getResult());
-			} else {
-				listener.onErrorResponse(response.getException());
-			}
-		}
-	}
 }

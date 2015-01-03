@@ -20,7 +20,7 @@ public class ContactCursorAdapter extends ResourceCursorAdapter {
 		ViewHolder viewHolder = (ViewHolder)view.getTag();
 		
 		viewHolder.nameText.setText(cursor.getString(cursor.getColumnIndex(ContactTable.COLUMN_NAME_NICKNAME)));
-		viewHolder.statusText.setText("available");
+		viewHolder.statusText.setText(cursor.getString(cursor.getColumnIndex(ContactTable.COLUMN_NAME_STATUS)));
 	}
 	
 	@Override

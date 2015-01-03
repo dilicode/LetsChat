@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.RosterPacket.ItemType;
+import org.jivesoftware.smackx.vcardtemp.packet.VCard;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -40,6 +41,7 @@ import com.mstr.letschat.utils.UserUtils;
 import com.mstr.letschat.xmpp.MessagePacketListener;
 import com.mstr.letschat.xmpp.PresencePacketListener;
 import com.mstr.letschat.xmpp.SmackHelper;
+import com.mstr.letschat.xmpp.SmackVCardHelper;
 
 public class MessageService extends Service {
 	private static final String LOG_TAG = "MessageService";
@@ -155,7 +157,7 @@ public class MessageService extends Service {
 		return binder;
 	}
 	
-	public void startConversationWith(String name) {
+	public void startConversation(String name) {
 		conversationTarget = name;
 		
 		// cancel any notification if existing after we start a conversation
@@ -220,7 +222,7 @@ public class MessageService extends Service {
 		ItemType rosterType = rosterEntry != null ? rosterEntry.getType() : null;
 		
 		// this is a request sent from new user asking for permission
-		if (rosterEntry == null || rosterType == ItemType.none) {
+		if (smackHelper.isSubscribeFromNewUser(from)) {
 			processSubscribeFromNewUser(from);
 		} else if (rosterType == ItemType.to) { // this is a request sent back to initiator, directly approve
 			processSubsequentSubscribe(from, rosterEntry.getName());
@@ -229,7 +231,13 @@ public class MessageService extends Service {
 	
 	private void processSubscribeFromNewUser(String from) {
 		// get the nickname
-		String fromNickname = smackHelper.getNickname(from);
+		String fromNickname = null;
+		try {
+			fromNickname = smackHelper.getNickname(from);
+		} catch (SmackInvocationException e) {
+			Log.e(LOG_TAG, String.format("get nick name error, %s", e.toString()));
+			return;
+		}
 		
 		// save request to db
 		getContentResolver().insert(ContactRequestTable.CONTENT_URI,
@@ -251,8 +259,16 @@ public class MessageService extends Service {
 			return;
 		}
 		
+		VCard vCard = null;
+		try {
+			vCard = smackHelper.getVCard(from);
+		} catch (SmackInvocationException e) {
+			Log.e(LOG_TAG, String.format("get vcard error, %s", e.toString()));
+			return;
+		}
+		
 		// save new contact into db
-		ProviderUtils.addNewContact(this, from, fromNickname);
+		ProviderUtils.addNewContact(this, from, fromNickname, vCard.getField(SmackVCardHelper.FIELD_STATUS));
 		
 		// show notification that contact request has been approved
 		showContactRequestApprovedNotification(from, fromNickname);
@@ -325,7 +341,12 @@ public class MessageService extends Service {
 			operations.add(ContentProviderOperation.newUpdate(conversationItemUri).withValues(values).build());
 		} else { // insert a new conversation
 			// query user nick name
-			nickname = getNickname(from);
+			try {
+				nickname = getNickname(from);
+			} catch (SmackInvocationException e) {
+				cursor.close();
+				return;
+			}
 			unreadCount = isInConversationWith(from) ? 0 : 1;
 			
 			ContentValues values = ConversationTableHelper.newInsertContentValues(from, nickname, body, timeMillis, unreadCount);
@@ -351,7 +372,7 @@ public class MessageService extends Service {
 		}
 	}
 	
-	private String getNickname(String from) {
+	private String getNickname(String from) throws SmackInvocationException {
 		// query user nick name
 		Cursor cursor = getContentResolver().query(ContactTable.CONTENT_URI, new String[]{ContactTable.COLUMN_NAME_NICKNAME}, 
 				ContactTable.COLUMN_NAME_JID + "=?", new String[]{from}, null);

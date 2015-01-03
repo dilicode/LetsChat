@@ -6,36 +6,36 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class UserProfile implements Parcelable {
-	public static final int STATUS_CONTACT = 1;
-	public static final int STATUS_NOT_CONTACT = 2;
-	public static final int STATUS_MYSELF = 3;
-	public static final int STATUS_UNKNOWN = 4;
+	public static final int TYPE_CONTACT = 1;
+	public static final int TYPE_NOT_CONTACT = 2;
+	public static final int TYPE_MYSELF = 3;
+	public static final int TYPE_UNKNOWN = 4;
 	
 	private String nickname;
 	private String jid;
+	private String status;
 	
-	private int status;
+	private int type;
 	
-	public UserProfile(String nickname, String jid) {
-		this.nickname = nickname;
-		this.jid = jid;
-		status = STATUS_UNKNOWN;
-	}
-	
-	public UserProfile(String nickname, String jid, int status) {
+	public UserProfile(String nickname, String jid, String status) {
 		this.nickname = nickname;
 		this.jid = jid;
 		this.status = status;
+		type = TYPE_UNKNOWN;
 	}
 	
-	public static UserProfile newInstance(Contact contact) {
-		return new UserProfile(contact.getNickname(), contact.getJid(), STATUS_CONTACT);
+	public UserProfile(String nickname, String jid, String status, int type) {
+		this.nickname = nickname;
+		this.jid = jid;
+		this.status = status;
+		this.type = type;
 	}
 	
 	private UserProfile(Parcel in) {
 		nickname = in.readString();
 		jid = in.readString();
-		status = in.readInt();
+		status = in.readString();
+		type = in.readInt();
 	}
 
 	public String getUserName() {
@@ -53,25 +53,25 @@ public class UserProfile implements Parcelable {
 	public String getJid() {
 		return jid;
 	}
+	
+	public String getStatus() {
+		return status;
+	}
 
 	public void setJid(String jid) {
 		this.jid = jid;
 	}
 	
-	public int getStatus() {
-		return status;
-	}
-
-	public void setStatus(int status) {
-		this.status = status;
+	public void setType(int type) {
+		this.type = type;
 	}
 	
 	public boolean canAddToContact() {
-		return status == STATUS_NOT_CONTACT;
+		return type == TYPE_NOT_CONTACT;
 	}
 	
 	public void markAsContact() {
-		status = STATUS_CONTACT;
+		type = TYPE_CONTACT;
 	}
 	
 	@Override
@@ -100,7 +100,8 @@ public class UserProfile implements Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(nickname);
 		dest.writeString(jid);
-		dest.writeInt(status);
+		dest.writeString(status);
+		dest.writeInt(type);
 	}
 	
 	public static final Parcelable.Creator<UserProfile> CREATOR = new Parcelable.Creator<UserProfile>() {

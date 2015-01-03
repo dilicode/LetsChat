@@ -33,7 +33,7 @@ public class LoginTask extends BaseAsyncTask<Void, Void, Boolean> {
 				
 				smackHelper.login(username, password);
 				
-				UserUtils.setLoginUser(context, username, password, smackHelper.getNickname());
+				UserUtils.setLoginUser(context, username, password, smackHelper.getLoginUserNickname());
 				
 				return Response.success(true);
 			} catch(SmackInvocationException e) {
@@ -41,19 +41,6 @@ public class LoginTask extends BaseAsyncTask<Void, Void, Boolean> {
 			}
 		} else {
 			return null;
-		}
-	}
-	
-	@Override
-	public void onPostExecute(Response<Boolean> response) {
-		Listener<Boolean> listener = getListener();
-		
-		if (listener != null && response != null) {
-			if (response.isSuccess()) {
-				listener.onResponse(response.getResult());
-			} else {
-				listener.onErrorResponse(response.getException());
-			}
 		}
 	}
 }

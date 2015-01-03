@@ -8,29 +8,21 @@ import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.xmpp.SmackHelper;
 
-public class DeleteContactTask extends BaseAsyncTask<Void, Void, Boolean> {
+public class GetStatusTask extends BaseAsyncTask<Void, Void, String> {
 	private WeakReference<Context> contextWrapper;
-	private String jid;
 	
-	public DeleteContactTask(Listener<Boolean> listener, Context context, String jid) {
+	public GetStatusTask(Listener<String> listener, Context context) {
 		super(listener);
-		
 		contextWrapper = new WeakReference<Context>(context);
-		this.jid = jid;
 	}
 	
 	@Override
-	protected Response<Boolean> doInBackground(Void... params) {
+	protected Response<String> doInBackground(Void... params) {
 		Context context = contextWrapper.get();
-		
 		if (context != null) {
 			try {
-				SmackHelper.getInstance(context).delete(jid);
-				
-				//ContactTableHelper.getInstance(context).delete(jid);
-				
-				return Response.success(true);
-			} catch(SmackInvocationException e) {
+				return Response.success(SmackHelper.getInstance(context).getStatus());
+			} catch (SmackInvocationException e) {
 				return Response.error(e);
 			}
 		} else {

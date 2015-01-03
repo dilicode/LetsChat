@@ -16,26 +16,19 @@ import org.jivesoftware.smack.AccountManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
 import org.jivesoftware.smack.ConnectionListener;
+import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.Roster.SubscriptionMode;
-import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.SmackAndroid;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.MessageTypeFilter;
-import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.RosterPacket.ItemType;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
-import org.jivesoftware.smack.util.StringUtils;
-import org.jivesoftware.smackx.ping.PingManager;
-import org.jivesoftware.smackx.search.ReportedData;
-import org.jivesoftware.smackx.search.ReportedData.Row;
-import org.jivesoftware.smackx.search.UserSearchManager;
-import org.jivesoftware.smackx.xdata.Form;
+import org.jivesoftware.smackx.vcardtemp.packet.VCard;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -55,14 +48,12 @@ public class SmackHelper {
 	
 	// private static final String HOST = "10.197.34.151";
 	
-	private static final String HOST = "192.168.1.104";
+	private static final String HOST = "192.168.1.100";
 	private static final int PORT = 5222;
 	
 	public static final String RESOURCE_PART = "Smack";
 
 	private XMPPConnection con;
-	
-	private Roster roster;
 	
 	private ConnectionListener connectionListener;
 	
@@ -71,21 +62,21 @@ public class SmackHelper {
 	private State state;
 	
 	private PacketListener messagePacketListener;
-	private PacketListener presencePacketListener;
 	
 	private SmackAndroid smackAndroid;
 	
 	private static SmackHelper instance;
+	
+	private SmackContactHelper contactHelper;
+	
+	private SmackVCardHelper vCardHelper;
 	
 	private SmackHelper(Context context) {
 		this.context = context;
 		
 		smackAndroid = SmackAndroid.init(context);
 		
-		PingManager.setDefaultPingInterval(arg0);
-		
 		messagePacketListener = new MessagePacketListener(context);
-		presencePacketListener = new PresencePacketListener(context);
 		
 		Roster.setDefaultSubscriptionMode(SubscriptionMode.manual);
 	}
@@ -106,11 +97,13 @@ public class SmackHelper {
 			switch (state) {
 			case CONNECTED:
 				con.addPacketListener(messagePacketListener, new MessageTypeFilter(Message.Type.chat));
-				con.addPacketListener(presencePacketListener, new PacketTypeFilter(Presence.class));
-				
 				con.addConnectionListener(createConnectionListener());
-				roster = con.getRoster();
 				
+				contactHelper = new SmackContactHelper(context, con);
+				vCardHelper = new SmackVCardHelper(context, con);
+				break;
+				
+			default:
 				break;
 			}
 		}
@@ -130,6 +123,8 @@ public class SmackHelper {
 		}
 		
 		login(user, password);
+		
+		vCardHelper.saveOnSignup(nickname);
 		
 		UserUtils.setLoginUser(context, user, password, nickname);
 	}
@@ -158,60 +153,18 @@ public class SmackHelper {
 		return result;
 	}
 	
-	public ArrayList<UserProfile> search(String username) throws SmackInvocationException {
-		connect();
+	public UserProfile search(String username) throws SmackInvocationException {
+		String jid = getUser(username);
+		VCard vCard = vCardHelper.getVCard(jid);
+		String nickname = vCard.getNickName();
 		
-		ArrayList<UserProfile> result = new ArrayList<UserProfile>();
-		
-		UserSearchManager search = new UserSearchManager(con);
-		
-		final String searchService = "search." + con.getServiceName();
-		try {
-			Form searchForm = search.getSearchForm(searchService);
-			Form answerForm = searchForm.createAnswerForm();
-			answerForm.setAnswer("search", username);
-			answerForm.setAnswer("Username", true);
-			
-			ReportedData data = search.getSearchResults(answerForm, searchService);
-			List<Row> rows = data.getRows();
-			for (Row row: rows) {
-				List<String> nameValues = row.getValues("Name");
-				List<String> jids = row.getValues("jid");
-				
-				for (int i = 0; i < jids.size(); i ++) {
-					result.add(new UserProfile(nameValues.get(i), jids.get(i)));
-				}
-			}
-			
-			return result;
-		} catch (Exception e) {
-			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
-			
-			throw new SmackInvocationException(e);
-		}
+		return nickname == null ? null : new UserProfile(nickname, jid, vCard.getField(SmackVCardHelper.FIELD_STATUS));
 	}
 	
-	public UserProfile searchByCompleteUsername(String username) throws SmackInvocationException {
-		List<UserProfile> list = search(username);
-		if (list != null) {
-			for (UserProfile user : list) {
-				if (user.getUserName().equals(username)) {
-					return user;
-				}
-			}
-		}
+	public String getNickname(String jid) throws SmackInvocationException {
+		VCard vCard = vCardHelper.getVCard(jid);
 		
-		return null;
-	}
-	
-	public String getNickname(String username) {
-		username = StringUtils.parseName(username);
-		UserProfile userSearchResult = null;
-		try {
-			userSearchResult = searchByCompleteUsername(username);
-		} catch (SmackInvocationException e) {}
-		
-		return userSearchResult != null ? userSearchResult.getNickname() : username;
+		return vCard.getNickName();
 	}
 	
 	private void connect() throws SmackInvocationException {
@@ -223,7 +176,6 @@ public class SmackHelper {
 			}
 			
 			try {
-
 				con.connect();
 			} catch(Exception e) {
 				AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
@@ -295,7 +247,7 @@ public class SmackHelper {
 		}
 	}
 	
-	public String getNickname() throws SmackInvocationException {
+	public String getLoginUserNickname() throws SmackInvocationException {
 		try {
 			return AccountManager.getInstance(con).getAccountAttribute("name");
 		} catch (Exception e) {
@@ -350,61 +302,44 @@ public class SmackHelper {
 		return con != null && con.isConnected();
 	}
 	
+	public String getUser(String username) {
+		return username + "@" + con.getServiceName();
+	}
+	
 	public void onNetworkDisconnected() {
 		setState(State.WAITING_FOR_NETWORK);
 	}
 	
 	public void addContact(String to, String nickname) throws SmackInvocationException {
-		try {
-			roster.createEntry(to, nickname, null);
-		} catch (Exception e) {
-			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
-			
-			throw new SmackInvocationException(e);
-		}
+		contactHelper.addContact(to, nickname);
 	}
 	
 	public void approveSubscription(String to) throws SmackInvocationException {
-		sendPresence(to, new Presence(Presence.Type.subscribed));
+		contactHelper.approveSubscription(to);
 	}
-	
-	private void sendPresence(String to, Presence presence) throws SmackInvocationException {
-		if (to != null) {
-			presence.setTo(to);
-		}
-		
-		try {
-			con.sendPacket(presence);
-		} catch (NotConnectedException e) {
-			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
-			
-			throw new SmackInvocationException(e);
-		}
-	}
-	
 	
 	public void delete(String jid) throws SmackInvocationException {
-		RosterEntry rosterEntry = roster.getEntry(jid);
-		if (rosterEntry != null) {
-			try {
-				roster.removeEntry(rosterEntry);
-			} catch (Exception e) {
-				AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
-				
-				throw new SmackInvocationException(e);
-			}
-		}
+		contactHelper.delete(jid);
 	}
 	
 	public RosterEntry getRosterEntry(String from) {
-		return roster.getEntry(from);
+		return contactHelper.getRosterEntry(from);
 	}
 	
-	public void setStatus(String status) throws SmackInvocationException {
-		Presence presence = new Presence(Presence.Type.available);
-		presence.setStatus(status);
+	public String getStatus() throws SmackInvocationException {
+		return vCardHelper.getStatus();
+	}
+	
+	public VCard getVCard(String jid) throws SmackInvocationException {
+		return vCardHelper.getVCard(jid);
+	}
+	
+	public boolean isSubscribeFromNewUser(String from) {
+		RosterEntry rosterEntry = contactHelper.getRosterEntry(from);
+		ItemType rosterType = rosterEntry != null ? rosterEntry.getType() : null;
 		
-		sendPresence(null, presence);
+		// this is a request sent from new user asking for permission
+		return rosterEntry == null || rosterType == ItemType.none;
 	}
 	
 	public void onDestroy() {
