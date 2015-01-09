@@ -33,4 +33,11 @@ public class ContactTableHelper {
 		
 		return values;
 	}
+	
+	public static ContentValues newUpdateStatusContentValues(String status) {
+		ContentValues values = new ContentValues();
+		values.put(ContactTable.COLUMN_NAME_STATUS, status);
+		
+		return values;
+	}
 }

@@ -207,6 +207,10 @@ public class CustomProvider extends ContentProvider {
 		String table = null;
 		
 		switch (uriMatcher.match(uri)) {
+		case CONTACT:
+			table = ContactTable.TABLE_NAME;
+			break;
+			
 		case CONTACT_REQUEST:
 			table = ContactRequestTable.TABLE_NAME;
 			break;
@@ -256,76 +260,6 @@ public class CustomProvider extends ContentProvider {
 			return null;
 		} finally {
 			db.endTransaction();
-		}
-	}
-	
-	/**
-	 * insert into message table, and update the conversation table as transaction.
-	 * 
-	 * @param db
-	 * @param values
-	 * @return
-	 */
-	private Uri insertChatMessage(SQLiteDatabase db, ContentValues values) {
-		String jid = values.getAsString(ChatMessageTable.COLUMN_NAME_JID);
-		String message = values.getAsString(ChatMessageTable.COLUMN_NAME_MESSAGE);
-		long time = values.getAsLong(ChatMessageTable.COLUMN_NAME_TIME);
-		int type = values.getAsInteger(ChatMessageTable.COLUMN_NAME_TYPE);
-		
-		ContentValues conversationValues = new ContentValues();
-		conversationValues.put(ConversationTable.COLUMN_NAME_LATEST_MESSAGE, message);
-		conversationValues.put(ConversationTable.COLUMN_NAME_TIME, time);
-		
-		Cursor conversationCursor = null;
-		Cursor contactCursor = null;
-		
-		db.beginTransactionNonExclusive();
-		try {
-			// insert new message
-			long messageRowId = db.insert(ChatMessageTable.TABLE_NAME, null, values);
-			int conversationRowId;
-			
-			conversationCursor = db.query(ConversationTable.TABLE_NAME,
-					new String[]{ConversationTable._ID, ConversationTable.COLUMN_NAME_UNREAD},
-					ConversationTable.COLUMN_NAME_NAME + "=?", new String[]{jid}, null, null, null);
-			if (conversationCursor.moveToFirst()) { // update conversation if existing
-				conversationRowId = conversationCursor.getInt(conversationCursor.getColumnIndex(ConversationTable._ID));
-				int unreadCount= (type == ChatMessageTableHelper.TYPE_INCOMING) ?
-						conversationCursor.getInt(conversationCursor.getColumnIndex(ConversationTable.COLUMN_NAME_UNREAD)) + 1: 0;
-				conversationValues.put(ConversationTable.COLUMN_NAME_UNREAD, unreadCount);
-				
-				db.update(ConversationTable.TABLE_NAME, conversationValues, 
-						ConversationTable._ID + "=?", new String[]{String.valueOf(conversationRowId)});
-			} else { // create a new conversation
-				contactCursor = db.query(ContactTable.TABLE_NAME, new String[] {ContactTable.COLUMN_NAME_NICKNAME}, 
-						ContactTable.COLUMN_NAME_JID + "=?", new String[]{jid}, null, null, null);
-				String nickname = contactCursor.moveToFirst() ?
-						contactCursor.getString(contactCursor.getColumnIndex(ContactTable.COLUMN_NAME_NICKNAME)) : StringUtils.parseName(jid);
-				
-				conversationValues.put(ConversationTable.COLUMN_NAME_NAME, jid);
-				conversationValues.put(ConversationTable.COLUMN_NAME_NICKNAME, nickname);
-				conversationValues.put(ConversationTable.COLUMN_NAME_UNREAD, type == ChatMessageTableHelper.TYPE_INCOMING ? 1 : 0);
-				
-				conversationRowId = (int)db.insert(ConversationTable.TABLE_NAME, null, conversationValues);
-			}
-			
-			db.setTransactionSuccessful();
-			
-			Uri messageUri = ContentUris.withAppendedId(ChatMessageTable.CONTENT_URI, messageRowId);
-			getContext().getContentResolver().notifyChange(ContentUris.withAppendedId(ChatMessageTable.CONTENT_URI, messageRowId), null);
-			getContext().getContentResolver().notifyChange(ContentUris.withAppendedId(ConversationTable.CONTENT_URI, conversationRowId), null);
-			
-			return messageUri;
-		} finally {
-			db.endTransaction();
-			
-			if (conversationCursor != null) {
-				conversationCursor.close();
-			}
-			
-			if (contactCursor != null) {
-				contactCursor.close();
-			}
 		}
 	}
 }

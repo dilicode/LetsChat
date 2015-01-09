@@ -7,7 +7,6 @@ public class Contact implements Parcelable {
 	private int id;
 	private String jid;
 	private String nickname;
-	private String status;
 	
 	public Contact() {}
 	

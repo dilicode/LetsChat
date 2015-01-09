@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -30,8 +31,6 @@ import com.mstr.letschat.tasks.SendChatMessageTask;
 public class ChatActivity extends Activity
 		implements OnClickListener, Listener<Boolean>, 
 		LoaderManager.LoaderCallbacks<Cursor>, TextWatcher {
-	
-	private static final String LOG_TAG = "ChatActivity";
 	
 	public static final String EXTRA_DATA_NAME_TO = "com.mstr.letschat.To";
 	public static final String EXTRA_DATA_NAME_NICKNAME = "com.mstr.letschat.Nickname";
@@ -83,6 +82,8 @@ public class ChatActivity extends Activity
 		
 		setTitle(nickname);
 		
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		
 		getLoaderManager().initLoader(0, null, this);
 	}		
 	
@@ -114,6 +115,18 @@ public class ChatActivity extends Activity
 			new SendChatMessageTask(this, this, to, nickname, getMessage()).execute();
 		}
 	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			finish();
+			return true;
+		}
+		
+		return super.onOptionsItemSelected(item);
+	}
+
 	
 	private String getMessage() {
 		return messageText.getText().toString();

@@ -2,7 +2,6 @@ package com.mstr.letschat;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Debug;
 import android.widget.Toast;
 
 import com.mstr.letschat.tasks.SetupAccountTask;

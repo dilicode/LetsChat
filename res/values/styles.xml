@@ -15,6 +15,10 @@
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+	</style>
+	
+    <style name="Theme.LightBackground" parent="AppTheme">
+        <item name="android:windowBackground">@android:color/background_light</item>
     </style>
 	
 	<style name="Divider">

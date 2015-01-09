@@ -1,7 +1,5 @@
 package com.mstr.letschat.tasks;
 
-import java.lang.ref.WeakReference;
-
 import android.content.Context;
 import android.database.Cursor;
 
@@ -9,23 +7,22 @@ import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.databases.ChatContract.ContactTable;
 import com.mstr.letschat.model.UserProfile;
 import com.mstr.letschat.tasks.Response.Listener;
+import com.mstr.letschat.utils.AppLog;
 import com.mstr.letschat.utils.UserUtils;
 import com.mstr.letschat.xmpp.SmackHelper;
 
 public class SearchUserTask extends BaseAsyncTask<Void, Void, UserProfile> {
-	private WeakReference<Context> contextWrapper;
 	private String username;
 	
 	public SearchUserTask(Listener<UserProfile> listener, Context context, String username) {
-		super(listener);
+		super(listener,context);
 		
-		contextWrapper = new WeakReference<Context>(context);
 		this.username = username;
 	}
 
 	@Override
 	protected Response<UserProfile> doInBackground(Void... params) {
-		Context context = contextWrapper.get();
+		Context context = getContext();
 		if (context != null) {
 			try {
 				UserProfile user = SmackHelper.getInstance(context).search(username);
@@ -45,6 +42,8 @@ public class SearchUserTask extends BaseAsyncTask<Void, Void, UserProfile> {
 				
 				return Response.success(user);
 			} catch(SmackInvocationException e) {
+				AppLog.e(String.format("search user error %s", e.toString()), e);
+				
 				return Response.error(e);
 			}
 		} else {

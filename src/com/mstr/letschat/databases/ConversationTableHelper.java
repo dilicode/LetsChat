@@ -3,7 +3,6 @@ package com.mstr.letschat.databases;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.mstr.letschat.databases.ChatContract.ChatMessageTable;
 import com.mstr.letschat.databases.ChatContract.ConversationTable;
 
 public class ConversationTableHelper {

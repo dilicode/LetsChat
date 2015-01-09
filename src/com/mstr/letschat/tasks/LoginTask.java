@@ -1,24 +1,19 @@
 package com.mstr.letschat.tasks;
 
-import java.lang.ref.WeakReference;
-
 import android.content.Context;
 
 import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.tasks.Response.Listener;
+import com.mstr.letschat.utils.AppLog;
 import com.mstr.letschat.utils.UserUtils;
 import com.mstr.letschat.xmpp.SmackHelper;
 
 public class LoginTask extends BaseAsyncTask<Void, Void, Boolean> {
-	private WeakReference<Context> contextWrapper;
-	
 	private String username;
 	private String password;
 	
 	public LoginTask(Listener<Boolean> listener, Context context, String username, String password) {
-		super(listener);
-		
-		contextWrapper = new WeakReference<Context>(context);
+		super(listener, context);
 		
 		this.username = username;
 		this.password = password;
@@ -26,7 +21,7 @@ public class LoginTask extends BaseAsyncTask<Void, Void, Boolean> {
 	
 	@Override
 	public Response<Boolean> doInBackground(Void... params) {
-		Context context = contextWrapper.get();
+		Context context = getContext();
 		if (context != null) {
 			try {
 				SmackHelper smackHelper = SmackHelper.getInstance(context);
@@ -37,6 +32,8 @@ public class LoginTask extends BaseAsyncTask<Void, Void, Boolean> {
 				
 				return Response.success(true);
 			} catch(SmackInvocationException e) {
+				AppLog.e(String.format("login error %s", username), e);
+				
 				return Response.error(e);
 			}
 		} else {

@@ -11,8 +11,6 @@ import android.content.Intent;
 import com.mstr.letschat.service.MessageService;
 
 public class MessagePacketListener implements PacketListener {
-	public static final String EXTRA_DATA_NAME_Message_BODY = "com.mstr.letschat.Body";
-	
 	private Context context;
 	
 	public MessagePacketListener(Context context) {
@@ -25,7 +23,7 @@ public class MessagePacketListener implements PacketListener {
 		
 		Intent intent = new Intent(MessageService.ACTION_MESSAGE_RECEIVED, null, context, MessageService.class);
 		intent.putExtra(MessageService.EXTRA_DATA_NAME_FROM, StringUtils.parseBareAddress(msg.getFrom()));
-		intent.putExtra(EXTRA_DATA_NAME_Message_BODY, msg.getBody());
+		intent.putExtra(MessageService.EXTRA_DATA_NAME_MESSAGE_BODY, msg.getBody());
 		context.startService(intent);
 	}
 }

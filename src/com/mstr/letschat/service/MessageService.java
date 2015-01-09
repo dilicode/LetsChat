@@ -2,9 +2,7 @@ package com.mstr.letschat.service;
 
 import java.util.ArrayList;
 
-import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.packet.RosterPacket.ItemType;
 import org.jivesoftware.smackx.vcardtemp.packet.VCard;
 
 import android.app.NotificationManager;
@@ -32,13 +30,14 @@ import com.mstr.letschat.databases.ChatContract.ContactTable;
 import com.mstr.letschat.databases.ChatContract.ConversationTable;
 import com.mstr.letschat.databases.ChatMessageTableHelper;
 import com.mstr.letschat.databases.ContactRequestTableHelper;
+import com.mstr.letschat.databases.ContactTableHelper;
 import com.mstr.letschat.databases.ConversationTableHelper;
+import com.mstr.letschat.model.SubscribeInfo;
 import com.mstr.letschat.providers.CustomProvider;
 import com.mstr.letschat.receivers.NetworkReceiver;
 import com.mstr.letschat.utils.NotificationUtils;
 import com.mstr.letschat.utils.ProviderUtils;
 import com.mstr.letschat.utils.UserUtils;
-import com.mstr.letschat.xmpp.MessagePacketListener;
 import com.mstr.letschat.xmpp.PresencePacketListener;
 import com.mstr.letschat.xmpp.SmackHelper;
 import com.mstr.letschat.xmpp.SmackVCardHelper;
@@ -57,6 +56,7 @@ public class MessageService extends Service {
 	public static final String EXTRA_DATA_NAME_FROM_NICKNAME = "com.mstr.letschat.FromNickname";
 	public static final String EXTRA_DATA_NAME_NOTIFICATION_TEXT = "com.mstr.letschat.NotificationText";
 	public static final String EXTRA_DATA_NAME_FROM = "com.mstr.letschat.From";
+	public static final String EXTRA_DATA_NAME_MESSAGE_BODY = "com.mstr.letschat.MessageBody";
 	
 	// Service Actions
 	public static final String ACTION_CONNECT = "com.mstr.letschat.intent.action.CONNECT";
@@ -94,12 +94,12 @@ public class MessageService extends Service {
 			String action = intent.getAction();
 			
 			if (action.equals(ACTION_CONNECT)) {
-				connect(intent);
+				connect();
 				return;
 			}
 			
 			if (action.equals(ACTION_RECONNECT)) {
-				reconnect(intent);
+				reconnect();
 				return;
 			}
 			
@@ -183,13 +183,15 @@ public class MessageService extends Service {
 		serviceLooper.quit();
 	}
 	
-	private void reconnect(Intent intent) {
-		if (connect(intent)) {
+	private void reconnect() {
+		smackHelper.cleanupConnection();
+		
+		if (connect()) {
 			reconnectCount = 0;
 		}
 	}
 	
-	private boolean connect(Intent intent) {
+	private boolean connect() {
 		String user = UserUtils.getUser(this);
 		String password = UserUtils.getPassword(this);
 		if (user != null && password != null) {
@@ -197,7 +199,9 @@ public class MessageService extends Service {
 				smackHelper.login(user, password);
 			
 				return true;
-			} catch(SmackInvocationException e) {}
+			} catch(SmackInvocationException e) {
+				Log.e(LOG_TAG, String.format("login error %s", user), e);
+			}
 		}
 		
 		return false;
@@ -208,7 +212,11 @@ public class MessageService extends Service {
 		
 		switch (type) {
 		case subscribe:
-			processSubscribe(intent);
+			processSubscribePresence(intent);
+			break;
+			
+		case available:
+			processAvailablePresence(intent);
 			break;
 			
 		default:
@@ -216,29 +224,27 @@ public class MessageService extends Service {
 		}
 	}
 	
-	private void processSubscribe(Intent intent) {
+	private void processSubscribePresence(Intent intent) {
 		String from = intent.getStringExtra(EXTRA_DATA_NAME_FROM);
-		RosterEntry rosterEntry = smackHelper.getRosterEntry(from);
-		ItemType rosterType = rosterEntry != null ? rosterEntry.getType() : null;
 		
-		// this is a request sent from new user asking for permission
-		if (smackHelper.isSubscribeFromNewUser(from)) {
-			processSubscribeFromNewUser(from);
-		} else if (rosterType == ItemType.to) { // this is a request sent back to initiator, directly approve
-			processSubsequentSubscribe(from, rosterEntry.getName());
-		}
-	}
-	
-	private void processSubscribeFromNewUser(String from) {
-		// get the nickname
-		String fromNickname = null;
+		SubscribeInfo subInfo = null;
 		try {
-			fromNickname = smackHelper.getNickname(from);
+			subInfo = smackHelper.processSubscribe(from);
 		} catch (SmackInvocationException e) {
-			Log.e(LOG_TAG, String.format("get nick name error, %s", e.toString()));
+			Log.e(LOG_TAG, String.format("process subscribe error, %s", from), e);
 			return;
 		}
 		
+		int subType = subInfo.getType();
+		// this is a request sent from new user asking for permission
+		if (subType == SubscribeInfo.TYPE_WAIT_FOR_APPROVAL) {
+			processSubscribeFromNewUser(from, subInfo.getNickname());
+		} else if (subType == SubscribeInfo.TYPE_APPROVED) { // this is a request sent back to initiator
+			processApprovedSubscribe(from, subInfo.getNickname());
+		}
+	}
+	
+	private void processSubscribeFromNewUser(String from, String fromNickname) {
 		// save request to db
 		getContentResolver().insert(ContactRequestTable.CONTENT_URI,
 				ContactRequestTableHelper.newContentValues(from, fromNickname));
@@ -251,19 +257,12 @@ public class MessageService extends Service {
 		sendOrderedBroadcast(receiverIntent, null);
 	}
 	
-	private void processSubsequentSubscribe(String from, String fromNickname) {
-		try {
-			smackHelper.approveSubscription(from);
-		} catch (SmackInvocationException e) {
-			Log.e(LOG_TAG, String.format("send subscribed error, %s", e.toString()));
-			return;
-		}
-		
+	private void processApprovedSubscribe(String from, String fromNickname) {
 		VCard vCard = null;
 		try {
 			vCard = smackHelper.getVCard(from);
 		} catch (SmackInvocationException e) {
-			Log.e(LOG_TAG, String.format("get vcard error, %s", e.toString()));
+			Log.e(LOG_TAG, String.format("get vcard error %s", from), e);
 			return;
 		}
 		
@@ -272,6 +271,25 @@ public class MessageService extends Service {
 		
 		// show notification that contact request has been approved
 		showContactRequestApprovedNotification(from, fromNickname);
+	}
+	
+	private void processAvailablePresence(Intent intent) {
+		String from = intent.getStringExtra(EXTRA_DATA_NAME_FROM);
+		String status = intent.getStringExtra(PresencePacketListener.EXTRA_DATA_NAME_STATUS);
+		
+		// update status 
+		if (status != null) {
+			String selection = ContactTable.COLUMN_NAME_JID + "=?";
+			String[] selectionArgs = new String[]{from};
+			Cursor cursor = getContentResolver().query(ContactTable.CONTENT_URI, new String[]{ContactTable.COLUMN_NAME_STATUS}, selection, selectionArgs, null);
+			if (cursor.moveToFirst()) {
+				String oldStatus = cursor.getString(cursor.getColumnIndex(ContactTable.COLUMN_NAME_STATUS));
+				if (!status.equals(oldStatus)) {
+					getContentResolver().update(ContactTable.CONTENT_URI, ContactTableHelper.newUpdateStatusContentValues(status), selection, selectionArgs);
+				}
+			}
+			cursor.close();
+		}
 	}
 	
 	private void showContactRequestApprovedNotification(String from, String fromNickname) {
@@ -301,7 +319,7 @@ public class MessageService extends Service {
 		
 		// reconnect when network is connected
 		if (connected) {
-			connect(intent);
+			reconnect();
 		} else {
 			// remove any pending reconnect messages if any
 			serviceHandler.removeMessages(RECONNECT_MESSAGE_WHAT);
@@ -312,7 +330,7 @@ public class MessageService extends Service {
 	
 	private void handleMessagePacket(Intent intent) {
 		String from = intent.getStringExtra(EXTRA_DATA_NAME_FROM);
-		String body = intent.getStringExtra(MessagePacketListener.EXTRA_DATA_NAME_Message_BODY);
+		String body = intent.getStringExtra(EXTRA_DATA_NAME_MESSAGE_BODY);
 		long timeMillis = System.currentTimeMillis();
 		
 		ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
@@ -345,6 +363,9 @@ public class MessageService extends Service {
 				nickname = getNickname(from);
 			} catch (SmackInvocationException e) {
 				cursor.close();
+				
+				Log.e(LOG_TAG, String.format("get nickname error %s", from), e);
+				
 				return;
 			}
 			unreadCount = isInConversationWith(from) ? 0 : 1;
@@ -359,14 +380,14 @@ public class MessageService extends Service {
 		try {
 			getContentResolver().applyBatch(CustomProvider.AUTHORITY, operations);
 		} catch (Exception e) {
-			Log.e(LOG_TAG, String.format("Unhandled exception, %s", e.toString()), e);
+			Log.e(LOG_TAG, "applybatch error", e);
 			return;
 		}
 		
 		// show notification
 		if (!isInConversationWith(from)) {
 			PendingIntent pendingIntent = NotificationUtils.getChatActivityPendingIntent(this, from, nickname);
-			String notifyText = unreadCount == 1 ? body : String.format("%d %s", unreadCount, getString(R.string.new_messages));
+			String notifyText = unreadCount == 1 ? body : String.format("%s %s", unreadCount, getString(R.string.new_messages));
 			
 			NotificationUtils.notify(this, nickname, notifyText, INCOMING_MESSAGE_NOTIFICATION_ID, pendingIntent);
 		}

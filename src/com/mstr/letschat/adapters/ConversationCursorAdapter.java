@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +15,18 @@ import com.mstr.letschat.R;
 import com.mstr.letschat.databases.ChatContract.ConversationTable;
 
 public class ConversationCursorAdapter extends ResourceCursorAdapter {
+	private int primaryTextColor;
+	private int subTextColor;
 	private DateFormat dateFormat;
 	
 	public ConversationCursorAdapter(Context context, Cursor c, int flags) {
 		super(context, R.layout.conversation_list_item, c, flags);
+		
+		TypedArray a = context.obtainStyledAttributes(new int[] {android.R.attr.textColorPrimary});
+		primaryTextColor = a.getColor(0, 0);
+		a.recycle();
+		
+		subTextColor = context.getResources().getColor(R.color.sub_text_color);
 		
 		dateFormat = DateFormat.getDateInstance();
 	}
@@ -34,13 +43,13 @@ public class ConversationCursorAdapter extends ResourceCursorAdapter {
 		int unreadCount = cursor.getInt(cursor.getColumnIndex(ConversationTable.COLUMN_NAME_UNREAD));
 		if (unreadCount == 0) {
 			viewHolder.unreadCountText.setVisibility(View.GONE);
-			viewHolder.dateText.setEnabled(false);
-			viewHolder.messageText.setEnabled(false);
+			viewHolder.dateText.setTextColor(subTextColor);
+			viewHolder.messageText.setTextColor(subTextColor);
 		} else {
 			viewHolder.unreadCountText.setText(String.valueOf(unreadCount));
 			viewHolder.unreadCountText.setVisibility(View.VISIBLE);
-			viewHolder.dateText.setEnabled(true);
-			viewHolder.messageText.setEnabled(true);
+			viewHolder.dateText.setTextColor(primaryTextColor);
+			viewHolder.messageText.setTextColor(primaryTextColor);
 		}
 	}
 	

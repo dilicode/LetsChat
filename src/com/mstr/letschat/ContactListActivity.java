@@ -32,6 +32,8 @@ public class ContactListActivity extends ListActivity
 		adapter = new ContactCursorAdapter(this, null, 0);
 		setListAdapter(adapter);
 		
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		
 		getLoaderManager().initLoader(0, null, this);
 	}
 	
@@ -47,6 +49,10 @@ public class ContactListActivity extends ListActivity
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		case android.R.id.home:
+			finish();
+			return true;
+			
 		case R.id.action_add:
 			startActivity(new Intent(this, SearchUserActivity.class));
 			

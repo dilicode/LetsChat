@@ -1,6 +1,5 @@
 package com.mstr.letschat.tasks;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import android.content.ContentProviderOperation;
@@ -20,19 +19,17 @@ import com.mstr.letschat.databases.ChatMessageTableHelper;
 import com.mstr.letschat.databases.ConversationTableHelper;
 import com.mstr.letschat.providers.CustomProvider;
 import com.mstr.letschat.tasks.Response.Listener;
+import com.mstr.letschat.utils.AppLog;
 import com.mstr.letschat.xmpp.SmackHelper;
 
 public class SendChatMessageTask extends BaseAsyncTask<Void, Void, Boolean> {
-	private WeakReference<Context> contextWrapper;
-	
 	private String to;
 	private String nickname;
 	private String body;
 	
 	public SendChatMessageTask(Listener<Boolean> listener, Context context, String to, String nickname, String body) {
-		super(listener);
+		super(listener, context);
 		
-		contextWrapper = new WeakReference<Context>(context);
 		this.to = to;
 		this.nickname = nickname;
 		this.body = body;
@@ -40,13 +37,15 @@ public class SendChatMessageTask extends BaseAsyncTask<Void, Void, Boolean> {
 	
 	@Override
 	public Response<Boolean> doInBackground(Void... params) {
-		Context context = contextWrapper.get();
+		Context context = getContext();
 		if (context != null) {
 			ContentResolver contentResolver = context.getContentResolver();
 			Uri newMessageUri = insertNewMessage(contentResolver);
 			try {
 				SmackHelper.getInstance(context).sendChatMessage(to, body);
 			} catch(SmackInvocationException e) {
+				AppLog.e(String.format("send chat message to %s error", to), e);
+				
 				contentResolver.update(newMessageUri, ChatMessageTableHelper.newFailureStatusContentValues(), null, null);
 				
 				return Response.error(e);

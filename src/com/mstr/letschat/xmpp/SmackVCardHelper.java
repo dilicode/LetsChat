@@ -7,7 +7,6 @@ import android.content.Context;
 
 import com.mstr.letschat.R;
 import com.mstr.letschat.SmackInvocationException;
-import com.mstr.letschat.utils.AppLog;
 
 public class SmackVCardHelper {
 	public static final String FIELD_STATUS = "status";
@@ -27,21 +26,17 @@ public class SmackVCardHelper {
 			vCard.setField(FIELD_STATUS, context.getString(R.string.default_status));
 			vCard.save(con);
 		} catch (Exception e) {
-			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
-			
 			throw new SmackInvocationException(e);
 		}
 	}
 	
-	public void saveStatus(String status) throws SmackInvocationException {
+	public void setStatus(String status) throws SmackInvocationException {
 		VCard vCard = new VCard();
 		try {
 			vCard.load(con);
 			vCard.setField(FIELD_STATUS, status);
 			vCard.save(con);
 		} catch (Exception e) {
-			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
-			
 			throw new SmackInvocationException(e);
 		}
 	}
@@ -52,8 +47,6 @@ public class SmackVCardHelper {
 			vCard.load(con);
 			return vCard.getField(FIELD_STATUS);
 		} catch (Exception e) {
-			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
-			
 			throw new SmackInvocationException(e);
 		}
 	}
@@ -65,8 +58,6 @@ public class SmackVCardHelper {
 			
 			return vCard;
 		} catch (Exception e) {
-			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
-			
 			throw new SmackInvocationException(e);
 		}
 	}

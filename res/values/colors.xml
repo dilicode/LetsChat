@@ -5,7 +5,8 @@
     <color name="background_dark">#d4d4d4</color>
 	<color name="incoming_message_border_color">#c8c8c8</color>
 	<color name="outgoing_message_border_color">#79c023</color>
-	<color name="text_color_dark">#7b7b7b</color>
+	<color name="sub_text_color">#ffb2b2b2</color>
 	<color name="green">#45c01a</color>
-	<color name="highlighted_status_text">#4e7777</color>
+	<color name="status_text_head">#4e7777</color>
+	<color name="selected_status">#336699</color>
 </resources>

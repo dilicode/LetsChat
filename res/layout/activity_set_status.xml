@@ -17,9 +17,9 @@
     	<TextView
     	    android:layout_width="match_parent"
     	    android:layout_height="wrap_content"
-    	    android:textAppearance="?android:attr/textAppearanceLarge"
+    	    android:textAppearance="?android:attr/textAppearanceMedium"
     	    android:text="@string/current_status"
-    	    android:textColor="@color/highlighted_status_text" />
+    	    android:textColor="@color/status_text_head" />
 		
 		<View
 			android:layout_width="match_parent"
@@ -60,9 +60,9 @@
     	<TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/select_status"
-            android:textColor="@color/highlighted_status_text" />
+            android:textColor="@color/status_text_head" />
     	
     	<View
 			android:layout_width="match_parent"

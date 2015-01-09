@@ -17,7 +17,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/Theme.LightBackground" >
 		
 		<activity android:name=".StartupActivity" android:noHistory="true">
 			<intent-filter>
@@ -30,54 +30,34 @@
 		
 		<activity android:name=".LoginActivity" android:noHistory="true" />
 		
-		<activity android:name=".ChatActivity"
-		    android:parentActivityName=".ConversationActivity"
-		    android:windowSoftInputMode="stateHidden|adjustResize" >
+		<activity android:name=".ChatActivity" android:windowSoftInputMode="stateHidden|adjustResize" android:theme="@style/AppTheme"
+		    android:parentActivityName=".ConversationActivity">
 		    <meta-data
 		        android:name="android.support.PARENT_ACTIVITY"
 		        android:value=".ConversationActivity" />
 		</activity>
 		
-		<activity android:name=".MainActivity" />
+		<activity android:name=".ConversationActivity" android:label="@string/chats" />
 		
-		<activity android:name=".AccountSetupActivity" />
+		<activity android:name=".SearchUserActivity" android:label="@string/search_contact" />
 		
-		<activity
-		    android:name=".ConversationActivity"
-		    android:label="@string/chats"/>
+		<activity android:name=".SetStatusActivity" android:label="@string/status" android:theme="@style/AppTheme" />
 		
-		<activity
-		    android:name=".SearchUserActivity"
-		    android:label="@string/search_contact" />
+		<activity android:name=".ContactListActivity" android:label="@string/select_contact" android:parentActivityName=".ConversationActivity">
+		    <meta-data
+		        android:name="android.support.PARENT_ACTIVITY"
+		        android:value=".ConversationActivity" />
+		</activity>
 		
-		<activity
-		    android:name=".SetStatusActivity"
-		    android:label="@string/status" />
-		
-		<activity
-		    android:name=".ContactListActivity"
-		    android:parentActivityName=".ConversationActivity"
-		    android:label="@string/select_contact" >
-			<meta-data
-			    android:name="android.support.PARENT_ACTIVITY"
-			    android:value=".ConversationActivity" />
-			</activity>
-			
-		<activity
-		    android:name=".ContactRequestListActivity"
-		    android:parentActivityName=".ContactListActivity"
-		    android:label="@string/new_friends">
-			<meta-data
-			    android:name="android.support.PARENT_ACTIVITY"
-			    android:value=".ContactListActivity" />
+		<activity android:name=".ContactRequestListActivity" android:label="@string/new_friends" android:parentActivityName=".ContactListActivity">
+		    <meta-data
+		        android:name="android.support.PARENT_ACTIVITY"
+		        android:value=".ContactListActivity" />
 		</activity>
 		
 		<activity android:name="de.duenndns.ssl.MemorizingActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 		
-		<activity
-		    android:name=".UserProfileActivity"
-		    android:label="@string/contact_profile">
-		</activity>
+		<activity android:name=".UserProfileActivity" android:label="@string/contact_profile" android:theme="@style/AppTheme" />
 		
 		<receiver android:name=".receivers.BootReceiver">
 		    <intent-filter>

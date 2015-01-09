@@ -25,9 +25,13 @@ import org.jivesoftware.smack.SmackAndroid;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.MessageTypeFilter;
+import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.RosterPacket.ItemType;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smackx.offline.OfflineMessageManager;
 import org.jivesoftware.smackx.vcardtemp.packet.VCard;
 
 import android.annotation.SuppressLint;
@@ -36,9 +40,9 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.mstr.letschat.SmackInvocationException;
+import com.mstr.letschat.model.SubscribeInfo;
 import com.mstr.letschat.model.UserProfile;
 import com.mstr.letschat.service.MessageService;
-import com.mstr.letschat.utils.AppLog;
 import com.mstr.letschat.utils.UserUtils;
 
 import de.duenndns.ssl.MemorizingTrustManager;
@@ -46,9 +50,9 @@ import de.duenndns.ssl.MemorizingTrustManager;
 public class SmackHelper {
 	private static final String LOG_TAG = "SmackHelper";
 	
-	// private static final String HOST = "10.197.34.151";
+	private static final String HOST = "10.197.34.151";
 	
-	private static final String HOST = "192.168.1.100";
+	// private static final String HOST = "192.168.1.100";
 	private static final int PORT = 5222;
 	
 	public static final String RESOURCE_PART = "Smack";
@@ -62,6 +66,8 @@ public class SmackHelper {
 	private State state;
 	
 	private PacketListener messagePacketListener;
+	
+	private PacketListener presencePacketListener;
 	
 	private SmackAndroid smackAndroid;
 	
@@ -77,6 +83,7 @@ public class SmackHelper {
 		smackAndroid = SmackAndroid.init(context);
 		
 		messagePacketListener = new MessagePacketListener(context);
+		presencePacketListener = new PresencePacketListener(context);
 		
 		Roster.setDefaultSubscriptionMode(SubscriptionMode.manual);
 	}
@@ -94,18 +101,6 @@ public class SmackHelper {
 			Log.d(LOG_TAG, "enter state: " + state.name());
 			
 			this.state = state;
-			switch (state) {
-			case CONNECTED:
-				con.addPacketListener(messagePacketListener, new MessageTypeFilter(Message.Type.chat));
-				con.addConnectionListener(createConnectionListener());
-				
-				contactHelper = new SmackContactHelper(context, con);
-				vCardHelper = new SmackVCardHelper(context, con);
-				break;
-				
-			default:
-				break;
-			}
 		}
 	}
 	
@@ -117,8 +112,6 @@ public class SmackHelper {
 		try {
 			AccountManager.getInstance(con).createAccount(user, password, attributes);
 		} catch (Exception e) {
-			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
-			
 			throw new SmackInvocationException(e);
 		}
 		
@@ -135,8 +128,6 @@ public class SmackHelper {
 		try {
 			con.sendPacket(message);
 		} catch (NotConnectedException e) {
-			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
-			
 			throw new SmackInvocationException(e);
 		}
 	}
@@ -178,14 +169,12 @@ public class SmackHelper {
 			try {
 				con.connect();
 			} catch(Exception e) {
-				AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
+				Log.e(LOG_TAG, String.format("Unhandled exception %s", e.toString()), e);
 				
 				startReconnect();
 				
 				throw new SmackInvocationException(e);
 			}
-			
-			setState(State.CONNECTED);
 		}
 	}
 	
@@ -209,11 +198,21 @@ public class SmackHelper {
 		config.setHostnameVerifier(mtm.wrapHostnameVerifier(new org.apache.http.conn.ssl.StrictHostnameVerifier()));
 		config.setSecurityMode(SecurityMode.required);
 		config.setReconnectionAllowed(false);
+		config.setSendPresence(false);
 		
 		return new XMPPTCPConnection(config);
 	}
 	
-	public void disconnect() {
+	public void cleanupConnection() {
+		if (con != null) {
+			con.removePacketListener(messagePacketListener);
+			con.removePacketListener(presencePacketListener);
+			
+			if (connectionListener != null) {
+				con.removeConnectionListener(connectionListener);
+			}
+		}
+		
 		if (isConnected()) {
 			try {
 				con.disconnect();
@@ -223,22 +222,39 @@ public class SmackHelper {
 		setState(State.DISCONNECTED);
 	}
 	
+	private void onConnectionEstablished() {
+		if (state != State.CONNECTED) {
+			processOfflineMessages();
+			
+			try {
+				con.sendPacket(new Presence(Presence.Type.available));
+			} catch (NotConnectedException e) {}
+			
+			con.addPacketListener(messagePacketListener, new MessageTypeFilter(Message.Type.chat));
+			con.addPacketListener(presencePacketListener, new PacketTypeFilter(Presence.class));
+			con.addConnectionListener(createConnectionListener());
+			
+			contactHelper = new SmackContactHelper(context, con);
+			vCardHelper = new SmackVCardHelper(context, con);
+			
+			setState(State.CONNECTED);
+		}
+	}
+	
 	public void login(String username, String password) throws SmackInvocationException {
 		connect();
 		
 		try {
 			if (!con.isAuthenticated()) {
 				con.login(username, password, RESOURCE_PART);
-				
-				setState(State.CONNECTED);
 			}
-		} catch(Exception e) {
-			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
 			
+			onConnectionEstablished();
+		} catch(Exception e) {
 			SmackInvocationException exception = new SmackInvocationException(e);
 			// this is caused by wrong username/password, do not reconnect
 			if (exception.isCausedBySASLError()) {
-				disconnect();
+				cleanupConnection();
 			} else {
 				startReconnect();
 			}
@@ -251,10 +267,35 @@ public class SmackHelper {
 		try {
 			return AccountManager.getInstance(con).getAccountAttribute("name");
 		} catch (Exception e) {
-			AppLog.e(String.format("Unhandled exception %s", e.toString()), e);
-			
 			throw new SmackInvocationException(e);
 		}
+	}
+	
+	private void processOfflineMessages() {
+		Log.i(LOG_TAG, "Begin retrieval of offline messages from server");
+		
+		OfflineMessageManager offlineMessageManager = new OfflineMessageManager(con);
+		try {
+			if (!offlineMessageManager.supportsFlexibleRetrieval()) {
+				Log.d(LOG_TAG, "Offline messages not supported");
+				return;
+			}
+			
+			List<Message> msgs = offlineMessageManager.getMessages();
+			for (Message msg : msgs) {
+				Intent intent = new Intent(MessageService.ACTION_MESSAGE_RECEIVED, null, context, MessageService.class);
+				intent.putExtra(MessageService.EXTRA_DATA_NAME_FROM, StringUtils.parseBareAddress(msg.getFrom()));
+				intent.putExtra(MessageService.EXTRA_DATA_NAME_MESSAGE_BODY, msg.getBody());
+            	
+            	context.startService(intent);
+            }
+			
+			offlineMessageManager.deleteMessages();
+		} catch (Exception e) {
+			Log.e(LOG_TAG, "handle offline messages error ", e);
+		}
+		
+		Log.i(LOG_TAG, "End of retrieval of offline messages from server");
 	}
 	
 	private ConnectionListener createConnectionListener() {
@@ -267,14 +308,14 @@ public class SmackHelper {
 
 			@Override
 			public void connectionClosed() {
-				AppLog.e("connection closed");
+				Log.e(LOG_TAG, "connection closed");
 			}
 
 			@Override
 			public void connectionClosedOnError(Exception arg0) {
 				// it may be due to network is not available or server is down, update state to WAITING_TO_CONNECT
 				// and schedule an automatic reconnect
-				AppLog.e("xmpp disconnected due to error ", arg0);
+				Log.e(LOG_TAG, "xmpp disconnected due to error ", arg0);
 				
 				startReconnect();
 			}
@@ -310,20 +351,20 @@ public class SmackHelper {
 		setState(State.WAITING_FOR_NETWORK);
 	}
 	
-	public void addContact(String to, String nickname) throws SmackInvocationException {
-		contactHelper.addContact(to, nickname);
+	public void requestSubscription(String to, String nickname) throws SmackInvocationException {
+		contactHelper.requestSubscription(to, nickname);
 	}
 	
-	public void approveSubscription(String to) throws SmackInvocationException {
+	public void approveSubscription(String to, String nickname, boolean shouldRequest) throws SmackInvocationException {
 		contactHelper.approveSubscription(to);
+		
+		if (shouldRequest) {
+			requestSubscription(to, nickname);
+		}
 	}
 	
 	public void delete(String jid) throws SmackInvocationException {
 		contactHelper.delete(jid);
-	}
-	
-	public RosterEntry getRosterEntry(String from) {
-		return contactHelper.getRosterEntry(from);
 	}
 	
 	public String getStatus() throws SmackInvocationException {
@@ -334,16 +375,34 @@ public class SmackHelper {
 		return vCardHelper.getVCard(jid);
 	}
 	
-	public boolean isSubscribeFromNewUser(String from) {
+	public void setStatus(String status) throws SmackInvocationException {
+		vCardHelper.setStatus(status);
+		
+		contactHelper.broadcastStatus(status);
+	}
+	
+	public SubscribeInfo processSubscribe(String from) throws SmackInvocationException {
+		SubscribeInfo result = new SubscribeInfo();
+		
 		RosterEntry rosterEntry = contactHelper.getRosterEntry(from);
 		ItemType rosterType = rosterEntry != null ? rosterEntry.getType() : null;
 		
-		// this is a request sent from new user asking for permission
-		return rosterEntry == null || rosterType == ItemType.none;
+		if (rosterEntry == null || rosterType == ItemType.none) {
+			result.setType(SubscribeInfo.TYPE_WAIT_FOR_APPROVAL);
+			result.setNickname(getNickname(from));
+		} else if (rosterType == ItemType.to) {
+			result.setType(SubscribeInfo.TYPE_APPROVED);
+			result.setNickname(rosterEntry.getName());
+		
+			approveSubscription(from, null, false);
+		}
+		
+		result.setFrom(from);
+		return result;
 	}
 	
 	public void onDestroy() {
-		disconnect();
+		cleanupConnection();
 		
 		smackAndroid.onDestroy();
 	}

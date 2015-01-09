@@ -7,16 +7,19 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mstr.letschat.adapters.StatusListAdapter;
 import com.mstr.letschat.tasks.GetStatusTask;
 import com.mstr.letschat.tasks.Response.Listener;
+import com.mstr.letschat.tasks.SetStatusTask;
 
-public class SetStatusActivity extends Activity {
+public class SetStatusActivity extends Activity implements OnItemClickListener {
 	private TextView statusText;
 	private ProgressBar progressBar;
 	private ListView listView;
@@ -27,11 +30,23 @@ public class SetStatusActivity extends Activity {
 		public void onResponse(String result) {
 			hideProgressBar();
 			statusText.setText(result);
+			adapter.setSelection(result);
 		}
 
 		@Override
 		public void onErrorResponse(SmackInvocationException exception) {
 			hideProgressBar();
+		}
+	};
+	
+	private Listener<Boolean> setStatusListener = new Listener<Boolean>() {
+
+		@Override
+		public void onResponse(Boolean result) {}
+
+		@Override
+		public void onErrorResponse(SmackInvocationException exception) {
+			Toast.makeText(SetStatusActivity.this, R.string.set_status_error, Toast.LENGTH_SHORT).show();
 		}
 	};
 	
@@ -46,8 +61,10 @@ public class SetStatusActivity extends Activity {
 		
 		adapter = new StatusListAdapter(this, getStatusOptions());
 		listView.setAdapter(adapter);
+		listView.setOnItemClickListener(this);
 		
-		adapter.setSelection(1);
+		
+		getActionBar().setDisplayHomeAsUpEnabled(true);
 		
 		new GetStatusTask(getStatusListener, this).execute();
 	}
@@ -76,5 +93,10 @@ public class SetStatusActivity extends Activity {
 	
 	private void hideProgressBar() {
 		progressBar.setVisibility(View.INVISIBLE);
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		new SetStatusTask(setStatusListener, this, adapter, statusText, position).execute();
 	}
 }
