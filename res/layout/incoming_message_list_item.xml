@@ -1,20 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.mstr.letschat.views.IncomingMessageView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp"
-    android:orientation="vertical">
-	
-	<include layout="@layout/message_date_section" />
-	
-	<RelativeLayout
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:padding="5dp"
-		android:layout_marginRight="@dimen/message_horizontal_margin"
-		android:layout_marginEnd="@dimen/message_horizontal_margin"
-		android:background="@drawable/incoming_message_bg">
-		
-		<include layout="@layout/message_view" />
-	</RelativeLayout>
-</LinearLayout>
+    android:padding="5dp" />

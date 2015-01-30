@@ -66,7 +66,7 @@ public class ChatMessageTableHelper {
 	
 	public static ContentValues newFailureStatusContentValues() {
 		ContentValues values = new ContentValues();
-		values.put(ChatMessageTable.COLUMN_NAME_STATUS, STATUS_SUCCESS);
+		values.put(ChatMessageTable.COLUMN_NAME_STATUS, STATUS_FAILURE);
 		
 		return values;
 	}

@@ -1,9 +1,9 @@
 package com.mstr.letschat.adapters;
 
+import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -11,12 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.mstr.letschat.R;
 import com.mstr.letschat.databases.ChatContract.ChatMessageTable;
 import com.mstr.letschat.databases.ChatMessageTableHelper;
+import com.mstr.letschat.views.MessageView;
+import com.mstr.letschat.views.OutgoingMessageView;
 
 public class MessageCursorAdapter extends CursorAdapter {
 	private static final int VIEW_TYPE_COUNT = 2;
@@ -39,26 +39,22 @@ public class MessageCursorAdapter extends CursorAdapter {
 
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
-		ViewHolder viewHolder = (ViewHolder)view.getTag();
+		MessageView messageView = ((MessageViewHolder)view.getTag()).view;
 		
-		viewHolder.messageText.setText(cursor.getString(cursor.getColumnIndex(ChatMessageTable.COLUMN_NAME_MESSAGE)));
+		messageView.setMessageText(cursor.getString(cursor.getColumnIndex(ChatMessageTable.COLUMN_NAME_MESSAGE)));
 		long timeMillis = getTime(cursor);
-		viewHolder.timeText.setText(timeFormat.format(new Date(timeMillis)));
+		messageView.setTimeText(timeFormat.format(new Date(timeMillis)));
 		
-		if (viewHolder.type == VIEW_TYPE_OUTGOING_MESSAGE) {
+		int type = getItemViewType(cursor);
+		if (type == VIEW_TYPE_OUTGOING_MESSAGE) {
 			int status = cursor.getInt(cursor.getColumnIndex(ChatMessageTable.COLUMN_NAME_STATUS));
-			if (status == ChatMessageTableHelper.STATUS_SUCCESS) {
-				((OutMessageViewHolder)viewHolder).progressBar.setVisibility(View.GONE);
-			} else {
-				((OutMessageViewHolder)viewHolder).progressBar.setVisibility(View.VISIBLE);
-			}
+			((OutgoingMessageView)messageView).showProgress(status == ChatMessageTableHelper.STATUS_SUCCESS);
 		}
 		
 		if (isSameDayToPreviousPosition(timeMillis, cursor)) {
-			viewHolder.dateText.setVisibility(View.GONE);
+			messageView.hideDateSection();
 		} else {
-			viewHolder.dateText.setText(dateFormat.format(new Date(timeMillis)));
-			viewHolder.dateText.setVisibility(View.VISIBLE);
+			messageView.displayDateSection(dateFormat.format(new Date(timeMillis)));
 		}
 	}
 	
@@ -68,17 +64,8 @@ public class MessageCursorAdapter extends CursorAdapter {
 		
 		View view = inflater.inflate(getLayout(viewType), parent, false);
 		
-		ViewHolder viewHolder = null;
-		if (viewType == VIEW_TYPE_INCOMING_MESSAGE) {
-			viewHolder = new ViewHolder();
-		} else {
-			viewHolder = new OutMessageViewHolder();
-			((OutMessageViewHolder)viewHolder).progressBar = (ProgressBar)view.findViewById(R.id.message_sending_progress);
-		}
-		viewHolder.messageText = (TextView)view.findViewById(R.id.tv_message);
-		viewHolder.timeText = (TextView)view.findViewById(R.id.tv_time);
-		viewHolder.dateText = (TextView)view.findViewById(R.id.tv_date);
-		viewHolder.type = viewType;
+		MessageViewHolder viewHolder = new MessageViewHolder();
+		viewHolder.view = (MessageView)view;
 		view.setTag(viewHolder);
 		
 		return view;
@@ -134,14 +121,7 @@ public class MessageCursorAdapter extends CursorAdapter {
 		return cursor.getLong(cursor.getColumnIndex(ChatMessageTable.COLUMN_NAME_TIME));
 	}
 	
-	static class ViewHolder {
-		TextView messageText;
-		TextView timeText;
-		TextView dateText;
-		int type;
-	}
-	
-	static class OutMessageViewHolder extends ViewHolder {
-		ProgressBar progressBar;
+	static class MessageViewHolder {
+		MessageView view;
 	}
 }
