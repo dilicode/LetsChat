@@ -57,4 +57,5 @@
 	<string name="no_status">***no status***</string>
 	<string name="set_status_error">Set status error</string>
 	<string name="update_status_text">update your status</string>
+	<string name="profile_photo">Profile photo</string>
 </resources>

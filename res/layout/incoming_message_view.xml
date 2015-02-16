@@ -2,14 +2,18 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 	<include layout="@layout/message_date_section" />
 	
-	<RelativeLayout
+	<LinearLayout
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:padding="5dp"
+		android:paddingLeft="15dp"
+		android:paddingTop="5dp"
+		android:paddingBottom="5dp"
+		android:paddingRight="15dp"
 		android:layout_marginRight="@dimen/message_horizontal_margin"
 		android:layout_marginEnd="@dimen/message_horizontal_margin"
-		android:background="@drawable/incoming_message_bg">
+		android:background="@drawable/msg_in"
+		android:orientation="vertical" >
 		
 		<include layout="@layout/message_view" />
-	</RelativeLayout>
+	</LinearLayout>
 </merge>

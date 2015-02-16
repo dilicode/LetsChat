@@ -2,24 +2,28 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
-    
-    <LinearLayout
+    android:orientation="vertical"
+    android:padding="5dp">
+	
+	<LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="bottom"
         android:orientation="horizontal">
 		
 		<EditText
 	        android:id="@+id/et_name"
 	        android:layout_width="0dp"
 	        android:layout_height="wrap_content"
-	        android:layout_weight="3"
+	        android:layout_weight="1"
 	        android:hint="@string/name_hint" />
 	        
 	    <ImageButton
-	        android:layout_width="0dp"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1" />
+	        android:id="@+id/btn_upload_avatar"
+	        android:layout_width="@dimen/sign_up_avatar_size"
+	        android:layout_height="@dimen/sign_up_avatar_size"
+	        android:src="@drawable/ic_upload_avatar"
+	        android:background="@null" />
 	</LinearLayout>
 	
     <EditText 

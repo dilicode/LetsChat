@@ -10,10 +10,6 @@
 		android:id="@+id/tv_time"
 		android:layout_height="wrap_content"
 		android:layout_width="wrap_content"
-		android:layout_marginLeft="10dp"
-		android:layout_marginStart="10dp"
-		android:layout_alignParentBottom="true"
-		android:layout_toRightOf="@id/tv_message"
-		android:layout_toEndOf="@id/tv_message"
-		android:textSize="12sp" />
+		android:textSize="12sp"
+		android:textColor="@color/sub_text_color" />
 </merge>
