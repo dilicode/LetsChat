@@ -12,6 +12,7 @@ import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
 
 import com.mstr.letschat.R;
+import com.mstr.letschat.bitmapcache.AvatarImageView;
 import com.mstr.letschat.databases.ChatContract.ConversationTable;
 
 public class ConversationCursorAdapter extends ResourceCursorAdapter {
@@ -35,6 +36,7 @@ public class ConversationCursorAdapter extends ResourceCursorAdapter {
 	public void bindView(View view, Context context, final Cursor cursor) {
 		ViewHolder viewHolder = (ViewHolder)view.getTag();
 		
+		viewHolder.avatar.loadImage(cursor.getString(cursor.getColumnIndex(ConversationTable.COLUMN_NAME_NAME)));
 		viewHolder.nameText.setText(cursor.getString(cursor.getColumnIndex(ConversationTable.COLUMN_NAME_NICKNAME)));
 		viewHolder.messageText.setText(cursor.getString(cursor.getColumnIndex(ConversationTable.COLUMN_NAME_LATEST_MESSAGE)));
 		viewHolder.dateText.setText(dateFormat.format(
@@ -62,6 +64,7 @@ public class ConversationCursorAdapter extends ResourceCursorAdapter {
 		viewHolder.messageText = (TextView)view.findViewById(R.id.tv_message);
 		viewHolder.dateText = (TextView)view.findViewById(R.id.tv_date);
 		viewHolder.unreadCountText = (TextView)view.findViewById(R.id.tv_unread_count);
+		viewHolder.avatar = (AvatarImageView)view.findViewById(R.id.avatar);
 		view.setTag(viewHolder);
 		
 		return view;
@@ -72,5 +75,6 @@ public class ConversationCursorAdapter extends ResourceCursorAdapter {
 		TextView messageText;
 		TextView dateText;
 		TextView unreadCountText;
+		AvatarImageView avatar;
 	}
 }

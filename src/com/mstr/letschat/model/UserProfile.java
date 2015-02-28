@@ -14,20 +14,20 @@ public class UserProfile implements Parcelable {
 	private String nickname;
 	private String jid;
 	private String status;
+	private byte[] avatar;
 	
 	private int type;
 	
-	public UserProfile(String nickname, String jid, String status) {
+	public UserProfile(String nickname, String jid, String status, byte[] avatar) {
 		this.nickname = nickname;
 		this.jid = jid;
 		this.status = status;
+		this.avatar = avatar;
 		type = TYPE_UNKNOWN;
 	}
 	
-	public UserProfile(String nickname, String jid, String status, int type) {
-		this.nickname = nickname;
-		this.jid = jid;
-		this.status = status;
+	public UserProfile(String nickname, String jid, String status, byte[] avatar, int type) {
+		this(nickname, jid, status, avatar);
 		this.type = type;
 	}
 	
@@ -36,6 +36,8 @@ public class UserProfile implements Parcelable {
 		jid = in.readString();
 		status = in.readString();
 		type = in.readInt();
+		avatar = new byte[in.readInt()];
+		in.readByteArray(avatar);
 	}
 
 	public String getUserName() {
@@ -46,10 +48,6 @@ public class UserProfile implements Parcelable {
 		return nickname;
 	}
 
-	public void setNickname(String nickname) {
-		this.nickname = nickname;
-	}
-	
 	public String getJid() {
 		return jid;
 	}
@@ -58,10 +56,6 @@ public class UserProfile implements Parcelable {
 		return status;
 	}
 
-	public void setJid(String jid) {
-		this.jid = jid;
-	}
-	
 	public void setType(int type) {
 		this.type = type;
 	}
@@ -72,6 +66,10 @@ public class UserProfile implements Parcelable {
 	
 	public void markAsContact() {
 		type = TYPE_CONTACT;
+	}
+	
+	public byte[] getAvatar() {
+		return avatar;
 	}
 	
 	@Override
@@ -102,6 +100,8 @@ public class UserProfile implements Parcelable {
 		dest.writeString(jid);
 		dest.writeString(status);
 		dest.writeInt(type);
+		dest.writeInt(avatar.length);
+		dest.writeByteArray(avatar);
 	}
 	
 	public static final Parcelable.Creator<UserProfile> CREATOR = new Parcelable.Creator<UserProfile>() {

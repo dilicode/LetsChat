@@ -52,12 +52,4 @@ public class LoginActivity extends Activity implements Listener<Boolean>, OnClic
 			Toast.makeText(this, R.string.login_error, Toast.LENGTH_SHORT).show();
 		}
 	}
-	
-	@Override
-	public void onBackPressed() {
-		startActivity(new Intent(this, StartupActivity.class));
-		overridePendingTransition(0, 0);
-		
-		super.onBackPressed();
-	}
 }

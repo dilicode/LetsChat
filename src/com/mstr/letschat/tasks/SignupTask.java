@@ -11,13 +11,15 @@ public class SignupTask extends BaseAsyncTask<Void, Void, Boolean> {
 	private String user;
 	private String name;
 	private String password;
+	private byte[] avatar;
 	
-	public SignupTask(Listener<Boolean> listener, Context context, String user, String password, String name) {
+	public SignupTask(Listener<Boolean> listener, Context context, String user, String password, String name, byte[] avatar) {
 		super(listener, context);
 		
 		this.user = user;
 		this.name = name;
 		this.password = password;
+		this.avatar = avatar;
 	}
 	
 	@Override
@@ -25,7 +27,7 @@ public class SignupTask extends BaseAsyncTask<Void, Void, Boolean> {
 		Context context = getContext();
 		if (context != null) {
 			try {
-				SmackHelper.getInstance(context).signupAndLogin(user, password, name);
+				SmackHelper.getInstance(context).signupAndLogin(user, password, name, avatar);
 				
 				return Response.success(true); 
 			} catch(SmackInvocationException e) {

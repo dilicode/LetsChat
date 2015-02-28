@@ -49,7 +49,7 @@ public class AcceptContactRequestTask extends BaseAsyncTask<Void, Void, UserProf
 					// 4. save new contact into db
 					ProviderUtils.addNewContact(context, jid, nickname, status);
 					
-					return Response.success(new UserProfile(nickname, jid, status, UserProfile.TYPE_CONTACT));
+					return Response.success(new UserProfile(nickname, jid, status, vCard.getAvatar(), UserProfile.TYPE_CONTACT));
 				}
 			} catch(SmackInvocationException e) {
 				AppLog.e(String.format("accept contact request error %s", e.toString()), e);

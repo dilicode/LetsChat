@@ -17,13 +17,19 @@ public class SmackContactHelper {
 	
 	public SmackContactHelper(Context context, XMPPConnection con) {
 		this.con = con;
+	}
+	
+	private Roster getRoster() {
+		if (roster == null) {
+			roster = con.getRoster();
+		}
 		
-		roster = con.getRoster();
+		return roster;
 	}
 	
 	public void requestSubscription(String to, String nickname) throws SmackInvocationException {
 		try {
-			roster.createEntry(to, nickname, null);
+			getRoster().createEntry(to, nickname, null);
 		} catch (Exception e) {
 			throw new SmackInvocationException(e);
 		}
@@ -49,7 +55,7 @@ public class SmackContactHelper {
 		RosterEntry rosterEntry = roster.getEntry(jid);
 		if (rosterEntry != null) {
 			try {
-				roster.removeEntry(rosterEntry);
+				getRoster().removeEntry(rosterEntry);
 			} catch (Exception e) {
 				throw new SmackInvocationException(e);
 			}
@@ -57,7 +63,7 @@ public class SmackContactHelper {
 	}
 	
 	public RosterEntry getRosterEntry(String from) {
-		return roster.getEntry(from);
+		return getRoster().getEntry(from);
 	}
 	
 	public void broadcastStatus(String status) throws SmackInvocationException {

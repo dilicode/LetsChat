@@ -7,6 +7,7 @@ import android.content.AsyncQueryHandler;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,10 +42,15 @@ public class UserProfileActivity extends Activity implements OnClickListener {
 		
 		profile = getIntent().getParcelableExtra(EXTRA_DATA_NAME_USER_PROFILE);
 		
+		ImageView imageView = (ImageView)findViewById(R.id.avatar);
+		byte[] data = profile.getAvatar();
+		imageView.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
+		
+		((TextView)findViewById(R.id.tv_nickname)).setText(profile.getNickname());
+		
 		button = (Button)findViewById(R.id.btn);
 		button.setOnClickListener(this);
 		setButtonText();
-		((TextView)findViewById(R.id.tv_nickname)).setText(profile.getNickname());
 		
 		String status = profile.getStatus();
 		if (status != null) {

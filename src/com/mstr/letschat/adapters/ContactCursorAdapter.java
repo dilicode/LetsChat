@@ -8,6 +8,7 @@ import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
 
 import com.mstr.letschat.R;
+import com.mstr.letschat.bitmapcache.AvatarImageView;
 import com.mstr.letschat.databases.ChatContract.ContactTable;
 
 public class ContactCursorAdapter extends ResourceCursorAdapter {
@@ -19,6 +20,7 @@ public class ContactCursorAdapter extends ResourceCursorAdapter {
 	public void bindView(View view, Context context, Cursor cursor) {
 		ViewHolder viewHolder = (ViewHolder)view.getTag();
 		
+		viewHolder.avatar.loadImage(cursor.getString(cursor.getColumnIndex(ContactTable.COLUMN_NAME_JID)));
 		viewHolder.nameText.setText(cursor.getString(cursor.getColumnIndex(ContactTable.COLUMN_NAME_NICKNAME)));
 		viewHolder.statusText.setText(cursor.getString(cursor.getColumnIndex(ContactTable.COLUMN_NAME_STATUS)));
 	}
@@ -30,6 +32,7 @@ public class ContactCursorAdapter extends ResourceCursorAdapter {
 		ViewHolder viewHolder = new ViewHolder();
 		viewHolder.nameText = (TextView)view.findViewById(R.id.tv_nickname);
 		viewHolder.statusText = (TextView)view.findViewById(R.id.tv_status);
+		viewHolder.avatar = (AvatarImageView)view.findViewById(R.id.avatar);
 		view.setTag(viewHolder);
 		
 		return view;
@@ -38,5 +41,6 @@ public class ContactCursorAdapter extends ResourceCursorAdapter {
 	static class ViewHolder {
 		TextView nameText;
 		TextView statusText;
+		AvatarImageView avatar;
 	}
 }

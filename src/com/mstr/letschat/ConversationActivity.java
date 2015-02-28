@@ -23,6 +23,8 @@ public class ConversationActivity extends ListActivity implements LoaderManager.
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		setContentView(R.layout.activity_conversation);
+		
 		adapter = new ConversationCursorAdapter(this, null, 0);
 		setListAdapter(adapter);
 		
@@ -58,6 +60,7 @@ public class ConversationActivity extends ListActivity implements LoaderManager.
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		String[] projection = new String[] {
 			ConversationTable._ID,
+			ConversationTable.COLUMN_NAME_NAME,
 			ConversationTable.COLUMN_NAME_NICKNAME,
 			ConversationTable.COLUMN_NAME_TIME,
 			ConversationTable.COLUMN_NAME_LATEST_MESSAGE,

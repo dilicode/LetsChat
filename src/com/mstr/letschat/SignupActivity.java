@@ -1,6 +1,11 @@
 package com.mstr.letschat;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -24,8 +29,8 @@ public class SignupActivity extends Activity implements OnClickListener, Listene
 	private static final int REQUEST_CODE_SELECT_PICTURE = 1;
 	private static final int REQUEST_CODE_CROP_IMAGE = 2;
 	
-	private static final String TEMP_PHOTO_FILE_NAME = "temp_photo.jpg";
-	private static final String PROFILE_PHOTO_FILE_NAME = "profile_photo.jpg";
+	private static final String RAW_PHOTO_FILE_NAME = "temp_photo.jpg";
+	private static final String AVATAR_FILE_NAME = "avatar.jpg";
 	
 	private EditText nameText;
 	private EditText phoneNumberText;
@@ -35,7 +40,7 @@ public class SignupActivity extends Activity implements OnClickListener, Listene
 	private ImageButton uploadAvatarButton;
 	
 	private File rawImageFile;
-	private File croppedImageFile;
+	private File avatarImageFile;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -52,18 +57,20 @@ public class SignupActivity extends Activity implements OnClickListener, Listene
 		uploadAvatarButton.setOnClickListener(this);
 		
 		if (isExternalStorageWritable()) {
-			rawImageFile = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), TEMP_PHOTO_FILE_NAME);
+			rawImageFile = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), RAW_PHOTO_FILE_NAME);
 		}
 		
-		croppedImageFile = new File(getFilesDir(), PROFILE_PHOTO_FILE_NAME);
+		avatarImageFile = new File(getFilesDir(), AVATAR_FILE_NAME);
 	}
 	
 	@Override
 	public void onClick(View v) {
 		if (v == submitButton) {
-			new SignupTask(this, this, phoneNumberText.getText().toString(), passwordText.getText().toString(), nameText.getText().toString()).execute();
+			new SignupTask(this, this, phoneNumberText.getText().toString(), passwordText.getText().toString(), 
+					nameText.getText().toString(), getAvatarBytes()).execute();
 		} else if(v == uploadAvatarButton) {
 			chooseAction();
+			
 		}
 	}
 	
@@ -83,15 +90,15 @@ public class SignupActivity extends Activity implements OnClickListener, Listene
 	@Override
 	public void onResponse(Boolean result) {
 		if (result) {
-			Toast.makeText(SignupActivity.this, R.string.login_success, Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, R.string.login_success, Toast.LENGTH_SHORT).show();
 			
-			startActivity(new Intent(SignupActivity.this, ConversationActivity.class));
+			startActivity(new Intent(this, ConversationActivity.class));
 		}
 	}
 
 	@Override
 	public void onErrorResponse(SmackInvocationException exception) {
-		Toast.makeText(SignupActivity.this, R.string.create_account_error, Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, R.string.create_account_error, Toast.LENGTH_SHORT).show();
 	}
 	
 	@Override
@@ -123,7 +130,7 @@ public class SignupActivity extends Activity implements OnClickListener, Listene
 			break;
 		
 		case REQUEST_CODE_CROP_IMAGE:
-			uploadAvatarButton.setImageBitmap(BitmapFactory.decodeFile(croppedImageFile.getAbsolutePath()));
+			uploadAvatarButton.setImageBitmap(BitmapFactory.decodeFile(avatarImageFile.getAbsolutePath()));
 			
 			break;
 		}
@@ -131,10 +138,8 @@ public class SignupActivity extends Activity implements OnClickListener, Listene
 	
 	private void startCropImage(Uri source) {
 		if (source != null) {
-			Uri croppedImage = Uri.fromFile(croppedImageFile);
-			
-			int size = this.getResources().getDimensionPixelSize(R.dimen.sign_up_avatar_size);
-			CropImageIntentBuilder cropImage = new CropImageIntentBuilder(size, size, croppedImage);
+			int size = getResources().getDimensionPixelSize(R.dimen.default_avatar_size);
+			CropImageIntentBuilder cropImage = new CropImageIntentBuilder(size, size, Uri.fromFile(avatarImageFile));
 			cropImage.setSourceImage(source);
 			
 			startActivityForResult(cropImage.getIntent(this), REQUEST_CODE_CROP_IMAGE);
@@ -144,5 +149,25 @@ public class SignupActivity extends Activity implements OnClickListener, Listene
 	private boolean isExternalStorageWritable() {
 		String state = Environment.getExternalStorageState();
 		return Environment.MEDIA_MOUNTED.equals(state);
+	}
+	
+	private byte[] getAvatarBytes() {
+		InputStream inputStream = null;
+		try {
+			inputStream = new FileInputStream(avatarImageFile);
+		} catch (FileNotFoundException e1) {}
+		
+		byte[] buffer = new byte[1024];
+		int bytesRead;
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		try {
+			while ((bytesRead = inputStream.read(buffer)) != -1) {
+				output.write(buffer, 0, bytesRead);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return output.toByteArray();
 	}
 }

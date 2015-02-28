@@ -163,11 +163,21 @@ public class MessageService extends Service {
 		// cancel any notification if existing after we start a conversation
 		notificationManager.cancel(INCOMING_MESSAGE_NOTIFICATION_ID);
 		
-		// clear any unread messages
-		ContentValues values = new ContentValues();
-		values.put(ConversationTable.COLUMN_NAME_UNREAD, 0);
-		getContentResolver().update(ConversationTable.CONTENT_URI, values, 
-				ConversationTable.COLUMN_NAME_NAME + "=?", new String[]{name});
+		String selection = ConversationTable.COLUMN_NAME_NAME + "=?";
+		String[] selectionArgs = new String[]{name};
+		
+		Cursor cursor = getContentResolver().query(ConversationTable.CONTENT_URI, new String[]{ConversationTable.COLUMN_NAME_UNREAD},
+				selection, selectionArgs, null);
+		if (cursor.moveToFirst()) {
+			int unreadCount = cursor.getInt(cursor.getColumnIndex(ConversationTable.COLUMN_NAME_UNREAD));
+			if (unreadCount > 0) {
+				// clear any unread messages
+				ContentValues values = new ContentValues();
+				values.put(ConversationTable.COLUMN_NAME_UNREAD, 0);
+				getContentResolver().update(ConversationTable.CONTENT_URI, values, selection, selectionArgs);
+			}
+		}
+		cursor.close();
 	}
 	
 	public void stopConversation() {
@@ -184,8 +194,6 @@ public class MessageService extends Service {
 	}
 	
 	private void reconnect() {
-		smackHelper.cleanupConnection();
-		
 		if (connect()) {
 			reconnectCount = 0;
 		}

@@ -20,9 +20,9 @@
 	        
 	    <ImageButton
 	        android:id="@+id/btn_upload_avatar"
-	        android:layout_width="@dimen/sign_up_avatar_size"
-	        android:layout_height="@dimen/sign_up_avatar_size"
-	        android:src="@drawable/ic_upload_avatar"
+	        android:layout_width="@dimen/default_avatar_size"
+	        android:layout_height="@dimen/default_avatar_size"
+	        android:src="@drawable/ic_default_avatar"
 	        android:background="@null" />
 	</LinearLayout>
 	

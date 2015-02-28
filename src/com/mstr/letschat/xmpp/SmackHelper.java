@@ -18,6 +18,7 @@ import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.Roster.SubscriptionMode;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
@@ -50,9 +51,9 @@ import de.duenndns.ssl.MemorizingTrustManager;
 public class SmackHelper {
 	private static final String LOG_TAG = "SmackHelper";
 	
-	private static final String HOST = "10.197.34.151";
+	private static final String HOST = "10.197.34.89";
 	
-	// private static final String HOST = "192.168.1.100";
+	//private static final String HOST = "192.168.1.100";
 	private static final int PORT = 5222;
 	
 	public static final String RESOURCE_PART = "Smack";
@@ -85,6 +86,7 @@ public class SmackHelper {
 		messagePacketListener = new MessagePacketListener(context);
 		presencePacketListener = new PresencePacketListener(context);
 		
+		SmackConfiguration.setDefaultPacketReplyTimeout(20 * 1000);
 		Roster.setDefaultSubscriptionMode(SubscriptionMode.manual);
 	}
 	
@@ -104,7 +106,7 @@ public class SmackHelper {
 		}
 	}
 	
-	public void signupAndLogin(String user, String password, String nickname) throws SmackInvocationException {
+	public void signupAndLogin(String user, String password, String nickname, byte[] avatar) throws SmackInvocationException {
 		connect();
 		
 		Map<String, String> attributes = new HashMap<String, String>();
@@ -117,7 +119,7 @@ public class SmackHelper {
 		
 		login(user, password);
 		
-		vCardHelper.saveOnSignup(nickname);
+		vCardHelper.save(nickname, avatar);
 		
 		UserUtils.setLoginUser(context, user, password, nickname);
 	}
@@ -145,11 +147,19 @@ public class SmackHelper {
 	}
 	
 	public UserProfile search(String username) throws SmackInvocationException {
-		String jid = getUser(username);
+		String name = StringUtils.parseName(username);
+		String jid = null;
+		if (name == null || name.trim().length() == 0) {
+			jid = username + "@" + con.getServiceName();
+		} else {
+			jid = StringUtils.parseBareAddress(username);
+		}
+		
 		VCard vCard = vCardHelper.getVCard(jid);
 		String nickname = vCard.getNickName();
 		
-		return nickname == null ? null : new UserProfile(nickname, jid, vCard.getField(SmackVCardHelper.FIELD_STATUS));
+		return nickname == null ? null : new UserProfile(nickname, jid, 
+				vCard.getField(SmackVCardHelper.FIELD_STATUS), vCard.getAvatar());
 	}
 	
 	public String getNickname(String jid) throws SmackInvocationException {
@@ -218,8 +228,6 @@ public class SmackHelper {
 				con.disconnect();
 			} catch (NotConnectedException e) {}
 		}
-		
-		setState(State.DISCONNECTED);
 	}
 	
 	private void onConnectionEstablished() {
@@ -230,12 +238,12 @@ public class SmackHelper {
 				con.sendPacket(new Presence(Presence.Type.available));
 			} catch (NotConnectedException e) {}
 			
+			contactHelper = new SmackContactHelper(context, con);
+			vCardHelper = new SmackVCardHelper(context, con);
+			
 			con.addPacketListener(messagePacketListener, new MessageTypeFilter(Message.Type.chat));
 			con.addPacketListener(presencePacketListener, new PacketTypeFilter(Presence.class));
 			con.addConnectionListener(createConnectionListener());
-			
-			contactHelper = new SmackContactHelper(context, con);
-			vCardHelper = new SmackVCardHelper(context, con);
 			
 			setState(State.CONNECTED);
 		}
@@ -334,6 +342,8 @@ public class SmackHelper {
 	}
 	
 	private void startReconnect() {
+		cleanupConnection();
+		
 		setState(State.WAITING_TO_CONNECT);
 		
 		context.startService(new Intent(MessageService.ACTION_RECONNECT, null, context, MessageService.class));
@@ -341,10 +351,6 @@ public class SmackHelper {
 	
 	private boolean isConnected() {
 		return con != null && con.isConnected();
-	}
-	
-	public String getUser(String username) {
-		return username + "@" + con.getServiceName();
 	}
 	
 	public void onNetworkDisconnected() {

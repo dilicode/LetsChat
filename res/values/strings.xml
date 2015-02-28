@@ -58,4 +58,5 @@
 	<string name="set_status_error">Set status error</string>
 	<string name="update_status_text">update your status</string>
 	<string name="profile_photo">Profile photo</string>
+	<string name="conversation_list_empty_text">To start messaging contacts who have \n Letschat,tap on the \"New message\" \n icon at the top of your screen</string>
 </resources>
