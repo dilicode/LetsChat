@@ -32,7 +32,7 @@
 	<string name="added">Added</string>
 	<string name="accept">Accept</string>
 	<string name="accepted">Accepted</string>
-	<string name="new_friends">New friends</string>
+	<string name="new_contacts">New contacts</string>
 	<string name="add_contact_text">wants to add you as a friend</string>
 	<string name="contact_request_sent">Request sent, waiting for acceptance...</string>
 	<string name="sending_contact_request_error">Sending request error</string>
@@ -58,5 +58,6 @@
 	<string name="set_status_error">Set status error</string>
 	<string name="update_status_text">update your status</string>
 	<string name="profile_photo">Profile photo</string>
-	<string name="conversation_list_empty_text">To start messaging contacts who have \n Letschat,tap on the \"New message\" \n icon at the top of your screen</string>
+	<string name="no_chats_found">No chats found</string>
+	<string name="no_contacts">No contacts</string>
 </resources>

@@ -1,6 +1,5 @@
 package com.mstr.letschat;
 
-import android.annotation.SuppressLint;
 import android.app.ListActivity;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
@@ -8,26 +7,37 @@ import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MenuItem.OnActionExpandListener;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
+import android.widget.TextView;
 
 import com.mstr.letschat.adapters.ContactCursorAdapter;
 import com.mstr.letschat.databases.ChatContract.ContactTable;
 
 public class ContactListActivity extends ListActivity 
-	implements OnQueryTextListener, LoaderManager.LoaderCallbacks<Cursor> {
+	implements LoaderManager.LoaderCallbacks<Cursor>,
+	OnQueryTextListener, OnClickListener, OnActionExpandListener {
+	
+	private TextView newContactsText;
+	private View contactsDivider;
 	
 	private ContactCursorAdapter adapter;
+	private String query;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		getListView().addHeaderView(getHeaderView());
+		setContentView(R.layout.activity_contacts);
+		
+		newContactsText = (TextView)findViewById(R.id.tv_new_contacts);
+		newContactsText.setOnClickListener(this);
+		contactsDivider = findViewById(R.id.contacts_divider);
 		
 		adapter = new ContactCursorAdapter(this, null, 0);
 		setListAdapter(adapter);
@@ -40,8 +50,11 @@ public class ContactListActivity extends ListActivity
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.contact_list_menu, menu);
-		SearchView searchView = (SearchView)menu.findItem(R.id.action_search).getActionView();
+		
+		MenuItem searchItem = menu.findItem(R.id.action_search);
+		SearchView searchView = (SearchView)searchItem.getActionView();
 		searchView.setOnQueryTextListener(this);
+		searchItem.setOnActionExpandListener(this);
 		
 		return true;
 	}
@@ -67,34 +80,28 @@ public class ContactListActivity extends ListActivity
 
 	@Override
 	public boolean onQueryTextSubmit(String query) {
-		return false;
+		restartLoader(query);
+		
+		return true;
 	}
 
 	@Override
 	public boolean onQueryTextChange(String newText) {
-		return false;
+		restartLoader(newText);
+		
+		return true;
 	}
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		if (position == 0) {
-			// header view is clicked
-			startActivity(new Intent(this, ContactRequestListActivity.class));
-		} else {
-			Cursor cursor = (Cursor)adapter.getItem(position - 1);
-			
-			Intent intent = new Intent(this, ChatActivity.class);
-			intent.putExtra(ChatActivity.EXTRA_DATA_NAME_TO, cursor.getString(cursor.getColumnIndex(ContactTable.COLUMN_NAME_JID)));
-			intent.putExtra(ChatActivity.EXTRA_DATA_NAME_NICKNAME, cursor.getString(cursor.getColumnIndex(ContactTable.COLUMN_NAME_NICKNAME)));
-			startActivity(intent);
-		}
+		Cursor cursor = (Cursor)adapter.getItem(position);
+		
+		Intent intent = new Intent(this, ChatActivity.class);
+		intent.putExtra(ChatActivity.EXTRA_DATA_NAME_TO, cursor.getString(cursor.getColumnIndex(ContactTable.COLUMN_NAME_JID)));
+		intent.putExtra(ChatActivity.EXTRA_DATA_NAME_NICKNAME, cursor.getString(cursor.getColumnIndex(ContactTable.COLUMN_NAME_NICKNAME)));
+		startActivity(intent);
 	}
 	
-	@SuppressLint("InflateParams")
-	private View getHeaderView() {
-		return LayoutInflater.from(this).inflate(R.layout.contact_list_header, null);
-	}
-
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		String[] projection = new String[] {
@@ -102,8 +109,16 @@ public class ContactListActivity extends ListActivity
 				ContactTable.COLUMN_NAME_JID,
 				ContactTable.COLUMN_NAME_NICKNAME,
 				ContactTable.COLUMN_NAME_STATUS
-				};
-		return new CursorLoader(this, ContactTable.CONTENT_URI, projection, null, null, null);
+			};
+		
+		String selection = null;
+		String[] selectionArgs = null;
+		if (hasQueryText()) {
+			selection = ContactTable.COLUMN_NAME_NICKNAME + " like ?";
+			selectionArgs = new String[]{query + "%"};
+		}
+		
+		return new CursorLoader(this, ContactTable.CONTENT_URI, projection, selection, selectionArgs, null);
 	}
 
 	@Override
@@ -114,5 +129,41 @@ public class ContactListActivity extends ListActivity
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		adapter.swapCursor(null);
+	}
+	
+	private void restartLoader(String query) {
+		this.query = query;
+		getLoaderManager().restartLoader(0, null, this);
+	}
+	
+	private boolean hasQueryText() {
+		return query != null && !query.equals("");
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == newContactsText) {
+			startActivity(new Intent(this, ContactRequestListActivity.class));
+		}
+	}
+	
+	@Override
+	public boolean onMenuItemActionExpand(MenuItem item) {
+		newContactsText.setVisibility(View.GONE);
+		contactsDivider.setVisibility(View.GONE);
+		
+		return true;
+	}
+
+	@Override
+	public boolean onMenuItemActionCollapse(MenuItem item) {
+		newContactsText.setVisibility(View.VISIBLE);
+		contactsDivider.setVisibility(View.VISIBLE);
+		
+		if (hasQueryText()) {
+			restartLoader(null);
+		}
+		
+		return true;
 	}
 }

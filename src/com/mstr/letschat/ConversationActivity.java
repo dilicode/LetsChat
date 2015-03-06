@@ -10,14 +10,22 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MenuItem.OnActionExpandListener;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.SearchView;
+import android.widget.SearchView.OnQueryTextListener;
 
 import com.mstr.letschat.adapters.ConversationCursorAdapter;
 import com.mstr.letschat.databases.ChatContract.ConversationTable;
 
-public class ConversationActivity extends ListActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ConversationActivity extends ListActivity 
+	implements LoaderManager.LoaderCallbacks<Cursor>,
+	OnQueryTextListener, OnActionExpandListener {
+	
 	private ConversationCursorAdapter adapter;
+	
+	private String query;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +41,11 @@ public class ConversationActivity extends ListActivity implements LoaderManager.
 	
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.conversation_menu, menu);
+		
+		MenuItem searchItem = menu.findItem(R.id.action_search);
+		SearchView searchView = (SearchView)searchItem.getActionView();
+		searchView.setOnQueryTextListener(this);
+		searchItem.setOnActionExpandListener(this);
 		
 		return true;
 	}
@@ -66,7 +79,14 @@ public class ConversationActivity extends ListActivity implements LoaderManager.
 			ConversationTable.COLUMN_NAME_LATEST_MESSAGE,
 			ConversationTable.COLUMN_NAME_UNREAD
 		};
-		return new CursorLoader(this, ConversationTable.CONTENT_URI, projection, null, null, null);
+		
+		String selection = null;
+		String[] selectionArgs = null;
+		if (hasQueryText()) {
+			selection = ConversationTable.COLUMN_NAME_NICKNAME + " like ?";
+			selectionArgs = new String[]{query + "%"};
+		}
+		return new CursorLoader(this, ConversationTable.CONTENT_URI, projection, selection, selectionArgs, null);
 	}
 
 	@Override
@@ -77,6 +97,15 @@ public class ConversationActivity extends ListActivity implements LoaderManager.
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		adapter.swapCursor(null);
+	}
+	
+	private void restartLoader(String query) {
+		this.query = query;
+		getLoaderManager().restartLoader(0, null, this);
+	}
+	
+	private boolean hasQueryText() {
+		return query != null && !query.equals("");
 	}
 	
 	@Override
@@ -108,5 +137,33 @@ public class ConversationActivity extends ListActivity implements LoaderManager.
 				activity.startActivity(intent);
 			}
 		}
+	}
+
+	@Override
+	public boolean onQueryTextSubmit(String query) {
+		restartLoader(query);
+			
+		return true;
+	}
+
+	@Override
+	public boolean onQueryTextChange(String newText) {
+		restartLoader(newText);
+		
+		return true;
+	}
+	
+	@Override
+	public boolean onMenuItemActionExpand(MenuItem item) {
+		return true;
+	}
+
+	@Override
+	public boolean onMenuItemActionCollapse(MenuItem item) {
+		if (hasQueryText()) {
+			restartLoader(null);
+		}
+		
+		return true;
 	}
 }

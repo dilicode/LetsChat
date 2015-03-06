@@ -49,7 +49,7 @@
 		        android:value=".ConversationActivity" />
 		</activity>
 		
-		<activity android:name=".ContactRequestListActivity" android:label="@string/new_friends" android:parentActivityName=".ContactListActivity">
+		<activity android:name=".ContactRequestListActivity" android:label="@string/new_contacts" android:parentActivityName=".ContactListActivity">
 		    <meta-data
 		        android:name="android.support.PARENT_ACTIVITY"
 		        android:value=".ContactListActivity" />
