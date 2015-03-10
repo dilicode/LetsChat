@@ -1,6 +1,9 @@
 package com.mstr.letschat.model;
 
 import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smackx.vcardtemp.packet.VCard;
+
+import com.mstr.letschat.xmpp.SmackVCardHelper;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -18,26 +21,29 @@ public class UserProfile implements Parcelable {
 	
 	private int type;
 	
-	public UserProfile(String nickname, String jid, String status, byte[] avatar) {
-		this.nickname = nickname;
+	public UserProfile(String jid, VCard vCard) {
 		this.jid = jid;
-		this.status = status;
-		this.avatar = avatar;
+		nickname = vCard.getNickName();
+		status = vCard.getField(SmackVCardHelper.FIELD_STATUS);
+		avatar = vCard.getAvatar();
 		type = TYPE_UNKNOWN;
 	}
 	
-	public UserProfile(String nickname, String jid, String status, byte[] avatar, int type) {
-		this(nickname, jid, status, avatar);
+	public UserProfile(String jid, VCard vCard, int type) {
+		this(jid, vCard);
 		this.type = type;
+		
 	}
-	
 	private UserProfile(Parcel in) {
 		nickname = in.readString();
 		jid = in.readString();
 		status = in.readString();
 		type = in.readInt();
-		avatar = new byte[in.readInt()];
-		in.readByteArray(avatar);
+		int avatarLength = in.readInt();
+		if (avatarLength > 0) {
+			avatar = new byte[avatarLength];
+			in.readByteArray(avatar);
+		}
 	}
 
 	public String getUserName() {
@@ -100,8 +106,12 @@ public class UserProfile implements Parcelable {
 		dest.writeString(jid);
 		dest.writeString(status);
 		dest.writeInt(type);
-		dest.writeInt(avatar.length);
-		dest.writeByteArray(avatar);
+		if (avatar != null) {
+			dest.writeInt(avatar.length);
+			dest.writeByteArray(avatar);
+		} else {
+			dest.writeInt(0);
+		}
 	}
 	
 	public static final Parcelable.Creator<UserProfile> CREATOR = new Parcelable.Creator<UserProfile>() {

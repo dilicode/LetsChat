@@ -43,8 +43,12 @@ public class UserProfileActivity extends Activity implements OnClickListener {
 		profile = getIntent().getParcelableExtra(EXTRA_DATA_NAME_USER_PROFILE);
 		
 		ImageView imageView = (ImageView)findViewById(R.id.avatar);
-		byte[] data = profile.getAvatar();
-		imageView.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
+		byte[] avatar = profile.getAvatar();
+		if (avatar != null) {
+			imageView.setImageBitmap(BitmapFactory.decodeByteArray(avatar, 0, avatar.length));
+		} else {
+			imageView.setImageResource(R.drawable.ic_default_avatar);
+		}
 		
 		((TextView)findViewById(R.id.tv_nickname)).setText(profile.getNickname());
 		

@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.android.camera.CropImageIntentBuilder;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.tasks.SignupTask;
+import com.mstr.letschat.utils.AppLog;
 
 public class SignupActivity extends Activity implements OnClickListener, Listener<Boolean> {
 	private static final int REQUEST_CODE_SELECT_PICTURE = 1;
@@ -66,11 +67,19 @@ public class SignupActivity extends Activity implements OnClickListener, Listene
 	@Override
 	public void onClick(View v) {
 		if (v == submitButton) {
-			new SignupTask(this, this, phoneNumberText.getText().toString(), passwordText.getText().toString(), 
-					nameText.getText().toString(), getAvatarBytes()).execute();
+			String phoneNumber = phoneNumberText.getText().toString();
+			String password = passwordText.getText().toString();
+			String name = nameText.getText().toString();
+			
+			if (phoneNumber.trim().length() == 0 || password.trim().length() == 0 ||
+					name.trim().length() == 0) {
+				Toast.makeText(this, R.string.incomplete_signup_info, Toast.LENGTH_SHORT).show();
+				return;
+			}
+			
+			new SignupTask(this, this, phoneNumber, password, name, getAvatarBytes()).execute();
 		} else if(v == uploadAvatarButton) {
 			chooseAction();
-			
 		}
 	}
 	
@@ -152,10 +161,14 @@ public class SignupActivity extends Activity implements OnClickListener, Listene
 	}
 	
 	private byte[] getAvatarBytes() {
+		if (!avatarImageFile.exists()) return null;
+		
 		InputStream inputStream = null;
 		try {
 			inputStream = new FileInputStream(avatarImageFile);
-		} catch (FileNotFoundException e1) {}
+		} catch (FileNotFoundException e) {
+			AppLog.e("avatar file not found", e);
+		}
 		
 		byte[] buffer = new byte[1024];
 		int bytesRead;

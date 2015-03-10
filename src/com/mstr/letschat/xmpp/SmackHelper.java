@@ -51,9 +51,9 @@ import de.duenndns.ssl.MemorizingTrustManager;
 public class SmackHelper {
 	private static final String LOG_TAG = "SmackHelper";
 	
-	private static final String HOST = "10.197.34.89";
+	//private static final String HOST = "10.197.34.89";
 	
-	//private static final String HOST = "192.168.1.100";
+	private static final String HOST = "192.168.1.104";
 	private static final int PORT = 5222;
 	
 	public static final String RESOURCE_PART = "Smack";
@@ -158,8 +158,7 @@ public class SmackHelper {
 		VCard vCard = vCardHelper.getVCard(jid);
 		String nickname = vCard.getNickName();
 		
-		return nickname == null ? null : new UserProfile(nickname, jid, 
-				vCard.getField(SmackVCardHelper.FIELD_STATUS), vCard.getAvatar());
+		return nickname == null ? null : new UserProfile(jid, vCard);
 	}
 	
 	public String getNickname(String jid) throws SmackInvocationException {

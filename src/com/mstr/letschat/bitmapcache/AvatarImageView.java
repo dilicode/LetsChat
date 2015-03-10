@@ -75,26 +75,26 @@ public class AvatarImageView extends ImageView {
 		@Override
 		protected CacheableBitmapDrawable doInBackground(String... params) {
 			AvatarImageView imageView = imageViewReference.get();
-			if (imageView == null) {
+			if (imageView == null || isCancelled()) {
 				return null;
 			}
 			
 			jid = params[0];
-			if (!isCancelled()) {
-				UserProfile user = null;
-				try {
-					user = SmackHelper.getInstance(imageView.getContext()).search(jid);
-				} catch (SmackInvocationException e) {
-					AppLog.e(String.format("get user avatar error %s", jid), e);
-				}
-				
-				if (user != null) {
-					byte[] avatar = user.getAvatar();
+			UserProfile user = null;
+			try {
+				user = SmackHelper.getInstance(imageView.getContext()).search(jid);
+			} catch (SmackInvocationException e) {
+				AppLog.e(String.format("get user avatar error %s", jid), e);
+			}
+			
+			if (user != null) {
+				byte[] avatar = user.getAvatar();
+				if (avatar != null) {
 					return new CacheableBitmapDrawable(imageView.getResources(), 
 							BitmapFactory.decodeByteArray(avatar, 0, avatar.length), this);
 				}
 			}
-			
+		
 			return null;
 		}
 		

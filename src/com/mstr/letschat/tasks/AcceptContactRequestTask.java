@@ -44,12 +44,11 @@ public class AcceptContactRequestTask extends BaseAsyncTask<Void, Void, UserProf
 					
 					// 2. load VCard
 					VCard vCard = smackHelper.getVCard(jid);
-					String status = vCard.getField(SmackVCardHelper.FIELD_STATUS);
 					
-					// 4. save new contact into db
-					ProviderUtils.addNewContact(context, jid, nickname, status);
+					// 3. save new contact into db
+					ProviderUtils.addNewContact(context, jid, nickname, vCard.getField(SmackVCardHelper.FIELD_STATUS));
 					
-					return Response.success(new UserProfile(nickname, jid, status, vCard.getAvatar(), UserProfile.TYPE_CONTACT));
+					return Response.success(new UserProfile(jid, vCard, UserProfile.TYPE_CONTACT));
 				}
 			} catch(SmackInvocationException e) {
 				AppLog.e(String.format("accept contact request error %s", e.toString()), e);
