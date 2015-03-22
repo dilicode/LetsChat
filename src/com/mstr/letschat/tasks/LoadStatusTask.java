@@ -7,8 +7,8 @@ import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.utils.AppLog;
 import com.mstr.letschat.xmpp.SmackHelper;
 
-public class GetStatusTask extends BaseAsyncTask<Void, Void, String> {
-	public GetStatusTask(Listener<String> listener, Context context) {
+public class LoadStatusTask extends BaseAsyncTask<Void, Void, String> {
+	public LoadStatusTask(Listener<String> listener, Context context) {
 		super(listener, context);
 	}
 	
@@ -17,7 +17,7 @@ public class GetStatusTask extends BaseAsyncTask<Void, Void, String> {
 		Context context = getContext();
 		if (context != null) {
 			try {
-				return Response.success(SmackHelper.getInstance(context).getStatus());
+				return Response.success(SmackHelper.getInstance(context).loadStatus());
 			} catch (SmackInvocationException e) {
 				AppLog.e(String.format("get login user status error %s", e.toString()), e);
 				

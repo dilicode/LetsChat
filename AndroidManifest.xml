@@ -56,9 +56,12 @@
 		</activity>
 		
 		<activity android:name="de.duenndns.ssl.MemorizingActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+		
 		<activity android:name="com.android.camera.CropImage" />
 		
 		<activity android:name=".UserProfileActivity" android:label="@string/contact_profile" android:theme="@style/AppTheme" />
+		
+		<activity android:name=".SettingsActivity" android:label="@string/settings" />
 		
 		<receiver android:name=".receivers.BootReceiver">
 		    <intent-filter>

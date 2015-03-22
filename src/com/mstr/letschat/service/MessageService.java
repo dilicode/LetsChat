@@ -268,7 +268,7 @@ public class MessageService extends Service {
 	private void processApprovedSubscribe(String from, String fromNickname) {
 		VCard vCard = null;
 		try {
-			vCard = smackHelper.getVCard(from);
+			vCard = smackHelper.loadVCard(from);
 		} catch (SmackInvocationException e) {
 			Log.e(LOG_TAG, String.format("get vcard error %s", from), e);
 			return;

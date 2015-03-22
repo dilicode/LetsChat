@@ -64,6 +64,10 @@ public class ConversationActivity extends ListActivity
 		case R.id.action_set_status:
 			startActivity(new Intent(this, SetStatusActivity.class));
 			return true;
+			
+		case R.id.action_settings:
+			startActivity(new Intent(this, SettingsActivity.class));
+			return true;
 		}
 		
 		return super.onOptionsItemSelected(item);

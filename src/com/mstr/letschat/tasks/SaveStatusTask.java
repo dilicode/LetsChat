@@ -13,14 +13,14 @@ import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.utils.AppLog;
 import com.mstr.letschat.xmpp.SmackHelper;
 
-public class SetStatusTask extends BaseAsyncTask<Void, Void, Boolean> {
+public class SaveStatusTask extends BaseAsyncTask<Void, Void, Boolean> {
 	private int position;
 	private WeakReference<StatusListAdapter> adapterWrapper;
 	private WeakReference<TextView> statusTextWrapper;
 	
 	private ProgressDialog dialog;
 	
-	public SetStatusTask(Listener<Boolean> listener, Context context, StatusListAdapter adapter, TextView statusText, int position) {
+	public SaveStatusTask(Listener<Boolean> listener, Context context, StatusListAdapter adapter, TextView statusText, int position) {
 		super(listener, context);
 		
 		adapterWrapper = new WeakReference<StatusListAdapter>(adapter);
@@ -36,7 +36,7 @@ public class SetStatusTask extends BaseAsyncTask<Void, Void, Boolean> {
 		StatusListAdapter adapter = adapterWrapper.get();
 		if (context != null && adapter != null) {
 			try {
-				SmackHelper.getInstance(context).setStatus(adapter.getItem(position));
+				SmackHelper.getInstance(context).saveStatus(adapter.getItem(position));
 				
 				return Response.success(true);
 			} catch (SmackInvocationException e) {

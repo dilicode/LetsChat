@@ -43,7 +43,7 @@ public class AcceptContactRequestTask extends BaseAsyncTask<Void, Void, UserProf
 					smackHelper.approveSubscription(jid, nickname, true);
 					
 					// 2. load VCard
-					VCard vCard = smackHelper.getVCard(jid);
+					VCard vCard = smackHelper.loadVCard(jid);
 					
 					// 3. save new contact into db
 					ProviderUtils.addNewContact(context, jid, nickname, vCard.getField(SmackVCardHelper.FIELD_STATUS));

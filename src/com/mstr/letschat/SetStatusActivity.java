@@ -15,9 +15,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mstr.letschat.adapters.StatusListAdapter;
-import com.mstr.letschat.tasks.GetStatusTask;
+import com.mstr.letschat.tasks.LoadStatusTask;
 import com.mstr.letschat.tasks.Response.Listener;
-import com.mstr.letschat.tasks.SetStatusTask;
+import com.mstr.letschat.tasks.SaveStatusTask;
 
 public class SetStatusActivity extends Activity implements OnItemClickListener {
 	private TextView statusText;
@@ -66,7 +66,7 @@ public class SetStatusActivity extends Activity implements OnItemClickListener {
 		
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		
-		new GetStatusTask(getStatusListener, this).execute();
+		new LoadStatusTask(getStatusListener, this).execute();
 	}
 	
 	@Override
@@ -97,6 +97,6 @@ public class SetStatusActivity extends Activity implements OnItemClickListener {
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		new SetStatusTask(setStatusListener, this, adapter, statusText, position).execute();
+		new SaveStatusTask(setStatusListener, this, adapter, statusText, position).execute();
 	}
 }

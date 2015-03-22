@@ -33,32 +33,36 @@ public class SmackVCardHelper {
 		}
 	}
 	
-	public void setStatus(String status) throws SmackInvocationException {
-		VCard vCard = new VCard();
+	public void saveStatus(String status) throws SmackInvocationException {
+		VCard vCard = loadVCard();
+		vCard.setField(FIELD_STATUS, status);
+		
 		try {
-			vCard.load(con);
-			vCard.setField(FIELD_STATUS, status);
 			vCard.save(con);
 		} catch (Exception e) {
 			throw new SmackInvocationException(e);
 		}
 	}
 	
-	public String getStatus() throws SmackInvocationException {
+	public String loadStatus() throws SmackInvocationException {
+		return loadVCard().getField(FIELD_STATUS);
+	}
+	
+	public VCard loadVCard(String jid) throws SmackInvocationException {
 		VCard vCard = new VCard();
 		try {
-			vCard.load(con);
-			return vCard.getField(FIELD_STATUS);
+			vCard.load(con, jid);
+			
+			return vCard;
 		} catch (Exception e) {
 			throw new SmackInvocationException(e);
 		}
 	}
 	
-	public VCard getVCard(String jid) throws SmackInvocationException {
+	public VCard loadVCard() throws SmackInvocationException {
 		VCard vCard = new VCard();
 		try {
-			vCard.load(con, jid);
-			
+			vCard.load(con);
 			return vCard;
 		} catch (Exception e) {
 			throw new SmackInvocationException(e);

@@ -29,6 +29,7 @@ public class UserProfile implements Parcelable {
 		type = TYPE_UNKNOWN;
 	}
 	
+	
 	public UserProfile(String jid, VCard vCard, int type) {
 		this(jid, vCard);
 		this.type = type;

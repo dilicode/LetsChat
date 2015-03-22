@@ -53,7 +53,7 @@ public class SmackHelper {
 	
 	//private static final String HOST = "10.197.34.89";
 	
-	private static final String HOST = "192.168.1.104";
+	private static final String HOST = "192.168.1.103";
 	private static final int PORT = 5222;
 	
 	public static final String RESOURCE_PART = "Smack";
@@ -155,14 +155,14 @@ public class SmackHelper {
 			jid = StringUtils.parseBareAddress(username);
 		}
 		
-		VCard vCard = vCardHelper.getVCard(jid);
+		VCard vCard = vCardHelper.loadVCard(jid);
 		String nickname = vCard.getNickName();
 		
 		return nickname == null ? null : new UserProfile(jid, vCard);
 	}
 	
 	public String getNickname(String jid) throws SmackInvocationException {
-		VCard vCard = vCardHelper.getVCard(jid);
+		VCard vCard = vCardHelper.loadVCard(jid);
 		
 		return vCard.getNickName();
 	}
@@ -372,16 +372,20 @@ public class SmackHelper {
 		contactHelper.delete(jid);
 	}
 	
-	public String getStatus() throws SmackInvocationException {
-		return vCardHelper.getStatus();
+	public String loadStatus() throws SmackInvocationException {
+		return vCardHelper.loadStatus();
 	}
 	
-	public VCard getVCard(String jid) throws SmackInvocationException {
-		return vCardHelper.getVCard(jid);
+	public VCard loadVCard(String jid) throws SmackInvocationException {
+		return vCardHelper.loadVCard(jid);
 	}
 	
-	public void setStatus(String status) throws SmackInvocationException {
-		vCardHelper.setStatus(status);
+	public VCard loadVCard() throws SmackInvocationException {
+		return vCardHelper.loadVCard();
+	}
+	
+	public void saveStatus(String status) throws SmackInvocationException {
+		vCardHelper.saveStatus(status);
 		
 		contactHelper.broadcastStatus(status);
 	}
