@@ -17,6 +17,7 @@ import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 
 import com.mstr.letschat.adapters.ConversationCursorAdapter;
+import com.mstr.letschat.bitmapcache.ImageFetcher;
 import com.mstr.letschat.databases.ChatContract.ConversationTable;
 
 public class ConversationActivity extends ListActivity 
@@ -27,11 +28,15 @@ public class ConversationActivity extends ListActivity
 	
 	private String query;
 	
+	private ImageFetcher imageFetcher;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.activity_conversation);
+		
+		imageFetcher = ImageFetcher.getAvatarImageFetcher(this);
 		
 		adapter = new ConversationCursorAdapter(this, null, 0);
 		setListAdapter(adapter);
@@ -71,6 +76,20 @@ public class ConversationActivity extends ListActivity
 		}
 		
 		return super.onOptionsItemSelected(item);
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		
+		imageFetcher.flushCache();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		
+		imageFetcher.closeCache();
 	}
 
 	@Override
@@ -169,5 +188,9 @@ public class ConversationActivity extends ListActivity
 		}
 		
 		return true;
+	}
+	
+	public ImageFetcher getImageFetcher() {
+		return imageFetcher;
 	}
 }

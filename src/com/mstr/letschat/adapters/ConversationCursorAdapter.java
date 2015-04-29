@@ -8,11 +8,13 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
 
+import com.mstr.letschat.ConversationActivity;
 import com.mstr.letschat.R;
-import com.mstr.letschat.bitmapcache.AvatarImageView;
+import com.mstr.letschat.bitmapcache.ImageFetcher;
 import com.mstr.letschat.databases.ChatContract.ConversationTable;
 
 public class ConversationCursorAdapter extends ResourceCursorAdapter {
@@ -20,7 +22,9 @@ public class ConversationCursorAdapter extends ResourceCursorAdapter {
 	private int subTextColor;
 	private DateFormat dateFormat;
 	
-	public ConversationCursorAdapter(Context context, Cursor c, int flags) {
+	private ImageFetcher imageFetcher;
+	
+	public ConversationCursorAdapter(ConversationActivity context, Cursor c, int flags) {
 		super(context, R.layout.conversation_list_item, c, flags);
 		
 		TypedArray a = context.obtainStyledAttributes(new int[] {android.R.attr.textColorPrimary});
@@ -30,13 +34,15 @@ public class ConversationCursorAdapter extends ResourceCursorAdapter {
 		subTextColor = context.getResources().getColor(R.color.sub_text_color);
 		
 		dateFormat = DateFormat.getDateInstance();
+		
+		imageFetcher = context.getImageFetcher();
 	}
 	
 	@Override
 	public void bindView(View view, Context context, final Cursor cursor) {
 		ViewHolder viewHolder = (ViewHolder)view.getTag();
 		
-		viewHolder.avatar.loadImage(cursor.getString(cursor.getColumnIndex(ConversationTable.COLUMN_NAME_NAME)));
+		imageFetcher.loadImage(cursor.getString(cursor.getColumnIndex(ConversationTable.COLUMN_NAME_NAME)), viewHolder.avatar);
 		viewHolder.nameText.setText(cursor.getString(cursor.getColumnIndex(ConversationTable.COLUMN_NAME_NICKNAME)));
 		viewHolder.messageText.setText(cursor.getString(cursor.getColumnIndex(ConversationTable.COLUMN_NAME_LATEST_MESSAGE)));
 		viewHolder.dateText.setText(dateFormat.format(
@@ -64,7 +70,7 @@ public class ConversationCursorAdapter extends ResourceCursorAdapter {
 		viewHolder.messageText = (TextView)view.findViewById(R.id.tv_message);
 		viewHolder.dateText = (TextView)view.findViewById(R.id.tv_date);
 		viewHolder.unreadCountText = (TextView)view.findViewById(R.id.tv_unread_count);
-		viewHolder.avatar = (AvatarImageView)view.findViewById(R.id.avatar);
+		viewHolder.avatar = (ImageView)view.findViewById(R.id.avatar);
 		view.setTag(viewHolder);
 		
 		return view;
@@ -75,6 +81,6 @@ public class ConversationCursorAdapter extends ResourceCursorAdapter {
 		TextView messageText;
 		TextView dateText;
 		TextView unreadCountText;
-		AvatarImageView avatar;
+		ImageView avatar;
 	}
 }

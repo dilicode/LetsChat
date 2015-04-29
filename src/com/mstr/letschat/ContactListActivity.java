@@ -18,6 +18,7 @@ import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
 
 import com.mstr.letschat.adapters.ContactCursorAdapter;
+import com.mstr.letschat.bitmapcache.ImageFetcher;
 import com.mstr.letschat.databases.ChatContract.ContactTable;
 
 public class ContactListActivity extends ListActivity 
@@ -30,6 +31,8 @@ public class ContactListActivity extends ListActivity
 	private ContactCursorAdapter adapter;
 	private String query;
 	
+	private ImageFetcher imageFetcher;
+	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
@@ -38,6 +41,8 @@ public class ContactListActivity extends ListActivity
 		newContactsText = (TextView)findViewById(R.id.tv_new_contacts);
 		newContactsText.setOnClickListener(this);
 		contactsDivider = findViewById(R.id.contacts_divider);
+		
+		imageFetcher = ImageFetcher.getAvatarImageFetcher(this);
 		
 		adapter = new ContactCursorAdapter(this, null, 0);
 		setListAdapter(adapter);
@@ -78,6 +83,20 @@ public class ContactListActivity extends ListActivity
 		return super.onOptionsItemSelected(item);
 	}
 
+	@Override
+	protected void onPause() {
+		super.onPause();
+		
+		imageFetcher.flushCache();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		
+		imageFetcher.closeCache();
+	}
+	
 	@Override
 	public boolean onQueryTextSubmit(String query) {
 		restartLoader(query);
@@ -165,5 +184,9 @@ public class ContactListActivity extends ListActivity
 		}
 		
 		return true;
+	}
+	
+	public ImageFetcher getImageFetcher() {
+		return imageFetcher;
 	}
 }

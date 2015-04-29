@@ -5,4 +5,6 @@
 	<color name="green">#45c01a</color>
 	<color name="status_text_head">#4e7777</color>
 	<color name="selected_status">#336699</color>
+	<color name="splash_background_top">#39b44a</color>
+	<color name="splash_background_bottom">#0fad68</color>
 </resources>
