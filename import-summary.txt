@@ -1,0 +1,126 @@
+ECLIPSE ANDROID PROJECT IMPORT SUMMARY
+======================================
+
+Manifest Merging:
+-----------------
+Your project uses libraries that provide manifests, and your Eclipse
+project did not explicitly turn on manifest merging. In Android Gradle
+projects, manifests are always merged (meaning that contents from your
+libraries' manifests will be merged into the app manifest. If you had
+manually copied contents from library manifests into your app manifest
+you may need to remove these for the app to build correctly.
+
+Ignored Files:
+--------------
+The following files were *not* copied into the new Gradle project; you
+should evaluate whether these are still needed in your project and if
+so manually move them:
+
+From LetsChat:
+* .gitignore
+* README.md
+* ic_launcher-web.png
+* proguard-project.txt
+From MemorizingTrustManager:
+* .gitignore
+* LICENSE.txt
+* README.mdwn
+* ant.properties
+* build.gradle
+* build.xml
+* example\
+* example\.classpath
+* example\.project
+* example\AndroidManifest.xml
+* example\ant.properties
+* example\bin\
+* example\bin\AndroidManifest.xml
+* example\bin\R.txt
+* example\bin\classes\
+* example\bin\classes\de\
+* example\bin\classes\de\duenndns\
+* example\bin\classes\de\duenndns\mtmexample\
+* example\bin\classes\de\duenndns\mtmexample\BuildConfig.class
+* example\bin\classes\de\duenndns\mtmexample\JULHandler$1.class
+* example\bin\classes\de\duenndns\mtmexample\JULHandler$DebugLogSettings.class
+* example\bin\classes\de\duenndns\mtmexample\JULHandler.class
+* example\bin\classes\de\duenndns\mtmexample\MTMExample$1.class
+* example\bin\classes\de\duenndns\mtmexample\MTMExample$2.class
+* example\bin\classes\de\duenndns\mtmexample\MTMExample$3.class
+* example\bin\classes\de\duenndns\mtmexample\MTMExample.class
+* example\bin\classes\de\duenndns\mtmexample\R$attr.class
+* example\bin\classes\de\duenndns\mtmexample\R$id.class
+* example\bin\classes\de\duenndns\mtmexample\R$layout.class
+* example\bin\classes\de\duenndns\mtmexample\R$string.class
+* example\bin\classes\de\duenndns\mtmexample\R.class
+* example\bin\classes\de\duenndns\ssl\
+* example\bin\classes\de\duenndns\ssl\R$string.class
+* example\bin\classes\de\duenndns\ssl\R.class
+* example\build.gradle
+* example\build.xml
+* example\gen\
+* example\gen\de\
+* example\gen\de\duenndns\
+* example\gen\de\duenndns\mtmexample\
+* example\gen\de\duenndns\mtmexample\BuildConfig.java
+* example\gen\de\duenndns\mtmexample\R.java
+* example\gen\de\duenndns\ssl\
+* example\gen\de\duenndns\ssl\R.java
+* example\proguard-project.txt
+* example\project.properties
+* example\res\
+* example\res\layout\
+* example\res\layout\mtmexample.xml
+* example\res\values\
+* example\res\values\strings.xml
+* example\src\
+* example\src\de\
+* example\src\de\duenndns\
+* example\src\de\duenndns\mtmexample\
+* example\src\de\duenndns\mtmexample\JULHandler.java
+* example\src\de\duenndns\mtmexample\MTMExample.java
+* mtm-notification.png
+* mtm-screenshot.png
+* mtm-servername.png
+* proguard-project.txt
+* settings.gradle
+
+Moved Files:
+------------
+Android Gradle projects use a different directory structure than ADT
+Eclipse projects. Here's how the projects were restructured:
+
+In CropImage:
+* AndroidManifest.xml => cropImage\src\main\AndroidManifest.xml
+* assets\ => cropImage\src\main\assets
+* java\ => cropImage\src\main\java\
+* res\ => cropImage\src\main\res\
+* src\ => cropImage\src\main\java\
+In MemorizingTrustManager:
+* AndroidManifest.xml => memorizingTrustManager\src\main\AndroidManifest.xml
+* assets\ => memorizingTrustManager\src\main\assets
+* res\ => memorizingTrustManager\src\main\res\
+* src\ => memorizingTrustManager\src\main\java\
+In LetsChat:
+* AndroidManifest.xml => letsChat\src\main\AndroidManifest.xml
+* assets\ => letsChat\src\main\assets
+* libs\android-support-v4.jar => letsChat\libs\android-support-v4.jar
+* libs\asmack-android-8-4.0.6.jar => letsChat\libs\asmack-android-8-4.0.6.jar
+* libs\dnsjava-2.1.6.jar => letsChat\libs\dnsjava-2.1.6.jar
+* res\ => letsChat\src\main\res\
+* src\ => letsChat\src\main\java\
+
+Next Steps:
+-----------
+You can now build the project. The Gradle project needs network
+connectivity to download dependencies.
+
+Bugs:
+-----
+If for some reason your project does not build, and you determine that
+it is due to a bug or limitation of the Eclipse to Gradle importer,
+please file a bug at http://b.android.com with category
+Component-Tools.
+
+(This import summary is for your information only, and can be deleted
+after import once you are satisfied with the results.)
