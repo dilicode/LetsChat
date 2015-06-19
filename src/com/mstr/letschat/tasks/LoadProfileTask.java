@@ -3,25 +3,49 @@ package com.mstr.letschat.tasks;
 import org.jivesoftware.smackx.vcardtemp.packet.VCard;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 
 import com.mstr.letschat.SmackInvocationException;
-import com.mstr.letschat.model.UserProfile;
+import com.mstr.letschat.bitmapcache.BitmapUtils;
+import com.mstr.letschat.bitmapcache.ImageCache;
+import com.mstr.letschat.model.LoginUserProfile;
 import com.mstr.letschat.tasks.Response.Listener;
+import com.mstr.letschat.utils.UserUtils;
 import com.mstr.letschat.xmpp.SmackHelper;
 
-public class LoadProfileTask extends BaseAsyncTask<Void, Void, UserProfile> {
-	public LoadProfileTask(Listener<UserProfile> listener, Context context) {
+public class LoadProfileTask extends BaseAsyncTask<Void, Void, LoginUserProfile> {
+	public LoadProfileTask(Listener<LoginUserProfile> listener, Context context) {
 		super(listener, context);
 	}
 	
 	@Override
-	protected Response<UserProfile> doInBackground(Void... params) {
+	protected Response<LoginUserProfile> doInBackground(Void... params) {
 		Context context = getContext();
 		if (context != null) {
 			try {
-				VCard vcard = SmackHelper.getInstance(context).loadVCard();
+				String user = UserUtils.getUser(context);
 				
-				return Response.success(new UserProfile(null, vcard));
+				// first check cache file to find avatar, and if not existing, load vcard from server
+				Bitmap avatar = ImageCache.getAvatarFromFile(context, user);
+				if (avatar == null) {
+					VCard vcard = SmackHelper.getInstance(context).loadVCard();
+					if (vcard != null) {
+						byte[] data = vcard.getAvatar();
+						if (data != null) {
+							avatar = BitmapUtils.decodeSampledBitmapFromByteArray(data, Integer.MAX_VALUE, Integer.MAX_VALUE, null);
+						}
+					}
+					
+					if (avatar != null) {
+						ImageCache.addAvatarToFile(context, user, avatar);
+					}
+				}
+				
+				LoginUserProfile result = new LoginUserProfile();
+				result.setAvatar(avatar);
+				result.setNickname(UserUtils.getNickname(context));
+				
+				return Response.success(result);
 			} catch (SmackInvocationException e) {
 				return Response.error(e);
 			}

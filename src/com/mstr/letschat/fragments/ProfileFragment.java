@@ -1,7 +1,6 @@
 package com.mstr.letschat.fragments;
 
 import android.app.Fragment;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,11 +10,11 @@ import android.widget.TextView;
 
 import com.mstr.letschat.R;
 import com.mstr.letschat.SmackInvocationException;
-import com.mstr.letschat.model.UserProfile;
+import com.mstr.letschat.model.LoginUserProfile;
 import com.mstr.letschat.tasks.LoadProfileTask;
 import com.mstr.letschat.tasks.Response.Listener;
 
-public class ProfileFragment extends Fragment implements Listener<UserProfile> {
+public class ProfileFragment extends Fragment implements Listener<LoginUserProfile> {
 	private ImageView image;
 	private TextView nickname;
 	
@@ -31,13 +30,13 @@ public class ProfileFragment extends Fragment implements Listener<UserProfile> {
 	}
 	
 	@Override
-	public void onResponse(UserProfile profile) {
-		byte[] avatar = profile.getAvatar();
-		if (avatar != null) {
-			image.setImageBitmap(BitmapFactory.decodeByteArray(avatar, 0, avatar.length));
+	public void onResponse(LoginUserProfile profile) {
+		if (profile != null && profile.getAvatar() != null) {
+			image.setImageBitmap(profile.getAvatar());
 		} else {
 			image.setImageResource(R.drawable.ic_default_avatar);
 		}
+		
 		nickname.setText(profile.getNickname());
 	}
 	

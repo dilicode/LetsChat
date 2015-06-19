@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,13 +24,14 @@ import com.android.camera.CropImageIntentBuilder;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.tasks.SignupTask;
 import com.mstr.letschat.utils.AppLog;
+import com.mstr.letschat.utils.FileUtils;
 
 public class SignupActivity extends Activity implements OnClickListener, Listener<Boolean> {
 	private static final int REQUEST_CODE_SELECT_PICTURE = 1;
 	private static final int REQUEST_CODE_CROP_IMAGE = 2;
 	
-	private static final String RAW_PHOTO_FILE_NAME = "temp_photo.jpg";
-	private static final String AVATAR_FILE_NAME = "avatar.jpg";
+	private static final String RAW_PHOTO_FILE_NAME = "camera.png";
+	private static final String AVATAR_FILE_NAME = "avatar.png";
 	
 	private EditText nameText;
 	private EditText phoneNumberText;
@@ -57,11 +57,12 @@ public class SignupActivity extends Activity implements OnClickListener, Listene
 		submitButton.setOnClickListener(this);
 		uploadAvatarButton.setOnClickListener(this);
 		
-		if (isExternalStorageWritable()) {
-			rawImageFile = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), RAW_PHOTO_FILE_NAME);
+		File dir = FileUtils.getDiskCacheDir(this, "temp");
+		if (!dir.exists()) {
+			dir.mkdirs();
 		}
-		
-		avatarImageFile = new File(getFilesDir(), AVATAR_FILE_NAME);
+		rawImageFile = new File(dir, RAW_PHOTO_FILE_NAME);
+		avatarImageFile = new File(dir, AVATAR_FILE_NAME);
 	}
 	
 	@Override
@@ -147,17 +148,12 @@ public class SignupActivity extends Activity implements OnClickListener, Listene
 	
 	private void startCropImage(Uri source) {
 		if (source != null) {
-			int size = getResources().getDimensionPixelSize(R.dimen.default_avatar_size);
+			int size = getResources().getDimensionPixelSize(R.dimen.avatar_size_large);
 			CropImageIntentBuilder cropImage = new CropImageIntentBuilder(size, size, Uri.fromFile(avatarImageFile));
 			cropImage.setSourceImage(source);
 			
 			startActivityForResult(cropImage.getIntent(this), REQUEST_CODE_CROP_IMAGE);
 		}
-	}
-	
-	private boolean isExternalStorageWritable() {
-		String state = Environment.getExternalStorageState();
-		return Environment.MEDIA_MOUNTED.equals(state);
 	}
 	
 	private byte[] getAvatarBytes() {

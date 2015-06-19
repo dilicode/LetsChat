@@ -1,6 +1,7 @@
 package com.mstr.letschat;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 
 import android.app.LoaderManager;
 import android.content.ComponentName;
@@ -12,6 +13,7 @@ import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.TaskStackBuilder;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
@@ -182,5 +184,16 @@ public class ChatActivity extends Activity
 		} else {
 			sendButton.setEnabled(false);
 		}
-	}	
+	}
+	
+	public static PendingIntent getChatActivityPendingIntent(Context context, String to, String nickname) {
+		TaskStackBuilder taskStackbuilder = TaskStackBuilder.create(context);
+		taskStackbuilder.addParentStack(ChatActivity.class);
+		Intent intent = new Intent(context, ChatActivity.class);
+		intent.putExtra(ChatActivity.EXTRA_DATA_NAME_TO, to);
+		intent.putExtra(ChatActivity.EXTRA_DATA_NAME_NICKNAME, nickname);
+		taskStackbuilder.addNextIntent(intent);
+		
+		return taskStackbuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+	}
 }

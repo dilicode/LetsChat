@@ -3,30 +3,39 @@ package com.mstr.letschat.bitmapcache;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.ref.SoftReference;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+import java.util.Set;
 
 import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.Bitmap.Config;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build.VERSION_CODES;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.StatFs;
 import android.util.Log;
 import android.util.LruCache;
 
+import com.mstr.letschat.utils.FileUtils;
 import com.mstr.letschat.utils.Utils;
 
 public class ImageCache {
 	private static final String LOG_TAG = "ImageCache";
+	
+	public static final String AVATAR_DIR = "avatar";
 	
 	private static final int DEFAULT_MEM_CACHE_SIZE = 1024 * 5; // 5MB
 
@@ -43,6 +52,8 @@ public class ImageCache {
     
     private final Object diskCacheLock = new Object();
     private boolean diskCacheStarting = true;
+    
+    private Set<SoftReference<Bitmap>> reusableBitmaps;
     
     private ImageCache(ImageCacheParams cacheParams) {
     	init(cacheParams);
@@ -72,6 +83,13 @@ public class ImageCache {
 			protected int sizeOf(String key, BitmapDrawable value) {
 			    final int bitmapSize = getBitmapSize(value) / 1024;
 			    return bitmapSize == 0 ? 1 : bitmapSize;
+			}
+			
+			@Override
+			protected void entryRemoved(boolean evicted, String key, BitmapDrawable oldValue, BitmapDrawable newValue) {
+				if (Utils.hasHoneycomb()) {
+					reusableBitmaps.add(new SoftReference<Bitmap>(oldValue.getBitmap()));
+				}
 			}
 		};
     }
@@ -159,7 +177,6 @@ public class ImageCache {
 						snapshot.getInputStream(DISK_CACHE_INDEX).close();
 					}
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} finally {
 					try {
@@ -201,7 +218,7 @@ public class ImageCache {
     	synchronized (diskCacheLock) {
     		while (diskCacheStarting) {
     			try {
-    			diskCacheLock.wait();
+    				diskCacheLock.wait();
     			} catch(InterruptedException e) {}
     		}
     		
@@ -237,8 +254,76 @@ public class ImageCache {
     	return bitmap;
     }
     
+    protected Bitmap getBitmapFromReusableSet(BitmapFactory.Options options) {
+    	//BEGIN_INCLUDE(get_bitmap_from_reusable_set)
+    	Bitmap bitmap = null;
+		
+		if (reusableBitmaps != null && !reusableBitmaps.isEmpty()) {
+		    synchronized (reusableBitmaps) {
+		        final Iterator<SoftReference<Bitmap>> iterator = reusableBitmaps.iterator();
+		        Bitmap item;
+		
+		        while (iterator.hasNext()) {
+		            item = iterator.next().get();
+		            
+		            if (null != item && item.isMutable()) {
+		                // Check to see it the item can be used for inBitmap
+		                if (canUseForInBitmap(item, options)) {
+		                    bitmap = item;
+		
+		                    // Remove from reusable set so it can't be used again
+		                    iterator.remove();
+		                    break;
+		                }
+		            } else {
+		                // Remove from the set if the reference has been cleared.
+		                iterator.remove();
+		            }
+		        }
+		    }
+		}
+		
+		return bitmap;
+    }
     
-	/**
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    private static boolean canUseForInBitmap(Bitmap candidate, BitmapFactory.Options targetOptions) {
+		//BEGIN_INCLUDE(can_use_for_inbitmap)
+    	if (!Utils.hasKitKat()) {
+			// On earlier versions, the dimensions must match exactly and the inSampleSize must be 1
+			return candidate.getWidth() == targetOptions.outWidth
+					&& candidate.getHeight() == targetOptions.outHeight
+					&& targetOptions.inSampleSize == 1;
+		}
+		
+		// From Android 4.4 (KitKat) onward we can re-use if the byte size of the new bitmap
+		// is smaller than the reusable bitmap candidate allocation byte count.
+		int width = targetOptions.outWidth / targetOptions.inSampleSize;
+		int height = targetOptions.outHeight / targetOptions.inSampleSize;
+		int byteCount = width * height * getBytesPerPixel(candidate.getConfig());
+		return byteCount <= candidate.getAllocationByteCount();
+        //END_INCLUDE(can_use_for_inbitmap)
+	}
+    
+    /**
+     * Return the byte usage per pixel of a bitmap based on its configuration.
+     * @param config The bitmap configuration.
+     * @return The byte usage per pixel.
+     */
+    private static int getBytesPerPixel(Config config) {
+        if (config == Config.ARGB_8888) {
+            return 4;
+        } else if (config == Config.RGB_565) {
+            return 2;
+        } else if (config == Config.ARGB_4444) {
+            return 2;
+        } else if (config == Config.ALPHA_8) {
+            return 1;
+        }
+        return 1;
+    }
+    
+    /**
 	 * A hashing method that changes a string (like a URL) into a hash suitable for using as a
 	 * disk filename.
 	 */
@@ -266,6 +351,52 @@ public class ImageCache {
 	    }
 	    return sb.toString();
 	}
+	
+	public static void addAvatarToFile(Context context, String user, Bitmap avatar) {
+		// cache avatar
+		if (avatar != null) {
+			File dir = FileUtils.getDiskCacheDir(context, AVATAR_DIR);
+			if (!dir.exists()) {
+				dir.mkdirs();
+			}
+			
+			File file = new File(dir, hashKeyForDisk(user));
+			FileOutputStream out = null;
+			try {
+			    out = new FileOutputStream(file);
+			    avatar.compress(Bitmap.CompressFormat.PNG, 100, out);
+			} catch (IOException e) {
+			    e.printStackTrace();
+			} finally {
+				try {
+					if (out != null) {
+						out.close();
+					}
+				} catch (IOException e) {}
+			}
+		}
+	}
+	
+	public static Bitmap getAvatarFromFile(Context context, String user) {
+		File file = new File(FileUtils.getDiskCacheDir(context, AVATAR_DIR), hashKeyForDisk(user));
+		if (!file.exists()) {
+			return null;
+		}
+		
+		FileDescriptor fd = null;
+		try {
+			FileInputStream inputStream = new FileInputStream(file);
+			fd = ((FileInputStream)inputStream).getFD();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		if (fd != null) {
+			return BitmapUtils.decodeSampledBitmapFromDescriptor(fd, Integer.MAX_VALUE, Integer.MAX_VALUE, null);
+		} else {
+			return null;
+		}
+	}
     
     public static class ImageCacheParams {
 		public int memCacheSize = DEFAULT_MEM_CACHE_SIZE;
@@ -275,7 +406,7 @@ public class ImageCache {
 		public int compressQuality = DEFAULT_COMPRESS_QUALITY;
 
     	public ImageCacheParams(Context context, String diskCacheDirectoryName) {
-    		diskCacheDir = getDiskCacheDir(context, diskCacheDirectoryName);
+    		diskCacheDir = FileUtils.getDiskCacheDir(context, diskCacheDirectoryName);
     	}
     }
     
@@ -314,57 +445,6 @@ public class ImageCache {
 	    // Pre HC-MR1
 	    return bitmap.getRowBytes() * bitmap.getHeight();
 	}
-    
-    
-    /**
-     * Get a usable cache directory (external if available, internal otherwise).
-     *
-     * @param context The context to use
-     * @param uniqueName A unique directory name to append to the cache dir
-     * @return The cache dir
-     */
-    
-    public static File getDiskCacheDir(Context context, String uniqueName) {
-        // Check if media is mounted or storage is built-in, if so, try and use external cache dir
-        // otherwise use internal cache dir
-        final String cachePath =
-                Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
-                        !isExternalStorageRemovable() ? getExternalCacheDir(context).getPath() :
-                                context.getCacheDir().getPath();
-
-        return new File(cachePath + File.separator + uniqueName);
-    }
-    
-    /**
-     * Check if external storage is built-in or removable.
-     *
-     * @return True if external storage is removable (like an SD card), false
-     *         otherwise.
-     */
-    @TargetApi(VERSION_CODES.GINGERBREAD)
-    public static boolean isExternalStorageRemovable() {
-        if (Utils.hasGingerbread()) {
-            return Environment.isExternalStorageRemovable();
-        }
-        return true;
-    }
-    
-    /**
-     * Get the external app cache directory.
-     *
-     * @param context The context to use
-     * @return The external cache dir
-     */
-    @TargetApi(VERSION_CODES.FROYO)
-    public static File getExternalCacheDir(Context context) {
-    	if (Utils.hasFroyo()) {
-    		return context.getExternalCacheDir();
-    	}
-
-    	// Before Froyo we need to construct the external cache dir ourselves
-    	final String cacheDir = "/Android/data/" + context.getPackageName() + "/cache/";
-    	return new File(Environment.getExternalStorageDirectory().getPath() + cacheDir);
-    }
     
     private static class RetainFragment extends Fragment {
     	public static final String TAG = "RetainFragment";

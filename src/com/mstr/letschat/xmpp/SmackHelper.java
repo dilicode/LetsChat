@@ -120,8 +120,6 @@ public class SmackHelper {
 		login(user, password);
 		
 		vCardHelper.save(nickname, avatar);
-		
-		UserUtils.setLoginUser(context, user, password, nickname);
 	}
 	
 	public void sendChatMessage(String to, String body) throws SmackInvocationException {

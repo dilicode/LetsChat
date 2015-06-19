@@ -2,8 +2,6 @@ package com.mstr.letschat.providers;
 
 import java.util.ArrayList;
 
-import org.jivesoftware.smack.util.StringUtils;
-
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -22,7 +20,6 @@ import com.mstr.letschat.databases.ChatContract.ContactRequestTable;
 import com.mstr.letschat.databases.ChatContract.ContactTable;
 import com.mstr.letschat.databases.ChatContract.ConversationTable;
 import com.mstr.letschat.databases.ChatDbHelper;
-import com.mstr.letschat.databases.ChatMessageTableHelper;
 
 public class CustomProvider extends ContentProvider {
 	public static final String AUTHORITY = "com.mstr.letschat.provider";

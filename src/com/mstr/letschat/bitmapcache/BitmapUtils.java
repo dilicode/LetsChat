@@ -4,8 +4,13 @@ import java.io.FileDescriptor;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
+
+import com.mstr.letschat.utils.Utils;
 
 public class BitmapUtils {
+	private static final String TAG = "ImageCache";
+	
 	public static Bitmap decodeSampledBitmapFromDescriptor(FileDescriptor fileDescriptor, int reqWidth, int reqHeight, ImageCache cache) {
 		// First decode with inJustDecodeBounds=true to check dimensions
 		final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -18,7 +23,17 @@ public class BitmapUtils {
 		// Decode bitmap with inSampleSize set
 		options.inJustDecodeBounds = false;
 		
-		return BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
+		Bitmap inBitmap = null;
+		if (Utils.hasHoneycomb()) {
+			inBitmap = addInBitmapOptions(options, cache);
+		}
+		
+		Bitmap result = BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
+		if (inBitmap != null && result == inBitmap) {
+			Log.d(TAG, "reuse bitmap");
+		}
+		
+		return result;
 	}
 	
 	public static Bitmap decodeSampledBitmapFromByteArray(byte[] data, int reqWidth, int reqHeight, ImageCache cache) {
@@ -33,7 +48,17 @@ public class BitmapUtils {
 		// Decode bitmap with inSampleSize set
 		options.inJustDecodeBounds = false;
 		
-		return BitmapFactory.decodeByteArray(data, 0, data.length, options);
+		Bitmap inBitmap = null;
+		if (Utils.hasHoneycomb()) {
+			inBitmap = addInBitmapOptions(options, cache);
+		}
+		
+		Bitmap result =  BitmapFactory.decodeByteArray(data, 0, data.length, options);
+		if (inBitmap != null && result == inBitmap) {
+			Log.d(TAG, "reuse bitmap");
+		}
+		
+		return result;
 	}
 	
 	public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
@@ -72,5 +97,24 @@ public class BitmapUtils {
             }
         }
         return inSampleSize;
+    }
+	
+	private static Bitmap addInBitmapOptions(BitmapFactory.Options options, ImageCache cache) {
+        //BEGIN_INCLUDE(add_bitmap_options)
+        // inBitmap only works with mutable bitmaps so force the decoder to
+        // return mutable bitmaps.
+        options.inMutable = true;
+
+        if (cache != null) {
+            // Try and find a bitmap to use for inBitmap
+            Bitmap inBitmap = cache.getBitmapFromReusableSet(options);
+
+            if (inBitmap != null) {
+                options.inBitmap = inBitmap;
+                return inBitmap;
+            }
+        }
+        
+        return null;
     }
 }

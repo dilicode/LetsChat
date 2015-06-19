@@ -23,7 +23,8 @@
 	        android:layout_width="@dimen/default_avatar_size"
 	        android:layout_height="@dimen/default_avatar_size"
 	        android:src="@drawable/ic_default_avatar"
-	        android:background="@null" />
+	        android:background="@null"
+	        android:scaleType="centerInside" />
 	</LinearLayout>
 	
     <EditText 

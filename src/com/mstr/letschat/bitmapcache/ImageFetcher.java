@@ -22,8 +22,6 @@ import com.mstr.letschat.utils.Utils;
 import com.mstr.letschat.xmpp.SmackHelper;
 
 public class ImageFetcher {
-	private static final String AVATAR_DIR = "avatars";
-	
 	private Context context;
 	private Resources resources;
 	
@@ -53,7 +51,7 @@ public class ImageFetcher {
 	}
 	
 	public static ImageFetcher getAvatarImageFetcher(Activity activity) {
-		ImageCache.ImageCacheParams cacheParams = new ImageCache.ImageCacheParams(activity, AVATAR_DIR);
+		ImageCache.ImageCacheParams cacheParams = new ImageCache.ImageCacheParams(activity, ImageCache.AVATAR_DIR);
 		ImageFetcher imageFetcher = new ImageFetcher(activity, activity.getResources().getDimensionPixelSize(R.dimen.default_avatar_size));
 		imageFetcher.setLoadingImage(R.drawable.ic_default_avatar);
 		imageFetcher.addImageCache(activity.getFragmentManager(), cacheParams);
