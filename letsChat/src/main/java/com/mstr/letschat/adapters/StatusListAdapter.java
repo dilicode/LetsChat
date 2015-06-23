@@ -1,7 +1,5 @@
 package com.mstr.letschat.adapters;
 
-import java.util.List;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.view.View;
@@ -17,8 +15,8 @@ public class StatusListAdapter extends ArrayAdapter<String> {
 	
 	private int selectedPosition = -1;
 	
-	public StatusListAdapter(Context context, List<String> statusList) {
-		super(context, android.R.layout.simple_list_item_1, statusList);
+	public StatusListAdapter(Context context, String[] statusItems) {
+		super(context, android.R.layout.simple_list_item_1, statusItems);
 		
 		TypedArray a = context.obtainStyledAttributes(new int[] {android.R.attr.textColorPrimary});
 		primaryTextColor = a.getColor(0, 0);

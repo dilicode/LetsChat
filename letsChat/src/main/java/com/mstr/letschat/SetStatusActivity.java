@@ -1,8 +1,5 @@
 package com.mstr.letschat;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -59,7 +56,7 @@ public class SetStatusActivity extends Activity implements OnItemClickListener {
 		progressBar = (ProgressBar)findViewById(R.id.get_status_progress);
 		listView = (ListView)findViewById(R.id.status_list);
 		
-		adapter = new StatusListAdapter(this, getStatusOptions());
+		adapter = new StatusListAdapter(this, getResources().getStringArray(R.array.status_items));
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(this);
 		
@@ -78,17 +75,6 @@ public class SetStatusActivity extends Activity implements OnItemClickListener {
 		}
 		
 		return super.onOptionsItemSelected(item);
-	}
-	
-	private List<String> getStatusOptions() {
-		List<String> list = new ArrayList<String>();
-		list.add(getString(R.string.status_available));
-		list.add(getString(R.string.status_busy));
-		list.add(getString(R.string.status_at_school));
-		list.add(getString(R.string.status_at_work));
-		list.add(getString(R.string.status_in_a_meeting));
-		
-		return list;
 	}
 	
 	private void hideProgressBar() {

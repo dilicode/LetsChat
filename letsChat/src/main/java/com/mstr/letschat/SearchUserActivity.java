@@ -89,7 +89,7 @@ public class SearchUserActivity extends Activity implements OnQueryTextListener,
 		super.onBackPressed();
 		
 		if (task != null) {
-			task.cancel(true);
+			task.cancel(false);
 		}
 	}
 

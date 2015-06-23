@@ -61,4 +61,17 @@
 	<string name="no_chats_found">No chats found</string>
 	<string name="no_contacts">No contacts</string>
 	<string name="incomplete_signup_info">Please input complete information</string>
+	<string name="profile_avatar">Avatar</string>
+	<string name="profile_nickname">Nick name</string>
+	<string name="network_traffic">Network traffic</string>
+	<string name="profile_fragment_title">Profile</string>
+	<string name="traffic_transmitted">Traffic transmitted</string>
+	<string name="traffic_received">Traffic received</string>
+	<string name="traffic_unit"> KB</string>
+	<string name="preference_key_username">user</string>
+	<string name="preference_key_password">password</string>
+	<string name="preference_key_nickname">nickname</string>
+	<string name="preference_key_avatar">avatar</string>
+	<string name="preference_key_traffic_transmitted">traffic_transmitted</string>
+	<string name="preference_key_traffic_received">traffic_received</string>
 </resources>

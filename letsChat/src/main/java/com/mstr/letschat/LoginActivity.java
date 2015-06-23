@@ -41,6 +41,9 @@ public class LoginActivity extends Activity implements Listener<Boolean>, OnClic
 	public void onResponse(Boolean response) {
 		if (response) {
 			startActivity(new Intent(this, ConversationActivity.class));
+
+			setResult(RESULT_OK);
+			finish();
 		}
 	}
 

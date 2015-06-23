@@ -12,6 +12,9 @@ import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.utils.UserUtils;
 
 public class StartupActivity extends Activity implements OnClickListener, Listener<Boolean> {
+	private static final int REQUEST_CODE_LOGIN = 1;
+	private static final int REQUEST_CODE_SIGNUP = 2;
+
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
@@ -31,12 +34,18 @@ public class StartupActivity extends Activity implements OnClickListener, Listen
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.btn_login:
-			startActivity(new Intent(this, LoginActivity.class));
+			startActivityForResult(new Intent(this, LoginActivity.class), REQUEST_CODE_LOGIN);
 			break;
 			
 		case R.id.btn_signup:
-			startActivity(new Intent(this, SignupActivity.class));
+			startActivityForResult(new Intent(this, SignupActivity.class), REQUEST_CODE_SIGNUP);
 			break;
+		}
+	}
+
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode == RESULT_OK) {
+			finish();
 		}
 	}
 
@@ -54,7 +63,7 @@ public class StartupActivity extends Activity implements OnClickListener, Listen
 	}
 	
 	private void startConversationActivity() {
-		startActivity(new Intent(StartupActivity.this, ConversationActivity.class));
+		startActivity(new Intent(this, ConversationActivity.class));
 		finish();
 	}
 }

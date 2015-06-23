@@ -1,5 +1,25 @@
 package com.mstr.letschat.bitmapcache;
 
+import android.annotation.TargetApi;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
+import android.os.Build.VERSION_CODES;
+import android.os.Bundle;
+import android.os.StatFs;
+import android.util.Log;
+import android.util.LruCache;
+
+import com.mstr.letschat.R;
+import com.mstr.letschat.utils.FileUtils;
+import com.mstr.letschat.utils.Utils;
+
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -12,25 +32,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.Set;
-
-import android.annotation.TargetApi;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.Bitmap.Config;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.Build.VERSION_CODES;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.StatFs;
-import android.util.Log;
-import android.util.LruCache;
-
-import com.mstr.letschat.utils.FileUtils;
-import com.mstr.letschat.utils.Utils;
 
 public class ImageCache {
 	private static final String LOG_TAG = "ImageCache";
@@ -392,7 +393,8 @@ public class ImageCache {
 		}
 		
 		if (fd != null) {
-			return BitmapUtils.decodeSampledBitmapFromDescriptor(fd, Integer.MAX_VALUE, Integer.MAX_VALUE, null);
+			int size = context.getResources().getDimensionPixelSize(R.dimen.default_avatar_size);
+			return BitmapUtils.decodeSampledBitmapFromDescriptor(fd, size, size, null);
 		} else {
 			return null;
 		}
@@ -446,7 +448,7 @@ public class ImageCache {
 	    return bitmap.getRowBytes() * bitmap.getHeight();
 	}
     
-    private static class RetainFragment extends Fragment {
+    public static class RetainFragment extends Fragment {
     	public static final String TAG = "RetainFragment";
     	private ImageCache imageCache;
     	

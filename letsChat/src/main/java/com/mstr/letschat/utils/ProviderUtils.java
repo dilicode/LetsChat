@@ -1,7 +1,5 @@
 package com.mstr.letschat.utils;
 
-import java.util.ArrayList;
-
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.Context;
@@ -12,6 +10,8 @@ import com.mstr.letschat.databases.ChatContract.ContactTable;
 import com.mstr.letschat.databases.ContactRequestTableHelper;
 import com.mstr.letschat.databases.ContactTableHelper;
 import com.mstr.letschat.providers.CustomProvider;
+
+import java.util.ArrayList;
 
 public class ProviderUtils {
 	/**

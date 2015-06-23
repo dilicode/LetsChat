@@ -1,12 +1,5 @@
 package com.mstr.letschat;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -25,6 +18,13 @@ import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.tasks.SignupTask;
 import com.mstr.letschat.utils.AppLog;
 import com.mstr.letschat.utils.FileUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class SignupActivity extends Activity implements OnClickListener, Listener<Boolean> {
 	private static final int REQUEST_CODE_SELECT_PICTURE = 1;
@@ -103,6 +103,9 @@ public class SignupActivity extends Activity implements OnClickListener, Listene
 			Toast.makeText(this, R.string.login_success, Toast.LENGTH_SHORT).show();
 			
 			startActivity(new Intent(this, ConversationActivity.class));
+
+			setResult(RESULT_OK);
+			finish();
 		}
 	}
 

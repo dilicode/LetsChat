@@ -1,8 +1,10 @@
 package com.mstr.letschat.tasks;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.BitmapFactory;
 
+import com.mstr.letschat.R;
 import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.bitmapcache.ImageCache;
 import com.mstr.letschat.tasks.Response.Listener;
@@ -15,6 +17,8 @@ public class SignupTask extends BaseAsyncTask<Void, Void, Boolean> {
 	private String name;
 	private String password;
 	private byte[] avatar;
+
+	private ProgressDialog dialog;
 	
 	public SignupTask(Listener<Boolean> listener, Context context, String user, String password, String name, byte[] avatar) {
 		super(listener, context);
@@ -23,6 +27,8 @@ public class SignupTask extends BaseAsyncTask<Void, Void, Boolean> {
 		this.name = name;
 		this.password = password;
 		this.avatar = avatar;
+
+		dialog = ProgressDialog.show(context, null, context.getResources().getString(R.string.signup));
 	}
 	
 	@Override
@@ -47,5 +53,17 @@ public class SignupTask extends BaseAsyncTask<Void, Void, Boolean> {
 		}
 		
 		return null;
+	}
+
+	@Override
+	protected void onPostExecute(Response<Boolean> response) {
+		dialog.dismiss();
+
+		super.onPostExecute(response);
+	}
+
+	@Override
+	protected void onCancelled() {
+		dialog.dismiss();
 	}
 }

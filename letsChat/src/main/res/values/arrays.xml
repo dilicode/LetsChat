@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="status_items">
+        <item>Available</item>
+        <item>Busy</item>
+        <item>At school</item>
+        <item>At work</item>
+        <item>In a meeting</item>
+    </string-array>
+</resources>

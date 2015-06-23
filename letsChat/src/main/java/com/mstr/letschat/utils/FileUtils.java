@@ -1,11 +1,11 @@
 package com.mstr.letschat.utils;
 
-import java.io.File;
-
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Environment;
 import android.os.Build.VERSION_CODES;
+import android.os.Environment;
+
+import java.io.File;
 
 public class FileUtils {
 	/**
@@ -56,5 +56,4 @@ public class FileUtils {
     	final String cacheDir = "/Android/data/" + context.getPackageName() + "/cache/";
     	return new File(Environment.getExternalStorageDirectory().getPath() + cacheDir);
     }
-
 }
