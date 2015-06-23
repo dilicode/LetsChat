@@ -19,8 +19,8 @@ android {
 }
 
 dependencies {
-    compile project(':memorizingTrustManager')
-    compile project(':cropImage')
+    compile project(':library:memorizingTrustManager')
+    compile project(':library:cropImage')
     compile files('libs/android-support-v4.jar')
     compile files('libs/asmack-android-8-4.0.6.jar')
     compile files('libs/dnsjava-2.1.6.jar')
