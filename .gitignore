@@ -27,6 +27,4 @@ proguard.cfg
 /.idea/libraries
 .DS_Store
 /build
-
-/cropImage
-/memorizingTrustManager
+/import-summary.txt

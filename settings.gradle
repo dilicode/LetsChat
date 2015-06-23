@@ -1,3 +1,2 @@
-include ':cropImage'
-include ':memorizingTrustManager'
-include ':letsChat'
+include ':library:cropImage', ':letsChat'
+include ':library:memorizingTrustManager'

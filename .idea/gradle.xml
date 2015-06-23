@@ -10,9 +10,10 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/cropImage" />
             <option value="$PROJECT_DIR$/letsChat" />
-            <option value="$PROJECT_DIR$/memorizingTrustManager" />
+            <option value="$PROJECT_DIR$/library" />
+            <option value="$PROJECT_DIR$/library/cropImage" />
+            <option value="$PROJECT_DIR$/library/memorizingTrustManager" />
           </set>
         </option>
       </GradleProjectSettings>
