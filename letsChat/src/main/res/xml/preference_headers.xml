@@ -3,8 +3,8 @@
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
     
     <header android:fragment="com.mstr.letschat.fragments.ProfileFragment"
-            android:title="@string/profile_fragment_title" />
+            android:title="@string/title_profile_fragment" />
 
     <header android:fragment="com.mstr.letschat.fragments.TrafficStatsFragment"
-        android:title="@string/network_traffic" />
+        android:title="@string/title_traffic_stats_fragment" />
 </preference-headers>

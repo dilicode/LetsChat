@@ -62,6 +62,8 @@
 		<activity android:name=".UserProfileActivity" android:label="@string/contact_profile" android:theme="@style/AppTheme" />
 		
 		<activity android:name=".SettingsActivity" android:label="@string/settings" />
+
+		<activity android:name=".ServerSettingsActivity" android:label="@string/server" />
 		
 		<receiver android:name=".receivers.BootReceiver">
 		    <intent-filter>

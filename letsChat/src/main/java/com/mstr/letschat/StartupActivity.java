@@ -3,6 +3,8 @@ package com.mstr.letschat;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
@@ -29,7 +31,23 @@ public class StartupActivity extends Activity implements OnClickListener, Listen
 		findViewById(R.id.btn_login).setOnClickListener(this);
 		findViewById(R.id.btn_signup).setOnClickListener(this);
 	}
-	
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.connectivity_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.action_server) {
+			startActivity(new Intent(this, ServerSettingsActivity.class));
+			return true;
+		}
+
+		return super.onOptionsItemSelected(item);
+	}
+
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <Preference
-        android:key="@string/preference_key_nickname"
+        android:key="@string/nickname_preference"
         android:layout="@layout/preference_username"
         android:title="@string/profile_nickname"/>
 
     <Preference
-        android:key="@string/preference_key_avatar"
+        android:key="@string/avatar_preference"
         android:layout="@layout/preference_user_avatar"
         android:title="@string/profile_avatar"/>
 </PreferenceScreen>

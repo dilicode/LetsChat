@@ -32,9 +32,9 @@ public class TrafficStatsFragment extends PreferenceFragment {
 
             long receivedBytes = TrafficStats.getUidRxBytes(uid);
             long transmittedBytes = TrafficStats.getUidTxBytes(uid);
-            String unit = getString(R.string.traffic_unit);
-            findPreference(getString(R.string.preference_key_traffic_transmitted)).setSummary(Long.toString(transmittedBytes / 1024) + unit);
-            findPreference(getString(R.string.preference_key_traffic_received)).setSummary(Long.toString(receivedBytes / 1024) + unit);
+            String unit = " " + getString(R.string.traffic_unit);
+            findPreference(getString(R.string.traffic_transmitted_preference)).setSummary(Long.toString(transmittedBytes / 1024) + unit);
+            findPreference(getString(R.string.traffic_received_preference)).setSummary(Long.toString(receivedBytes / 1024) + unit);
         }
     }
 }

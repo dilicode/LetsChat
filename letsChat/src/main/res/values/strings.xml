@@ -1,5 +1,4 @@
 <resources>
-
     <string name="app_name">LetsChat</string>
 	<string name="password_hint">Please input password</string>
 	<string name="login">Log in</string>
@@ -49,11 +48,6 @@
 	<string name="current_status">Your current status</string>
 	<string name="select_status">Select your new status</string>
 	<string name="default_status">Hey</string>
-	<string name="status_available">Available</string>
-	<string name="status_busy">Busy</string>
-	<string name="status_at_school">At school</string>
-	<string name="status_at_work">At work</string>
-	<string name="status_in_a_meeting">In a meeting</string>
 	<string name="no_status">***no status***</string>
 	<string name="set_status_error">Set status error</string>
 	<string name="update_status_text">update your status</string>
@@ -63,15 +57,19 @@
 	<string name="incomplete_signup_info">Please input complete information</string>
 	<string name="profile_avatar">Avatar</string>
 	<string name="profile_nickname">Nick name</string>
-	<string name="network_traffic">Network traffic</string>
-	<string name="profile_fragment_title">Profile</string>
-	<string name="traffic_transmitted">Traffic transmitted</string>
-	<string name="traffic_received">Traffic received</string>
-	<string name="traffic_unit"> KB</string>
-	<string name="preference_key_username">user</string>
-	<string name="preference_key_password">password</string>
-	<string name="preference_key_nickname">nickname</string>
-	<string name="preference_key_avatar">avatar</string>
-	<string name="preference_key_traffic_transmitted">traffic_transmitted</string>
-	<string name="preference_key_traffic_received">traffic_received</string>
+	<string name="title_traffic_stats_fragment">Network traffic</string>
+	<string name="title_profile_fragment">Profile</string>
+	<string name="title_traffic_transmitted_preference">Traffic transmitted</string>
+	<string name="title_traffic_received_preference">Traffic received</string>
+	<string name="traffic_unit">KB</string>
+	<string name="username_preference">user</string>
+	<string name="password_preference">password</string>
+	<string name="nickname_preference">nickname</string>
+	<string name="avatar_preference">avatar</string>
+	<string name="traffic_transmitted_preference">traffic_transmitted</string>
+	<string name="traffic_received_preference">traffic_received</string>
+	<string name="server_address_preference">server_address</string>
+	<string name="title_server_address_preference">Server address</string>
+	<string name="summary_server_address_preference">Enter address of your Openfire server</string>
+	<string name="server">Server</string>
 </resources>

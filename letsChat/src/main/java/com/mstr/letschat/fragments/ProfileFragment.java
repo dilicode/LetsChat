@@ -23,8 +23,8 @@ public class ProfileFragment extends PreferenceFragment implements Listener<Logi
 	@Override
 	public void onResponse(LoginUserProfile profile) {
 		if (profile != null) {
-			findPreference(getString(R.string.preference_key_avatar)).setIcon(new BitmapDrawable(getResources(), profile.getAvatar()));
-			findPreference(getString(R.string.preference_key_nickname)).setSummary(profile.getNickname());
+			findPreference(getString(R.string.avatar_preference)).setIcon(new BitmapDrawable(getResources(), profile.getAvatar()));
+			findPreference(getString(R.string.nickname_preference)).setSummary(profile.getNickname());
 		}
 	}
 	
