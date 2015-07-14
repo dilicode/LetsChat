@@ -80,7 +80,7 @@
 		<receiver android:name=".receivers.NetworkReceiver" android:exported="false">
 			<intent-filter>
 			    <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-			</intent-filter>    
+			</intent-filter>
 		</receiver>
 		
 		<service android:name=".service.MessageService" android:exported="false" />

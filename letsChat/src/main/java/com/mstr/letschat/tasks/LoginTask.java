@@ -7,7 +7,7 @@ import com.mstr.letschat.R;
 import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.utils.AppLog;
-import com.mstr.letschat.utils.UserUtils;
+import com.mstr.letschat.utils.PreferenceUtils;
 import com.mstr.letschat.xmpp.SmackHelper;
 
 public class LoginTask extends BaseAsyncTask<Void, Void, Boolean> {
@@ -34,7 +34,7 @@ public class LoginTask extends BaseAsyncTask<Void, Void, Boolean> {
 				
 				smackHelper.login(username, password);
 				
-				UserUtils.setLoginUser(context, username, password, smackHelper.getLoginUserNickname());
+				PreferenceUtils.setLoginUser(context, username, password, smackHelper.getLoginUserNickname());
 				
 				return Response.success(true);
 			} catch(SmackInvocationException e) {

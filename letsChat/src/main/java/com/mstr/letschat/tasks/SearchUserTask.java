@@ -8,7 +8,7 @@ import com.mstr.letschat.databases.ChatContract.ContactTable;
 import com.mstr.letschat.model.UserProfile;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.utils.AppLog;
-import com.mstr.letschat.utils.UserUtils;
+import com.mstr.letschat.utils.PreferenceUtils;
 import com.mstr.letschat.xmpp.SmackHelper;
 
 public class SearchUserTask extends BaseAsyncTask<Void, Void, UserProfile> {
@@ -27,7 +27,7 @@ public class SearchUserTask extends BaseAsyncTask<Void, Void, UserProfile> {
 			try {
 				UserProfile user = SmackHelper.getInstance(context).search(username);
 				if (user != null) {
-					if (user.getUserName().equals(UserUtils.getUser(context))) {
+					if (user.getUserName().equals(PreferenceUtils.getUser(context))) {
 						user.setType(UserProfile.TYPE_MYSELF);
 					} else {
 						Cursor c = context.getContentResolver().query(ContactTable.CONTENT_URI, new String[]{ContactTable._ID},

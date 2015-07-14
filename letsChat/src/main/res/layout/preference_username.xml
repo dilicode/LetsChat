@@ -19,6 +19,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:singleLine="true"
-        android:textColor="@color/sub_text_color"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 </LinearLayout>

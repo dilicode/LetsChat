@@ -10,7 +10,7 @@ import com.mstr.letschat.bitmapcache.BitmapUtils;
 import com.mstr.letschat.bitmapcache.ImageCache;
 import com.mstr.letschat.model.LoginUserProfile;
 import com.mstr.letschat.tasks.Response.Listener;
-import com.mstr.letschat.utils.UserUtils;
+import com.mstr.letschat.utils.PreferenceUtils;
 import com.mstr.letschat.xmpp.SmackHelper;
 
 public class LoadProfileTask extends BaseAsyncTask<Void, Void, LoginUserProfile> {
@@ -23,7 +23,7 @@ public class LoadProfileTask extends BaseAsyncTask<Void, Void, LoginUserProfile>
 		Context context = getContext();
 		if (context != null) {
 			try {
-				String user = UserUtils.getUser(context);
+				String user = PreferenceUtils.getUser(context);
 				
 				// first check cache file to find avatar, and if not existing, load vcard from server
 				Bitmap avatar = ImageCache.getAvatarFromFile(context, user);
@@ -43,7 +43,7 @@ public class LoadProfileTask extends BaseAsyncTask<Void, Void, LoginUserProfile>
 				
 				LoginUserProfile result = new LoginUserProfile();
 				result.setAvatar(avatar);
-				result.setNickname(UserUtils.getNickname(context));
+				result.setNickname(PreferenceUtils.getNickname(context));
 				
 				return Response.success(result);
 			} catch (SmackInvocationException e) {

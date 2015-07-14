@@ -1,16 +1,15 @@
 package com.mstr.letschat.xmpp;
 
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.X509TrustManager;
+import com.mstr.letschat.SmackInvocationException;
+import com.mstr.letschat.model.SubscribeInfo;
+import com.mstr.letschat.model.UserProfile;
+import com.mstr.letschat.service.MessageService;
+import com.mstr.letschat.utils.PreferenceUtils;
 
 import org.jivesoftware.smack.AccountManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -18,11 +17,11 @@ import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
-import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.Roster.SubscriptionMode;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.SmackAndroid;
+import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.MessageTypeFilter;
@@ -35,25 +34,23 @@ import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.offline.OfflineMessageManager;
 import org.jivesoftware.smackx.vcardtemp.packet.VCard;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import com.mstr.letschat.SmackInvocationException;
-import com.mstr.letschat.model.SubscribeInfo;
-import com.mstr.letschat.model.UserProfile;
-import com.mstr.letschat.service.MessageService;
-import com.mstr.letschat.utils.UserUtils;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.X509TrustManager;
 
 import de.duenndns.ssl.MemorizingTrustManager;
 
 public class SmackHelper {
 	private static final String LOG_TAG = "SmackHelper";
 	
-	private static final String HOST = "10.197.32.205";
-	
-	//private static final String HOST = "192.168.1.103";
 	private static final int PORT = 5222;
 	
 	public static final String RESOURCE_PART = "Smack";
@@ -187,7 +184,7 @@ public class SmackHelper {
 	
 	@SuppressLint("TrulyRandom")
 	private XMPPConnection createConnection() {
-		ConnectionConfiguration config = new ConnectionConfiguration(HOST, PORT);
+		ConnectionConfiguration config = new ConnectionConfiguration(PreferenceUtils.getServerHost(context), PORT);
 		
 		SSLContext sc = null;
 		MemorizingTrustManager mtm = null;

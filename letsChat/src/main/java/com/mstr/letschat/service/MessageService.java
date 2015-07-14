@@ -1,10 +1,5 @@
 package com.mstr.letschat.service;
 
-import java.util.ArrayList;
-
-import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smackx.vcardtemp.packet.VCard;
-
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -37,11 +32,16 @@ import com.mstr.letschat.model.SubscribeInfo;
 import com.mstr.letschat.providers.CustomProvider;
 import com.mstr.letschat.receivers.NetworkReceiver;
 import com.mstr.letschat.utils.NotificationUtils;
+import com.mstr.letschat.utils.PreferenceUtils;
 import com.mstr.letschat.utils.ProviderUtils;
-import com.mstr.letschat.utils.UserUtils;
 import com.mstr.letschat.xmpp.PresencePacketListener;
 import com.mstr.letschat.xmpp.SmackHelper;
 import com.mstr.letschat.xmpp.SmackVCardHelper;
+
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smackx.vcardtemp.packet.VCard;
+
+import java.util.ArrayList;
 
 public class MessageService extends Service {
 	private static final String LOG_TAG = "MessageService";
@@ -201,8 +201,8 @@ public class MessageService extends Service {
 	}
 	
 	private boolean connect() {
-		String user = UserUtils.getUser(this);
-		String password = UserUtils.getPassword(this);
+		String user = PreferenceUtils.getUser(this);
+		String password = PreferenceUtils.getPassword(this);
 		if (user != null && password != null) {
 			try {
 				smackHelper.login(user, password);

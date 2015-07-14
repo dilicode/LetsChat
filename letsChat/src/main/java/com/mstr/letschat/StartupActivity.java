@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import com.mstr.letschat.tasks.LoginTask;
 import com.mstr.letschat.tasks.Response.Listener;
-import com.mstr.letschat.utils.UserUtils;
+import com.mstr.letschat.utils.PreferenceUtils;
 
 public class StartupActivity extends Activity implements OnClickListener, Listener<Boolean> {
 	private static final int REQUEST_CODE_LOGIN = 1;
@@ -22,8 +22,8 @@ public class StartupActivity extends Activity implements OnClickListener, Listen
 		
 		setContentView(R.layout.activity_startup);
 		
-		if (UserUtils.getUser(this) != null) {
-			new LoginTask(this, this, UserUtils.getUser(this), UserUtils.getPassword(this)).execute();
+		if (PreferenceUtils.getUser(this) != null) {
+			new LoginTask(this, this, PreferenceUtils.getUser(this), PreferenceUtils.getPassword(this)).execute();
 		} else {
 			findViewById(R.id.ll_buttons_container).setVisibility(View.VISIBLE);
 		}
