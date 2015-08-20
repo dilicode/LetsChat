@@ -15,7 +15,7 @@ import com.mstr.letschat.databases.ChatContract.ChatMessageTable;
 import com.mstr.letschat.databases.ChatContract.ConversationTable;
 import com.mstr.letschat.databases.ChatMessageTableHelper;
 import com.mstr.letschat.databases.ConversationTableHelper;
-import com.mstr.letschat.providers.CustomProvider;
+import com.mstr.letschat.providers.DatabaseContentProvider;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.utils.AppLog;
 import com.mstr.letschat.xmpp.SmackHelper;
@@ -82,7 +82,7 @@ public class SendChatMessageTask extends BaseAsyncTask<Void, Void, Boolean> {
 		cursor.close();
 		
 		try {
-			ContentProviderResult[] result = contentResolver.applyBatch(CustomProvider.AUTHORITY, operations);
+			ContentProviderResult[] result = contentResolver.applyBatch(DatabaseContentProvider.AUTHORITY, operations);
 			return result[0].uri;
 		} catch (Exception e) {
 			throw new SQLException("Failed to insert chat message");

@@ -17,7 +17,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.LightBackground" >
+        android:theme="@style/AppThemeLightBackground" >
 		
 		<activity android:name=".StartupActivity">
 			<intent-filter>
@@ -85,6 +85,6 @@
 		
 		<service android:name=".service.MessageService" android:exported="false" />
 		
-		<provider android:name=".providers.CustomProvider" android:authorities="com.mstr.letschat.provider" android:exported="false" />
+		<provider android:name=".providers.DatabaseContentProvider" android:authorities="com.mstr.letschat.provider" android:exported="false" />
     </application>
 </manifest>

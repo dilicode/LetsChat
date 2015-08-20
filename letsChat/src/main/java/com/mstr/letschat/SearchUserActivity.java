@@ -45,7 +45,7 @@ public class SearchUserActivity extends Activity implements OnQueryTextListener,
 		searchItem.expandActionView();
 		searchView = (SearchView)searchItem.getActionView();
 		searchView.setOnQueryTextListener(this);
-		searchView.setQueryHint(getResources().getText(R.string.search_contact_hint));
+		searchView.setQueryHint(getResources().getText(R.string.cell_phone_number));
 		
 		return true;
 	}

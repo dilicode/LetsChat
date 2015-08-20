@@ -29,7 +29,7 @@ import com.mstr.letschat.databases.ContactRequestTableHelper;
 import com.mstr.letschat.databases.ContactTableHelper;
 import com.mstr.letschat.databases.ConversationTableHelper;
 import com.mstr.letschat.model.SubscribeInfo;
-import com.mstr.letschat.providers.CustomProvider;
+import com.mstr.letschat.providers.DatabaseContentProvider;
 import com.mstr.letschat.receivers.NetworkReceiver;
 import com.mstr.letschat.utils.NotificationUtils;
 import com.mstr.letschat.utils.PreferenceUtils;
@@ -392,7 +392,7 @@ public class MessageService extends Service {
 		
 		// commit the changes as a transaction
 		try {
-			getContentResolver().applyBatch(CustomProvider.AUTHORITY, operations);
+			getContentResolver().applyBatch(DatabaseContentProvider.AUTHORITY, operations);
 		} catch (Exception e) {
 			Log.e(LOG_TAG, "applybatch error", e);
 			return;

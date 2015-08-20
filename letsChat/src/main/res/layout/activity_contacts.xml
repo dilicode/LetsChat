@@ -20,5 +20,5 @@
 		android:layout_marginTop="20dp"
 		android:layout_marginBottom="20dp"
 		android:gravity="center_horizontal"
-		android:text="@string/no_contacts"/>
+		android:text="@string/no_contacts_found"/>
 </LinearLayout>

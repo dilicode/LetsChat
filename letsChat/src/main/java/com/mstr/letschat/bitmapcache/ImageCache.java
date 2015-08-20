@@ -30,6 +30,8 @@ import java.io.OutputStream;
 import java.lang.ref.SoftReference;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -78,6 +80,8 @@ public class ImageCache {
     
     private void init(ImageCacheParams cacheParams) {
     	this.cacheParams = cacheParams;
+
+		reusableBitmaps = Collections.synchronizedSet(new HashSet<SoftReference<Bitmap>>());
     	
     	memoryCache = new LruCache<String, BitmapDrawable>(cacheParams.memCacheSize) {
 			@Override

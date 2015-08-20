@@ -1,15 +1,10 @@
 <resources>
     <string name="app_name">LetsChat</string>
-	<string name="password_hint">Please input password</string>
 	<string name="login">Log in</string>
 	<string name="signup">Sign up</string>
 	<string name="name_hint">Name</string>
 	<string name="cell_phone_number">Cell phone number</string>
 	<string name="send">Send</string>
-	<string name="tab_letschat">LetsChat</string>
-	<string name="tab_contacts">Contacts</string>
-	<string name="tab_discover">Discover</string>
-	<string name="tab_me">Me</string>
 	<string name="action_bar_search_contact">Search</string>
 	<string name="add">Add</string>
 	<string name="chats">Chats</string>
@@ -20,9 +15,8 @@
 	<string name="search_contact_no_result">No result</string>
 	<string name="search_contact_result">Search result</string>
 	<string name="search_contact">Search contact</string>
-	<string name="search_contact_hint">Phone</string>
 	<string name="phone_number">Phone number</string>
-	<string name="enter_password">Enter password</string>
+	<string name="password">Password</string>
 	<string name="create_account_error">Create account error</string>
 	<string name="account_already_exists">Account already exists</string>
 	<string name="login_error">Login error</string>
@@ -53,7 +47,7 @@
 	<string name="update_status_text">update your status</string>
 	<string name="profile_photo">Profile photo</string>
 	<string name="no_chats_found">No chats found</string>
-	<string name="no_contacts">No contacts</string>
+	<string name="no_contacts_found">No contacts found</string>
 	<string name="incomplete_signup_info">Please input complete information</string>
 	<string name="profile_avatar">Avatar</string>
 	<string name="profile_nickname">Nick name</string>
@@ -69,7 +63,7 @@
 	<string name="traffic_transmitted_preference">traffic_transmitted</string>
 	<string name="traffic_received_preference">traffic_received</string>
 	<string name="server_address_preference">server_address</string>
-	<string name="title_server_address_preference">Server address</string>
-	<string name="summary_server_address_preference">Enter address of your Openfire server</string>
+	<string name="title_server_address">Server address</string>
+	<string name="summary_server_address">Enter address of your Openfire server</string>
 	<string name="server">Server</string>
 </resources>

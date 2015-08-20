@@ -1,9 +1,8 @@
 package com.mstr.letschat;
 
 import android.app.Activity;
-import android.app.PendingIntent;
-
 import android.app.LoaderManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.CursorLoader;
@@ -12,7 +11,6 @@ import android.content.Loader;
 import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.IBinder;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.Editable;
@@ -88,8 +86,6 @@ public class ChatActivity extends Activity
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 
 		getLoaderManager().initLoader(0, null, this);
-
-		Debug.startMethodTracing();
 	}		
 	
 	@Override
@@ -199,12 +195,5 @@ public class ChatActivity extends Activity
 		taskStackbuilder.addNextIntent(intent);
 		
 		return taskStackbuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-
-		Debug.stopMethodTracing();
 	}
 }

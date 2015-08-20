@@ -9,7 +9,7 @@ import com.mstr.letschat.databases.ChatContract.ContactRequestTable;
 import com.mstr.letschat.databases.ChatContract.ContactTable;
 import com.mstr.letschat.databases.ContactRequestTableHelper;
 import com.mstr.letschat.databases.ContactTableHelper;
-import com.mstr.letschat.providers.CustomProvider;
+import com.mstr.letschat.providers.DatabaseContentProvider;
 
 import java.util.ArrayList;
 
@@ -30,7 +30,7 @@ public class ProviderUtils {
 				withValues(ContactRequestTableHelper.newContentValuesWithAcceptedStatus()).
 				withSelection(ContactRequestTable.COLUMN_NAME_JID + " = ?", new String[]{jid}).build());
 		try {
-			return context.getContentResolver().applyBatch(CustomProvider.AUTHORITY, operations);
+			return context.getContentResolver().applyBatch(DatabaseContentProvider.AUTHORITY, operations);
 		} catch (Exception e) {
 			throw new SQLException("Failed to add contact");
 		}
