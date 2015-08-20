@@ -12,6 +12,7 @@ import android.content.Loader;
 import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.IBinder;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.Editable;
@@ -85,8 +86,10 @@ public class ChatActivity extends Activity
 		setTitle(nickname);
 		
 		getActionBar().setDisplayHomeAsUpEnabled(true);
-		
+
 		getLoaderManager().initLoader(0, null, this);
+
+		Debug.startMethodTracing();
 	}		
 	
 	@Override
@@ -157,6 +160,7 @@ public class ChatActivity extends Activity
 				ChatMessageTable.COLUMN_NAME_TYPE,
 				ChatMessageTable.COLUMN_NAME_STATUS
 		};
+
 		return new CursorLoader(this, ChatMessageTable.CONTENT_URI, projection,
 				ChatMessageTable.COLUMN_NAME_JID + "=?", new String[]{to}, null);
 	}
@@ -195,5 +199,12 @@ public class ChatActivity extends Activity
 		taskStackbuilder.addNextIntent(intent);
 		
 		return taskStackbuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+
+		Debug.stopMethodTracing();
 	}
 }

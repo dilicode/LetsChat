@@ -149,7 +149,11 @@ public class SmackHelper {
 		} else {
 			jid = StringUtils.parseBareAddress(username);
 		}
-		
+
+		if (vCardHelper == null) {
+			return null;
+		}
+
 		VCard vCard = vCardHelper.loadVCard(jid);
 		String nickname = vCard.getNickName();
 		

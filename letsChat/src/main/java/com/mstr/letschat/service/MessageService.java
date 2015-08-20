@@ -158,27 +158,32 @@ public class MessageService extends Service {
 		return binder;
 	}
 	
-	public void startConversation(String name) {
+	public void startConversation(final String name) {
 		conversationTarget = name;
 		
 		// cancel any notification if existing after we start a conversation
 		notificationManager.cancel(INCOMING_MESSAGE_NOTIFICATION_ID);
-		
-		String selection = ConversationTable.COLUMN_NAME_NAME + "=?";
-		String[] selectionArgs = new String[]{name};
-		
-		Cursor cursor = getContentResolver().query(ConversationTable.CONTENT_URI, new String[]{ConversationTable.COLUMN_NAME_UNREAD},
-				selection, selectionArgs, null);
-		if (cursor.moveToFirst()) {
-			int unreadCount = cursor.getInt(cursor.getColumnIndex(ConversationTable.COLUMN_NAME_UNREAD));
-			if (unreadCount > 0) {
-				// clear any unread messages
-				ContentValues values = new ContentValues();
-				values.put(ConversationTable.COLUMN_NAME_UNREAD, 0);
-				getContentResolver().update(ConversationTable.CONTENT_URI, values, selection, selectionArgs);
+
+		serviceHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				String selection = ConversationTable.COLUMN_NAME_NAME + "=?";
+				String[] selectionArgs = new String[]{name};
+
+				Cursor cursor = getContentResolver().query(ConversationTable.CONTENT_URI, new String[]{ConversationTable.COLUMN_NAME_UNREAD},
+						selection, selectionArgs, null);
+				if (cursor.moveToFirst()) {
+					int unreadCount = cursor.getInt(cursor.getColumnIndex(ConversationTable.COLUMN_NAME_UNREAD));
+					if (unreadCount > 0) {
+						// clear any unread messages
+						ContentValues values = new ContentValues();
+						values.put(ConversationTable.COLUMN_NAME_UNREAD, 0);
+						getContentResolver().update(ConversationTable.CONTENT_URI, values, selection, selectionArgs);
+					}
+				}
+				cursor.close();
 			}
-		}
-		cursor.close();
+		});
 	}
 	
 	public void stopConversation() {

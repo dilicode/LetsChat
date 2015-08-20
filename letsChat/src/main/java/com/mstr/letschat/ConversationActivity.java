@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Debug;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnActionExpandListener;
@@ -95,8 +94,6 @@ public class ConversationActivity extends ListActivity
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		Debug.startMethodTracing("calc");
-
 		String[] projection = new String[] {
 			ConversationTable._ID,
 			ConversationTable.COLUMN_NAME_NAME,
@@ -118,8 +115,6 @@ public class ConversationActivity extends ListActivity
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 		adapter.swapCursor(data);
-
-		Debug.stopMethodTracing();
 	}
 
 	@Override

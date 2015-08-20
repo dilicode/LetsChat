@@ -1,7 +1,5 @@
 package com.mstr.letschat.tasks;
 
-import java.util.ArrayList;
-
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
@@ -21,6 +19,8 @@ import com.mstr.letschat.providers.CustomProvider;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.utils.AppLog;
 import com.mstr.letschat.xmpp.SmackHelper;
+
+import java.util.ArrayList;
 
 public class SendChatMessageTask extends BaseAsyncTask<Void, Void, Boolean> {
 	private String to;
