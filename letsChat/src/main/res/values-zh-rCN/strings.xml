@@ -1,5 +1,5 @@
 <resources>
-  <string name="app_name">LetsChat</string>
+  <string name="app_name">Smackchat</string>
   <string name="login">登录</string>
   <string name="signup">注册</string>
   <string name="name_hint">昵称</string>
@@ -66,4 +66,9 @@
   <string name="title_server_address">服务器地址</string>
   <string name="summary_server_address">请输入您配置的Openfire服务器地址</string>
   <string name="server">Openfire服务器</string>
+  <string name="status_available">有空</string>
+  <string name="status_busy">忙碌中</string>
+  <string name="status_At_school">在学校</string>
+  <string name="status_At_work">工作中</string>
+  <string name="status_meeting">开会中</string>
 </resources>

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">LetsChat</string>
+    <string name="app_name">Smackchat</string>
 	<string name="login">Log in</string>
 	<string name="signup">Sign up</string>
 	<string name="name_hint">Name</string>
@@ -66,4 +66,9 @@
 	<string name="title_server_address">Server address</string>
 	<string name="summary_server_address">Enter address of your Openfire server</string>
 	<string name="server">Server</string>
+	<string name="status_available">Available</string>
+	<string name="status_busy">Busy</string>
+	<string name="status_At_school">At school</string>
+	<string name="status_At_work">At work</string>
+	<string name="status_meeting">In a meeting</string>
 </resources>

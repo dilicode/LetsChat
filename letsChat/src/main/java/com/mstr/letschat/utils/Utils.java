@@ -50,4 +50,8 @@ public class Utils {
 	public static boolean hasKitKat() {
 		return Build.VERSION.SDK_INT >= VERSION_CODES.KITKAT;
 	}
+
+	public static boolean hasLollipop() {
+		return Build.VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP;
+	}
 }

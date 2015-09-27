@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="status_items">
-        <item>Available</item>
-        <item>Busy</item>
-        <item>At school</item>
-        <item>At work</item>
-        <item>In a meeting</item>
+        <item>@string/status_available</item>
+        <item>@string/status_busy</item>
+        <item>@string/status_At_school</item>
+        <item>@string/status_At_work</item>
+        <item>@string/status_meeting</item>
     </string-array>
 </resources>

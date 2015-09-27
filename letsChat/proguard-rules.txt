@@ -1,0 +1,2 @@
+-keep class org.jivesoftware.** { *; }
+-dontwarn sun.net.spi.nameservice.**
