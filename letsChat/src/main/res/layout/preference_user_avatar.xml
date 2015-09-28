@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:singleLine="true"
+        android:textColor="?android:attr/textColorPrimary"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <ImageView
