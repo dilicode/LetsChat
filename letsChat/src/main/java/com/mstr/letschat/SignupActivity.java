@@ -151,7 +151,7 @@ public class SignupActivity extends Activity implements OnClickListener, Listene
 	
 	private void startCropImage(Uri source) {
 		if (source != null) {
-			int size = getResources().getDimensionPixelSize(R.dimen.avatar_size_large);
+			int size = getResources().getDimensionPixelSize(R.dimen.default_avatar_size);
 			CropImageIntentBuilder cropImage = new CropImageIntentBuilder(size, size, Uri.fromFile(avatarImageFile));
 			cropImage.setSourceImage(source);
 			

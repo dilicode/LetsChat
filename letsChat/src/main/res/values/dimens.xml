@@ -2,5 +2,4 @@
 <resources>
     <dimen name="message_horizontal_margin">50dp</dimen>
     <dimen name="default_avatar_size">50dp</dimen>
-    <dimen name="avatar_size_large">320dp</dimen>
 </resources>

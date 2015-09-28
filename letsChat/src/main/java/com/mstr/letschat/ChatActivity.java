@@ -18,8 +18,8 @@ import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.mstr.letschat.adapters.MessageCursorAdapter;
@@ -40,7 +40,7 @@ public class ChatActivity extends Activity
 	private String nickname;
 	
 	private EditText messageText;
-	private Button sendButton;
+	private ImageButton sendButton;
 	private ListView messageListView;
 	
 	private MessageCursorAdapter adapter;
@@ -74,8 +74,9 @@ public class ChatActivity extends Activity
 		messageText = (EditText)findViewById(R.id.et_message);
 		messageText.addTextChangedListener(this);
 		
-		sendButton = (Button)findViewById(R.id.btn_send);
+		sendButton = (ImageButton)findViewById(R.id.btn_send);
 		sendButton.setOnClickListener(this);
+		sendButton.setEnabled(false);
 		
 		messageListView = (ListView)findViewById(R.id.message_list);
 		adapter = new MessageCursorAdapter(this, null, 0);

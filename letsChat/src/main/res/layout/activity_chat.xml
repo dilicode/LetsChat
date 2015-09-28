@@ -32,13 +32,12 @@
 	        android:scrollbars="vertical"
 	        android:layout_weight="1" />
 	    
-	    <Button
+	    <ImageButton
 	        android:id="@+id/btn_send"
-	     	android:layout_width="wrap_content"
-	        android:layout_height="40dp"
-	        android:layout_gravity="center_vertical"
-			android:text="@string/send"
-			android:enabled="false"
-	        style="@style/DefaultButton"/>
+	     	android:layout_width="50dp"
+	        android:layout_height="50dp"
+            android:layout_gravity="center_vertical"
+            android:background="@null"
+            android:src="@drawable/ic_send" />
 	    </LinearLayout>
 </LinearLayout>
