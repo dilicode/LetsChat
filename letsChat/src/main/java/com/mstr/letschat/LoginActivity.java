@@ -33,7 +33,7 @@ public class LoginActivity extends Activity implements Listener<Boolean>, OnClic
 	@Override
 	public void onClick(View v) {
 		if (v == loginButton) {
-			new LoginTask(this, this, phoneNumberText.getText().toString(), passwordText.getText().toString()).execute();
+			new LoginTask(this, this, phoneNumberText.getText().toString(), passwordText.getText().toString(), true).execute();
 		}
 	}
 

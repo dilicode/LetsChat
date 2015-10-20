@@ -23,7 +23,7 @@ public class StartupActivity extends Activity implements OnClickListener, Listen
 		setContentView(R.layout.activity_startup);
 		
 		if (PreferenceUtils.getUser(this) != null) {
-			new LoginTask(this, this, PreferenceUtils.getUser(this), PreferenceUtils.getPassword(this)).execute();
+			new LoginTask(this, this, PreferenceUtils.getUser(this), PreferenceUtils.getPassword(this), false).execute();
 		} else {
 			findViewById(R.id.ll_buttons_container).setVisibility(View.VISIBLE);
 		}

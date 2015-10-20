@@ -63,6 +63,7 @@
 	<string name="traffic_transmitted_preference">traffic_transmitted</string>
 	<string name="traffic_received_preference">traffic_received</string>
 	<string name="server_address_preference">server_address</string>
+	<string name="secret_key_preference">secret_key</string>
 	<string name="title_server_address">Server address</string>
 	<string name="summary_server_address">Enter address of your Openfire server</string>
 	<string name="server">Server</string>

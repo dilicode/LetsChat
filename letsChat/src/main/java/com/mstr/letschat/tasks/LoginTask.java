@@ -14,13 +14,16 @@ public class LoginTask extends BaseAsyncTask<Void, Void, Boolean> {
 	private String username;
 	private String password;
 
+	private boolean shouldSaveCredentials;
+
 	private ProgressDialog dialog;
 	
-	public LoginTask(Listener<Boolean> listener, Context context, String username, String password) {
+	public LoginTask(Listener<Boolean> listener, Context context, String username, String password, boolean shouldSaveCredentials) {
 		super(listener, context);
 		
 		this.username = username;
 		this.password = password;
+		this.shouldSaveCredentials = shouldSaveCredentials;
 
 		dialog = ProgressDialog.show(context, null, context.getResources().getString(R.string.login));
 	}
@@ -33,8 +36,10 @@ public class LoginTask extends BaseAsyncTask<Void, Void, Boolean> {
 				SmackHelper smackHelper = SmackHelper.getInstance(context);
 				
 				smackHelper.login(username, password);
-				
-				PreferenceUtils.setLoginUser(context, username, password, smackHelper.getLoginUserNickname());
+
+				if (shouldSaveCredentials) {
+					PreferenceUtils.setLoginUser(context, username, password, smackHelper.getLoginUserNickname());
+				}
 				
 				return Response.success(true);
 			} catch(SmackInvocationException e) {
