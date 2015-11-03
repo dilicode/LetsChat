@@ -72,4 +72,8 @@
 	<string name="status_At_school">At school</string>
 	<string name="status_At_work">At work</string>
 	<string name="status_meeting">In a meeting</string>
+	<string name="attach">Attach</string>
+	<string name="gallery">Gallery</string>
+	<string name="photo">Photo</string>
+	<string name="location">Location</string>
 </resources>

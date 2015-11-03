@@ -2,4 +2,7 @@
 <resources>
     <dimen name="message_horizontal_margin">50dp</dimen>
     <dimen name="default_avatar_size">50dp</dimen>
+    <dimen name="attach_options_container_padding_horizontal">50dp</dimen>
+    <dimen name="attach_options_container_padding_vertical">20dp</dimen>
+    <dimen name="attach_option_size">72dp</dimen>
 </resources>
