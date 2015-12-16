@@ -54,7 +54,7 @@ public class ChatActivityTest extends ActivityInstrumentationTestCase2<ChatActiv
             for (int j = 0; j < 500000; j++) {
                 String body = String.valueOf(j);
 
-                ContentValues messageValues = ChatMessageTableHelper.newOutgoingMessageContentValues(to, body, System.currentTimeMillis());
+                ContentValues messageValues = ChatMessageTableHelper.newPlainTextMessage(to, body, System.currentTimeMillis(), true);
                 messageValues.put(ChatContract.ChatMessageTable.COLUMN_NAME_STATUS, ChatMessageTableHelper.STATUS_SUCCESS);
 
                 dbHelper.getWritableDatabase().insert(ChatContract.ChatMessageTable.TABLE_NAME, null, messageValues);

@@ -27,8 +27,10 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.MessageTypeFilter;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.RosterPacket.ItemType;
+import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.offline.OfflineMessageManager;
@@ -85,6 +87,8 @@ public class SmackHelper {
 		
 		SmackConfiguration.setDefaultPacketReplyTimeout(20 * 1000);
 		Roster.setDefaultSubscriptionMode(SubscriptionMode.manual);
+
+		ProviderManager.addExtensionProvider(UserLocation.ELEMENT_NAME, UserLocation.NAMESPACE, new LocationMessageProvider());
 	}
 	
 	public static synchronized SmackHelper getInstance(Context context) {
@@ -119,16 +123,19 @@ public class SmackHelper {
 		vCardHelper.save(nickname, avatar);
 	}
 	
-	public void sendChatMessage(String to, String body) throws SmackInvocationException {
+	public void sendChatMessage(String to, String body, PacketExtension packetExtension) throws SmackInvocationException {
 		Message message = new Message(to, Message.Type.chat);
 		message.setBody(body);
+		if (packetExtension != null) {
+			message.addExtension(packetExtension);
+		}
 		try {
 			con.sendPacket(message);
 		} catch (NotConnectedException e) {
 			throw new SmackInvocationException(e);
 		}
 	}
-	
+
 	public List<RosterEntry> getRosterEntries() {
 		List<RosterEntry> result = new ArrayList<RosterEntry>();
 		
@@ -230,7 +237,7 @@ public class SmackHelper {
 	
 	private void onConnectionEstablished() {
 		if (state != State.CONNECTED) {
-			processOfflineMessages();
+			//processOfflineMessages();
 			
 			try {
 				con.sendPacket(new Presence(Presence.Type.available));

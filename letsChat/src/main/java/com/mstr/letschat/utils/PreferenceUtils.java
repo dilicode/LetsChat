@@ -4,33 +4,39 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.mstr.letschat.R;
-
 public class PreferenceUtils {
+	public static final String USERNAME = "user";
+	public static final String PASSWORD = "password";
+	public static final String NICKNAME = "nickname";
+	public static final String AVATAR = "avatar";
+	public static final String TRAFFIC_TRANSMITTED = "traffic_transmitted";
+	public static final String TRAFFIC_RECEIVED = "traffic_received";
+	public static final String SERVER_ADDRESS = "server_address";
+	public static final String SECRET_KEY = "secret_key";
+
 	public static void setLoginUser(Context context, String user, String password, String nickname) {
 		String encryptedUser = AESEncryption.encrypt(context, user);
 		String encryptedPassword = AESEncryption.encrypt(context, password);
-		getSharedPreferences(context).edit().putString(context.getString(R.string.username_preference), encryptedUser)
-				.putString(context.getString(R.string.password_preference), encryptedPassword)
-				.putString(context.getString(R.string.nickname_preference), nickname).commit();
+		getSharedPreferences(context).edit().putString(USERNAME, encryptedUser).putString(PASSWORD, encryptedPassword)
+				.putString(NICKNAME, nickname).commit();
 	}
 
 	public static String getUser(Context context) {
-		String encryptedUser = getSharedPreferences(context).getString(context.getString(R.string.username_preference), null);
+		String encryptedUser = getSharedPreferences(context).getString(USERNAME, null);
 		return encryptedUser != null ? AESEncryption.decrypt(context, encryptedUser) : null;
 	}
 	
 	public static String getPassword(Context context) {
-		String encryptedPassword = getSharedPreferences(context).getString(context.getString(R.string.password_preference), null);
+		String encryptedPassword = getSharedPreferences(context).getString(PASSWORD, null);
 		return encryptedPassword != null ? AESEncryption.decrypt(context, encryptedPassword) : null;
 	}
 	
 	public static String getNickname(Context context) {
-		return getSharedPreferences(context).getString(context.getString(R.string.nickname_preference), null);
+		return getSharedPreferences(context).getString(NICKNAME, null);
 	}
 
 	public static String getServerHost(Context context) {
-		return getSharedPreferences(context).getString(context.getString(R.string.server_address_preference), null);
+		return getSharedPreferences(context).getString(SERVER_ADDRESS, null);
 	}
 
 	public static SharedPreferences getSharedPreferences(Context context) {

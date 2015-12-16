@@ -56,14 +56,6 @@
   <string name="title_traffic_transmitted_preference">发送消息流量</string>
   <string name="title_traffic_received_preference">接收消息流量</string>
   <string name="traffic_unit">KB</string>
-  <string name="username_preference">user</string>
-  <string name="password_preference">password</string>
-  <string name="nickname_preference">nickname</string>
-  <string name="avatar_preference">avatar</string>
-  <string name="traffic_transmitted_preference">traffic_transmitted</string>
-  <string name="traffic_received_preference">traffic_received</string>
-  <string name="server_address_preference">server_address</string>
-  <string name="secret_key_preference">secret_key</string>
   <string name="title_server_address">服务器地址</string>
   <string name="summary_server_address">请输入您配置的Openfire服务器地址</string>
   <string name="server">Openfire服务器</string>

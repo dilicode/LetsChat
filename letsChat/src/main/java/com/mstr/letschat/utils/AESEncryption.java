@@ -3,8 +3,6 @@ package com.mstr.letschat.utils;
 import android.content.Context;
 import android.util.Base64;
 
-import com.mstr.letschat.R;
-
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -31,15 +29,14 @@ public class AESEncryption {
     public static final byte[] iv = {1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8};
 
     private static SecretKey getSecretKey(Context context) throws NoSuchAlgorithmException {
-        final String preferenceKey = context.getString(R.string.secret_key_preference);
-        String secretKeyString = PreferenceUtils.getSharedPreferences(context).getString(preferenceKey, null);
+        String secretKeyString = PreferenceUtils.getSharedPreferences(context).getString(PreferenceUtils.SECRET_KEY, null);
         if (secretKeyString != null) {
             byte[] bytes = Base64.decode(secretKeyString, Base64.DEFAULT);
             return new SecretKeySpec(bytes, AESEncryption.KEY_GENERATOR_ALGORITHM);
         } else {
             SecretKey secretKey = newSecretKey();
             secretKeyString = Base64.encodeToString(secretKey.getEncoded(), Base64.DEFAULT);
-            PreferenceUtils.getSharedPreferences(context).edit().putString(preferenceKey, secretKeyString).commit();
+            PreferenceUtils.getSharedPreferences(context).edit().putString(PreferenceUtils.SECRET_KEY, secretKeyString).commit();
 
             return secretKey;
         }

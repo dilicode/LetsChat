@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <Preference
-        android:key="@string/traffic_transmitted_preference"
+        android:key="traffic_transmitted"
         android:title="@string/title_traffic_transmitted_preference"
         android:summary="1024"/>
 
     <Preference
-        android:key="@string/traffic_received_preference"
+        android:key="traffic_received"
         android:title="@string/title_traffic_received_preference"
         android:summary="1024" />
 </PreferenceScreen>

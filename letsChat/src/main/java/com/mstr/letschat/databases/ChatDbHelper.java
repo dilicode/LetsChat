@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class ChatDbHelper extends SQLiteOpenHelper {
-	 public static final int DATABASE_VERSION = 1;
+	 public static final int DATABASE_VERSION = 2;
 	 public static final String DATABASE_NAME = "chat.db";
 	 
 	 public static final String TEXT_TYPE = " TEXT";
@@ -36,15 +36,17 @@ public class ChatDbHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		ContactTableHelper.onUpgrade(db);
-		ChatMessageTableHelper.onUpgrade(db);
-		ContactRequestTableHelper.onUpgrade(db);
-		ConversationTableHelper.onUpgrade(db);
-		
-		onCreate(db);
+		if (newVersion == 2) {
+			updateToVersion2(db);
+			return;
+		}
 	}
 	
 	public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		onUpgrade(db, oldVersion, newVersion);
+	}
+
+	private void updateToVersion2(SQLiteDatabase db) {
+		ChatMessageTableHelper.updateToVersion2(db);
 	}
 }

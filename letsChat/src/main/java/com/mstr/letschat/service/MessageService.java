@@ -37,6 +37,7 @@ import com.mstr.letschat.utils.ProviderUtils;
 import com.mstr.letschat.xmpp.PresencePacketListener;
 import com.mstr.letschat.xmpp.SmackHelper;
 import com.mstr.letschat.xmpp.SmackVCardHelper;
+import com.mstr.letschat.xmpp.UserLocation;
 
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.vcardtemp.packet.VCard;
@@ -58,6 +59,7 @@ public class MessageService extends Service {
 	public static final String EXTRA_DATA_NAME_NOTIFICATION_TEXT = "com.mstr.letschat.NotificationText";
 	public static final String EXTRA_DATA_NAME_FROM = "com.mstr.letschat.From";
 	public static final String EXTRA_DATA_NAME_MESSAGE_BODY = "com.mstr.letschat.MessageBody";
+	public static final String EXTRA_DATA_NAME_LOCATION = "com.mstr.letschat.Location";
 	
 	// Service Actions
 	public static final String ACTION_CONNECT = "com.mstr.letschat.intent.action.CONNECT";
@@ -345,12 +347,19 @@ public class MessageService extends Service {
 	private void handleMessagePacket(Intent intent) {
 		String from = intent.getStringExtra(EXTRA_DATA_NAME_FROM);
 		String body = intent.getStringExtra(EXTRA_DATA_NAME_MESSAGE_BODY);
+		UserLocation location = intent.getParcelableExtra(EXTRA_DATA_NAME_LOCATION);
 		long timeMillis = System.currentTimeMillis();
-		
+
+		ContentValues messageValues = null;
+		if (location == null) { // this is a plain text message
+			messageValues = ChatMessageTableHelper.newPlainTextMessage(from, body, timeMillis, false);
+		} else {
+			messageValues = ChatMessageTableHelper.newLocationMessage(from, body, timeMillis, location, false);
+		}
+
 		ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
-		ContentValues messageValues = ChatMessageTableHelper.newIncomingMessageContentValues(from, body, timeMillis);
 		operations.add(ContentProviderOperation.newInsert(ChatMessageTable.CONTENT_URI).withValues(messageValues).build());
-		
+
 		int unreadCount = 0;
 		String nickname = null;
 		

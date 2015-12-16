@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.PreferenceFragment;
 
 import com.mstr.letschat.R;
+import com.mstr.letschat.utils.PreferenceUtils;
 
 /**
  * Created by dilli on 7/8/2015.
@@ -33,8 +34,8 @@ public class TrafficStatsFragment extends PreferenceFragment {
             long receivedBytes = TrafficStats.getUidRxBytes(uid);
             long transmittedBytes = TrafficStats.getUidTxBytes(uid);
             String unit = " " + getString(R.string.traffic_unit);
-            findPreference(getString(R.string.traffic_transmitted_preference)).setSummary(Long.toString(transmittedBytes / 1024) + unit);
-            findPreference(getString(R.string.traffic_received_preference)).setSummary(Long.toString(receivedBytes / 1024) + unit);
+            findPreference(PreferenceUtils.TRAFFIC_TRANSMITTED).setSummary(Long.toString(transmittedBytes / 1024) + unit);
+            findPreference(PreferenceUtils.TRAFFIC_RECEIVED).setSummary(Long.toString(receivedBytes / 1024) + unit);
         }
     }
 }

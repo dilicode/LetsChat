@@ -20,12 +20,16 @@ import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.utils.AppLog;
 import com.mstr.letschat.xmpp.SmackHelper;
 
+import org.jivesoftware.smack.packet.PacketExtension;
+
 import java.util.ArrayList;
 
 public class SendChatMessageTask extends BaseAsyncTask<Void, Void, Boolean> {
-	private String to;
-	private String nickname;
-	private String body;
+	protected String to;
+	protected String nickname;
+	protected String body;
+
+	protected PacketExtension packetExtension;
 	
 	public SendChatMessageTask(Listener<Boolean> listener, Context context, String to, String nickname, String body) {
 		super(listener, context);
@@ -42,7 +46,7 @@ public class SendChatMessageTask extends BaseAsyncTask<Void, Void, Boolean> {
 			ContentResolver contentResolver = context.getContentResolver();
 			Uri newMessageUri = insertNewMessage(contentResolver);
 			try {
-				SmackHelper.getInstance(context).sendChatMessage(to, body);
+				SmackHelper.getInstance(context).sendChatMessage(to, body, packetExtension);
 			} catch(SmackInvocationException e) {
 				AppLog.e(String.format("send chat message to %s error", to), e);
 				
@@ -59,11 +63,11 @@ public class SendChatMessageTask extends BaseAsyncTask<Void, Void, Boolean> {
 		return null;
 	}
 	
-	private Uri insertNewMessage(ContentResolver contentResolver) {
+	protected Uri insertNewMessage(ContentResolver contentResolver) {
 		long timeMillis = System.currentTimeMillis();
-		
+
 		ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
-		ContentValues messageValues = ChatMessageTableHelper.newOutgoingMessageContentValues(to, body, timeMillis);
+		ContentValues messageValues = getNewMessage(timeMillis);
 		operations.add(ContentProviderOperation.newInsert(ChatMessageTable.CONTENT_URI).withValues(messageValues).build());
 		
 		Cursor cursor = contentResolver.query(ConversationTable.CONTENT_URI,
@@ -87,5 +91,9 @@ public class SendChatMessageTask extends BaseAsyncTask<Void, Void, Boolean> {
 		} catch (Exception e) {
 			throw new SQLException("Failed to insert chat message");
 		}
-	}	
+	}
+
+	protected ContentValues getNewMessage(long timeMillis) {
+		return ChatMessageTableHelper.newPlainTextMessage(to, body, timeMillis, true);
+	}
 }

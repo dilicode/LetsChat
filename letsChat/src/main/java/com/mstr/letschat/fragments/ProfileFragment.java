@@ -9,6 +9,7 @@ import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.model.LoginUserProfile;
 import com.mstr.letschat.tasks.LoadProfileTask;
 import com.mstr.letschat.tasks.Response.Listener;
+import com.mstr.letschat.utils.PreferenceUtils;
 
 public class ProfileFragment extends PreferenceFragment implements Listener<LoginUserProfile> {
 	@Override
@@ -23,8 +24,8 @@ public class ProfileFragment extends PreferenceFragment implements Listener<Logi
 	@Override
 	public void onResponse(LoginUserProfile profile) {
 		if (profile != null) {
-			findPreference(getString(R.string.avatar_preference)).setIcon(new BitmapDrawable(getResources(), profile.getAvatar()));
-			findPreference(getString(R.string.nickname_preference)).setSummary(profile.getNickname());
+			findPreference(PreferenceUtils.AVATAR).setIcon(new BitmapDrawable(getResources(), profile.getAvatar()));
+			findPreference(PreferenceUtils.NICKNAME).setSummary(profile.getNickname());
 		}
 	}
 	

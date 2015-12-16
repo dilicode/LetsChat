@@ -12,10 +12,10 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/attach_options_container_padding_horizontal"
-        android:paddingRight="@dimen/attach_options_container_padding_horizontal"
-        android:paddingTop="@dimen/attach_options_container_padding_vertical"
-        android:paddingBottom="@dimen/attach_options_container_padding_vertical"
+        android:paddingLeft="@dimen/attach_options_container_horizontal_padding"
+        android:paddingRight="@dimen/attach_options_container_horizontal_padding"
+        android:paddingTop="@dimen/attach_options_container_vertical_padding"
+        android:paddingBottom="@dimen/attach_options_container_vertical_padding"
         android:background="@android:color/background_light"
         android:visibility="gone" >
 

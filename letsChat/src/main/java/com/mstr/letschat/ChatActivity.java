@@ -25,11 +25,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewAnimationUtils;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -41,8 +41,11 @@ import com.mstr.letschat.service.MessageService;
 import com.mstr.letschat.service.MessageService.LocalBinder;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.tasks.SendChatMessageTask;
+import com.mstr.letschat.tasks.SendLocationTask;
 import com.mstr.letschat.utils.AppLog;
 import com.mstr.letschat.utils.Utils;
+import com.mstr.letschat.views.LocationView;
+import com.mstr.letschat.xmpp.UserLocation;
 
 public class ChatActivity extends Activity
 		implements OnClickListener, Listener<Boolean>, 
@@ -66,6 +69,17 @@ public class ChatActivity extends Activity
 	
 	private MessageService messageService;
 	private boolean bound = false;
+
+	private Listener<Boolean> sendLocationListener;
+
+	private AbsListView.RecyclerListener recyclerListener = new AbsListView.RecyclerListener() {
+		@Override
+		public void onMovedToScrapHeap(View view) {
+			if (view instanceof LocationView) {
+				((LocationView)view).onMovedToScrapHeap();
+			}
+		}
+	};
 	
 	private ServiceConnection serviceConnection = new ServiceConnection() {
 		@Override
@@ -100,6 +114,7 @@ public class ChatActivity extends Activity
 		messageListView = (ListView)findViewById(R.id.message_list);
 		adapter = new MessageCursorAdapter(this, null, 0);
 		messageListView.setAdapter(adapter);
+		messageListView.setRecyclerListener(recyclerListener);
 
 		initAttachOptions();
 
@@ -108,7 +123,19 @@ public class ChatActivity extends Activity
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 
 		getLoaderManager().initLoader(0, null, this);
+
+		initTaskListeners();
 	}		
+
+	private void initTaskListeners() {
+		sendLocationListener = new Listener<Boolean>() {
+			@Override
+			public void onResponse(Boolean result) {}
+
+			@Override
+			public void onErrorResponse(SmackInvocationException exception) {}
+		};
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -194,7 +221,11 @@ public class ChatActivity extends Activity
 				ChatMessageTable.COLUMN_NAME_MESSAGE,
 				ChatMessageTable.COLUMN_NAME_TIME,
 				ChatMessageTable.COLUMN_NAME_TYPE,
-				ChatMessageTable.COLUMN_NAME_STATUS
+				ChatMessageTable.COLUMN_NAME_STATUS,
+				ChatMessageTable.COLUMN_NAME_MESSAGE_TYPE,
+				ChatMessageTable.COLUMN_NAME_ADDRESS,
+				ChatMessageTable.COLUMN_NAME_LATITUDE,
+				ChatMessageTable.COLUMN_NAME_LONGITUDE
 		};
 
 		return new CursorLoader(this, ChatMessageTable.CONTENT_URI, projection,
@@ -326,16 +357,8 @@ public class ChatActivity extends Activity
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == REQUEST_PLACE_PICKER && resultCode == Activity.RESULT_OK) {
 			// The user has selected a place. Extract the name and address.
-			final Place place = PlacePicker.getPlace(data, this);
-
-			final CharSequence name = place.getName();
-			final CharSequence address = place.getAddress();
-			String attributions = PlacePicker.getAttributions(data);
-			if (attributions == null) {
-				attributions = "";
-			}
-
-			Toast.makeText(this, "name: " + name + " address: " + address, Toast.LENGTH_SHORT).show();
+			Place place = PlacePicker.getPlace(data, this);
+			new SendLocationTask(sendLocationListener, this, to, nickname, new UserLocation(place)).execute();
 		} else {
 			super.onActivityResult(requestCode, resultCode, data);
 		}
