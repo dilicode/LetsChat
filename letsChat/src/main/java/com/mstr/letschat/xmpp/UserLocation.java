@@ -71,7 +71,7 @@ public class UserLocation implements PacketExtension, Parcelable {
     public CharSequence toXML() {
         return String.format(
                 "<location xmlns='jabber:client'><type>%d</type><lat>%f</lat><lon>%f</lon><name>%s</name><addr>%s</addr></location>",
-                ChatMessageTableHelper.MESSAGE_TYPE_LOCATION, latitude, longitude, name, address);
+                ChatMessageTableHelper.TYPE_OUTGOING_LOCATION, latitude, longitude, name, address);
     }
 
     public double getLatitude() {

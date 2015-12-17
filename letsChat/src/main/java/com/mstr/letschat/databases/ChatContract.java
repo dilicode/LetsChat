@@ -29,7 +29,6 @@ public final class ChatContract {
 		public static final String COLUMN_NAME_MESSAGE = "message";
 		public static final String COLUMN_NAME_TIME = "time";
 		public static final String COLUMN_NAME_STATUS = "status";
-		public static final String COLUMN_NAME_MESSAGE_TYPE = "messageType";
 		public static final String COLUMN_NAME_LONGITUDE = "longitude";
 		public static final String COLUMN_NAME_LATITUDE = "latitude";
 		public static final String COLUMN_NAME_ADDRESS = "address";

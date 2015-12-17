@@ -73,12 +73,18 @@ public class AESEncryption {
     }
 
     public static String decrypt(Context context, String data) {
+        byte[] bytes = null;
+        try {
+            bytes = Base64.decode(data, Base64.DEFAULT);
+        } catch(IllegalArgumentException e) {
+            return data;
+        }
+
         try {
             SecretKey secretKey = getSecretKey(context);
             Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(iv));
 
-            byte[] bytes = Base64.decode(data, Base64.DEFAULT);
             return new String(cipher.doFinal(bytes));
         } catch(NoSuchAlgorithmException e){
             return data;

@@ -222,7 +222,6 @@ public class ChatActivity extends Activity
 				ChatMessageTable.COLUMN_NAME_TIME,
 				ChatMessageTable.COLUMN_NAME_TYPE,
 				ChatMessageTable.COLUMN_NAME_STATUS,
-				ChatMessageTable.COLUMN_NAME_MESSAGE_TYPE,
 				ChatMessageTable.COLUMN_NAME_ADDRESS,
 				ChatMessageTable.COLUMN_NAME_LATITUDE,
 				ChatMessageTable.COLUMN_NAME_LONGITUDE
