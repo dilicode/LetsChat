@@ -1,6 +1,5 @@
 package com.mstr.letschat;
 
-import android.app.ListActivity;
 import android.app.LoaderManager;
 import android.content.AsyncQueryHandler;
 import android.content.CursorLoader;
@@ -8,38 +7,55 @@ import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MenuItem.OnActionExpandListener;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.SearchView;
-import android.widget.SearchView.OnQueryTextListener;
+import android.widget.TextView;
 
 import com.mstr.letschat.adapters.ConversationCursorAdapter;
 import com.mstr.letschat.bitmapcache.ImageFetcher;
 import com.mstr.letschat.databases.ChatContract.ConversationTable;
 
-public class ConversationActivity extends ListActivity 
+public class ConversationActivity extends AppCompatActivity
 	implements LoaderManager.LoaderCallbacks<Cursor>,
-	OnQueryTextListener, OnActionExpandListener {
+		SearchView.OnQueryTextListener, MenuItemCompat.OnActionExpandListener {
 	
 	private ConversationCursorAdapter adapter;
 	
 	private String query;
 	
 	private ImageFetcher imageFetcher;
-	
+
+	private ListView listView;
+
+	private TextView emptyView;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.activity_conversation);
-		
+		listView = (ListView)findViewById(R.id.list);
+		emptyView = (TextView)findViewById(R.id.empty);
+
 		imageFetcher = ImageFetcher.getAvatarImageFetcher(this);
 		
 		adapter = new ConversationCursorAdapter(this, null, 0);
-		setListAdapter(adapter);
+		listView.setAdapter(adapter);
+		listView.setEmptyView(emptyView);
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				new ConversationQueryHandler(ConversationActivity.this).startQuery(0, null, ConversationTable.CONTENT_URI,
+						new String[]{ConversationTable.COLUMN_NAME_NAME, ConversationTable.COLUMN_NAME_NICKNAME},
+						ConversationTable._ID + " = ?", new String[]{String.valueOf(id)}, null);
+			}
+		});
 
 		getLoaderManager().initLoader(0, null, this);
 	}
@@ -48,9 +64,9 @@ public class ConversationActivity extends ListActivity
 		getMenuInflater().inflate(R.menu.conversation_menu, menu);
 		
 		MenuItem searchItem = menu.findItem(R.id.action_search);
-		SearchView searchView = (SearchView)searchItem.getActionView();
+		SearchView searchView = (SearchView)MenuItemCompat.getActionView(searchItem);
 		searchView.setOnQueryTextListener(this);
-		searchItem.setOnActionExpandListener(this);
+		MenuItemCompat.setOnActionExpandListener(searchItem, this);
 		
 		return true;
 	}
@@ -130,14 +146,7 @@ public class ConversationActivity extends ListActivity
 	private boolean hasQueryText() {
 		return query != null && !query.equals("");
 	}
-	
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		new ConversationQueryHandler(this).startQuery(0, null, ConversationTable.CONTENT_URI,
-				new String[]{ConversationTable.COLUMN_NAME_NAME, ConversationTable.COLUMN_NAME_NICKNAME},
-				ConversationTable._ID + " = ?", new String[]{String.valueOf(id)}, null);
-	}
-	
+
 	private static final class ConversationQueryHandler extends AsyncQueryHandler {
 		private ConversationActivity activity;
 		

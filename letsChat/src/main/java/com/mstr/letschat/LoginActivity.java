@@ -1,8 +1,8 @@
 package com.mstr.letschat;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -12,7 +12,7 @@ import android.widget.Toast;
 import com.mstr.letschat.tasks.LoginTask;
 import com.mstr.letschat.tasks.Response.Listener;
 
-public class LoginActivity extends Activity implements Listener<Boolean>, OnClickListener {
+public class LoginActivity extends AppCompatActivity implements Listener<Boolean>, OnClickListener {
 	private EditText phoneNumberText;
 	private EditText passwordText;
 	private Button loginButton;

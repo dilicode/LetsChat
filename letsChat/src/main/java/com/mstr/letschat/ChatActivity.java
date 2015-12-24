@@ -17,6 +17,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -47,7 +48,7 @@ import com.mstr.letschat.utils.Utils;
 import com.mstr.letschat.views.LocationView;
 import com.mstr.letschat.xmpp.UserLocation;
 
-public class ChatActivity extends Activity
+public class ChatActivity extends AppCompatActivity
 		implements OnClickListener, Listener<Boolean>, 
 		LoaderManager.LoaderCallbacks<Cursor>, TextWatcher {
 	
@@ -120,7 +121,7 @@ public class ChatActivity extends Activity
 
 		setTitle(nickname);
 		
-		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		getLoaderManager().initLoader(0, null, this);
 

@@ -1,6 +1,5 @@
 package com.mstr.letschat;
 
-import android.app.ListActivity;
 import android.app.LoaderManager;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -12,7 +11,9 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.widget.ListView;
 
 import com.mstr.letschat.adapters.ContactRequestCursorAdapter;
 import com.mstr.letschat.adapters.ContactRequestCursorAdapter.OnAcceptButtonClickListener;
@@ -23,8 +24,10 @@ import com.mstr.letschat.service.MessageService;
 import com.mstr.letschat.tasks.AcceptContactRequestTask;
 import com.mstr.letschat.tasks.Response.Listener;
 
-public class ContactRequestListActivity extends ListActivity 
+public class ContactRequestListActivity extends AppCompatActivity
 	implements LoaderManager.LoaderCallbacks<Cursor>, OnAcceptButtonClickListener {
+
+	private ListView listView;
 	
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
@@ -40,15 +43,16 @@ public class ContactRequestListActivity extends ListActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		getActionBar().setHomeButtonEnabled(true);
-		
+
+		setContentView(R.layout.activity_contact_requests);
+		listView = (ListView)findViewById(R.id.list);
+
 		// Create an empty adapter we will use to display the loaded data.
 		adapter = new ContactRequestCursorAdapter(this, null, 0);
 		adapter.setOnAcceptButtonClicklistener(this);
-		setListAdapter(adapter);
+		listView.setAdapter(adapter);
 		
-		getListView().setItemsCanFocus(false);
+		listView.setItemsCanFocus(false);
 		
 		getLoaderManager().initLoader(0, null, this);
 	}

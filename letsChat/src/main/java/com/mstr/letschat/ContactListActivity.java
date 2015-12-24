@@ -1,29 +1,29 @@
 package com.mstr.letschat;
 
-import android.app.ListActivity;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MenuItem.OnActionExpandListener;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.SearchView;
-import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
 
 import com.mstr.letschat.adapters.ContactCursorAdapter;
 import com.mstr.letschat.bitmapcache.ImageFetcher;
 import com.mstr.letschat.databases.ChatContract.ContactTable;
 
-public class ContactListActivity extends ListActivity 
+public class ContactListActivity extends AppCompatActivity
 	implements LoaderManager.LoaderCallbacks<Cursor>,
-	OnQueryTextListener, OnClickListener, OnActionExpandListener {
+		SearchView.OnQueryTextListener, OnClickListener, MenuItemCompat.OnActionExpandListener {
 	
 	private TextView newContactsText;
 	private View contactsDivider;
@@ -32,11 +32,17 @@ public class ContactListActivity extends ListActivity
 	private String query;
 	
 	private ImageFetcher imageFetcher;
+
+	private ListView listView;
+
+	private TextView emptyView;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.activity_contacts);
+		listView = (ListView)findViewById(R.id.list);
+		emptyView = (TextView)findViewById(R.id.empty);
 		
 		newContactsText = (TextView)findViewById(R.id.tv_new_contacts);
 		newContactsText.setOnClickListener(this);
@@ -45,9 +51,21 @@ public class ContactListActivity extends ListActivity
 		imageFetcher = ImageFetcher.getAvatarImageFetcher(this);
 		
 		adapter = new ContactCursorAdapter(this, null, 0);
-		setListAdapter(adapter);
-		
-		getActionBar().setDisplayHomeAsUpEnabled(true);
+		listView.setAdapter(adapter);
+		listView.setEmptyView(emptyView);
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Cursor cursor = (Cursor)adapter.getItem(position);
+
+				Intent intent = new Intent(ContactListActivity.this, ChatActivity.class);
+				intent.putExtra(ChatActivity.EXTRA_DATA_NAME_TO, cursor.getString(cursor.getColumnIndex(ContactTable.COLUMN_NAME_JID)));
+				intent.putExtra(ChatActivity.EXTRA_DATA_NAME_NICKNAME, cursor.getString(cursor.getColumnIndex(ContactTable.COLUMN_NAME_NICKNAME)));
+				startActivity(intent);
+			}
+		});
+
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		
 		getLoaderManager().initLoader(0, null, this);
 	}
@@ -55,11 +73,11 @@ public class ContactListActivity extends ListActivity
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.contact_list_menu, menu);
-		
+
 		MenuItem searchItem = menu.findItem(R.id.action_search);
-		SearchView searchView = (SearchView)searchItem.getActionView();
+		SearchView searchView = (SearchView)MenuItemCompat.getActionView(searchItem);
 		searchView.setOnQueryTextListener(this);
-		searchItem.setOnActionExpandListener(this);
+		MenuItemCompat.setOnActionExpandListener(searchItem, this);
 		
 		return true;
 	}
@@ -111,16 +129,6 @@ public class ContactListActivity extends ListActivity
 		return true;
 	}
 
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		Cursor cursor = (Cursor)adapter.getItem(position);
-		
-		Intent intent = new Intent(this, ChatActivity.class);
-		intent.putExtra(ChatActivity.EXTRA_DATA_NAME_TO, cursor.getString(cursor.getColumnIndex(ContactTable.COLUMN_NAME_JID)));
-		intent.putExtra(ChatActivity.EXTRA_DATA_NAME_NICKNAME, cursor.getString(cursor.getColumnIndex(ContactTable.COLUMN_NAME_NICKNAME)));
-		startActivity(intent);
-	}
-	
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		String[] projection = new String[] {

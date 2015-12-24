@@ -1,7 +1,7 @@
 package com.mstr.letschat;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,7 +16,7 @@ import com.mstr.letschat.tasks.LoadStatusTask;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.tasks.SaveStatusTask;
 
-public class SetStatusActivity extends Activity implements OnItemClickListener {
+public class SetStatusActivity extends AppCompatActivity implements OnItemClickListener {
 	private TextView statusText;
 	private ProgressBar progressBar;
 	private ListView listView;
@@ -61,7 +61,7 @@ public class SetStatusActivity extends Activity implements OnItemClickListener {
 		listView.setOnItemClickListener(this);
 		
 		
-		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		
 		new LoadStatusTask(getStatusListener, this).execute();
 	}

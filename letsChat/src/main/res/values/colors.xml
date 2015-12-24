@@ -7,4 +7,7 @@
 	<color name="selected_status">#336699</color>
 	<color name="splash_background_top">#39b44a</color>
 	<color name="splash_background_bottom">#0fad68</color>
+	<color name="colorPrimary">#3F51B5</color>
+	<color name="colorPrimaryDark">#303F9F</color>
+	<color name="colorAccent">#FF4081</color>
 </resources>

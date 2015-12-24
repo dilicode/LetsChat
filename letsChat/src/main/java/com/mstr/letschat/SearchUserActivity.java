@@ -1,15 +1,15 @@
 package com.mstr.letschat;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
-import android.widget.SearchView;
-import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,7 +17,7 @@ import com.mstr.letschat.model.UserProfile;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.tasks.SearchUserTask;
 
-public class SearchUserActivity extends Activity implements OnQueryTextListener, Listener<UserProfile>, OnClickListener {
+public class SearchUserActivity extends AppCompatActivity implements SearchView.OnQueryTextListener, Listener<UserProfile>, OnClickListener {
 	private SearchUserTask task;
 	
 	private LinearLayout hintWrapper;
@@ -34,16 +34,16 @@ public class SearchUserActivity extends Activity implements OnQueryTextListener,
 		hintText = (TextView)findViewById(R.id.tv_hint);
 		hintText.setOnClickListener(this);
 		
-		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.add_contact_menu, menu);
-		
+
 		MenuItem searchItem = menu.findItem(R.id.action_search);
 		searchItem.expandActionView();
-		searchView = (SearchView)searchItem.getActionView();
+		searchView = (SearchView)MenuItemCompat.getActionView(searchItem);
 		searchView.setOnQueryTextListener(this);
 		searchView.setQueryHint(getResources().getText(R.string.cell_phone_number));
 		

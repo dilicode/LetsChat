@@ -1,8 +1,8 @@
 package com.mstr.letschat;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,7 +13,7 @@ import com.mstr.letschat.tasks.LoginTask;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.utils.PreferenceUtils;
 
-public class StartupActivity extends Activity implements OnClickListener, Listener<Boolean> {
+public class StartupActivity extends AppCompatActivity implements OnClickListener, Listener<Boolean> {
 	private static final int REQUEST_CODE_LOGIN = 1;
 	private static final int REQUEST_CODE_SIGNUP = 2;
 

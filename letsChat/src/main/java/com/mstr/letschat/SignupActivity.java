@@ -1,11 +1,11 @@
 package com.mstr.letschat;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -26,7 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class SignupActivity extends Activity implements OnClickListener, Listener<Boolean> {
+public class SignupActivity extends AppCompatActivity implements OnClickListener, Listener<Boolean> {
 	private static final int REQUEST_CODE_SELECT_PICTURE = 1;
 	private static final int REQUEST_CODE_CROP_IMAGE = 2;
 	

@@ -1,8 +1,5 @@
 package com.mstr.letschat;
 
-import java.lang.ref.WeakReference;
-
-import android.app.Activity;
 import android.content.AsyncQueryHandler;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -11,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,7 +23,9 @@ import com.mstr.letschat.model.UserProfile;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.tasks.SendContactRequestTask;
 
-public class UserProfileActivity extends Activity implements OnClickListener {
+import java.lang.ref.WeakReference;
+
+public class UserProfileActivity extends AppCompatActivity implements OnClickListener {
 	public static final String EXTRA_DATA_NAME_USER_PROFILE = "com.mstr.letschat.UserProfile";
 	
 	private UserProfile profile;
@@ -66,7 +66,7 @@ public class UserProfileActivity extends Activity implements OnClickListener {
 			getContentResolver().registerContentObserver(ContactTable.CONTENT_URI, true, contactObserver);
 		}
 		
-		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 	
 	@Override

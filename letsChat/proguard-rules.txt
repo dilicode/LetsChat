@@ -1,5 +1,2 @@
 -keep class org.jivesoftware.** { *; }
 -dontwarn sun.net.spi.nameservice.**
-
--keep class com.google.android.gms.** { *; }
--dontwarn com.google.android.gms.**
