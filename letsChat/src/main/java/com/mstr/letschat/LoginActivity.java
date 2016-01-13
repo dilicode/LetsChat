@@ -16,6 +16,8 @@ public class LoginActivity extends AppCompatActivity implements Listener<Boolean
 	private EditText phoneNumberText;
 	private EditText passwordText;
 	private Button loginButton;
+
+	private LoginTask loginTask;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -33,14 +35,15 @@ public class LoginActivity extends AppCompatActivity implements Listener<Boolean
 	@Override
 	public void onClick(View v) {
 		if (v == loginButton) {
-			new LoginTask(this, this, phoneNumberText.getText().toString(), passwordText.getText().toString(), true).execute();
+			loginTask = new LoginTask(this, this, phoneNumberText.getText().toString(), passwordText.getText().toString());
+			loginTask.execute();
 		}
 	}
 
 	@Override
 	public void onResponse(Boolean response) {
 		if (response) {
-			startActivity(new Intent(this, ConversationActivity.class));
+			startActivity(new Intent(this, MainActivity.class));
 
 			setResult(RESULT_OK);
 			finish();
@@ -53,6 +56,15 @@ public class LoginActivity extends AppCompatActivity implements Listener<Boolean
 			Toast.makeText(this, R.string.invalid_credentials, Toast.LENGTH_SHORT).show();
 		} else {
 			Toast.makeText(this, R.string.login_error, Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+
+		if (loginTask != null) {
+			loginTask.cancel(false);
 		}
 	}
 }

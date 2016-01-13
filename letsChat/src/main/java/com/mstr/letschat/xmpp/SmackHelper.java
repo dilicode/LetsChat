@@ -3,6 +3,7 @@ package com.mstr.letschat.xmpp;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.mstr.letschat.SmackInvocationException;
@@ -10,6 +11,7 @@ import com.mstr.letschat.model.SubscribeInfo;
 import com.mstr.letschat.model.UserProfile;
 import com.mstr.letschat.service.MessageService;
 import com.mstr.letschat.utils.PreferenceUtils;
+import com.mstr.letschat.utils.Utils;
 
 import org.jivesoftware.smack.AccountManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -76,6 +78,9 @@ public class SmackHelper {
 	private SmackContactHelper contactHelper;
 	
 	private SmackVCardHelper vCardHelper;
+
+	public static final String ACTION_CONNECTION_CHANGED = "com.mstr.letschat.intent.action.CONNECTION_CHANGED";
+	public static final String EXTRA_NAME_STATE = "com.mstr.letschat.State";
 	
 	private SmackHelper(Context context) {
 		this.context = context;
@@ -185,8 +190,8 @@ public class SmackHelper {
 				con.connect();
 			} catch(Exception e) {
 				Log.e(LOG_TAG, String.format("Unhandled exception %s", e.toString()), e);
-				
-				startReconnect();
+
+				startReconnectIfNecessary();
 				
 				throw new SmackInvocationException(e);
 			}
@@ -251,9 +256,17 @@ public class SmackHelper {
 			con.addConnectionListener(createConnectionListener());
 			
 			setState(State.CONNECTED);
+
+			broadcastState(State.CONNECTED);
 		}
 	}
-	
+
+	private void broadcastState(State state) {
+		Intent intent = new Intent(ACTION_CONNECTION_CHANGED);
+		intent.putExtra(EXTRA_NAME_STATE, state.toString());
+		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+	}
+
 	public void login(String username, String password) throws SmackInvocationException {
 		connect();
 		
@@ -269,9 +282,9 @@ public class SmackHelper {
 			if (exception.isCausedBySASLError()) {
 				cleanupConnection();
 			} else {
-				startReconnect();
+				startReconnectIfNecessary();
 			}
-			
+
 			throw exception;
 		}
 	}
@@ -329,8 +342,8 @@ public class SmackHelper {
 				// it may be due to network is not available or server is down, update state to WAITING_TO_CONNECT
 				// and schedule an automatic reconnect
 				Log.e(LOG_TAG, "xmpp disconnected due to error ", arg0);
-				
-				startReconnect();
+
+				startReconnectIfNecessary();
 			}
 
 			@Override
@@ -346,12 +359,14 @@ public class SmackHelper {
 		return connectionListener;
 	}
 	
-	private void startReconnect() {
+	private void startReconnectIfNecessary() {
 		cleanupConnection();
 		
 		setState(State.WAITING_TO_CONNECT);
-		
-		context.startService(new Intent(MessageService.ACTION_RECONNECT, null, context, MessageService.class));
+
+		if (Utils.isNetworkConnected(context)) {
+			context.startService(new Intent(MessageService.ACTION_RECONNECT, null, context, MessageService.class));
+		}
 	}
 	
 	private boolean isConnected() {
@@ -422,7 +437,7 @@ public class SmackHelper {
 		smackAndroid.onDestroy();
 	}
 	
-	private static enum State {
+	public static enum State {
 		CONNECTING,
 		
 		CONNECTED,

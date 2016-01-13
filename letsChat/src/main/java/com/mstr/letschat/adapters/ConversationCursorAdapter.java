@@ -1,8 +1,5 @@
 package com.mstr.letschat.adapters;
 
-import java.text.DateFormat;
-import java.util.Date;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.Cursor;
@@ -12,10 +9,12 @@ import android.widget.ImageView;
 import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
 
-import com.mstr.letschat.ConversationActivity;
 import com.mstr.letschat.R;
 import com.mstr.letschat.bitmapcache.ImageFetcher;
 import com.mstr.letschat.databases.ChatContract.ConversationTable;
+
+import java.text.DateFormat;
+import java.util.Date;
 
 public class ConversationCursorAdapter extends ResourceCursorAdapter {
 	private int primaryTextColor;
@@ -24,8 +23,9 @@ public class ConversationCursorAdapter extends ResourceCursorAdapter {
 	
 	private ImageFetcher imageFetcher;
 	
-	public ConversationCursorAdapter(ConversationActivity context, Cursor c, int flags) {
-		super(context, R.layout.conversation_list_item, c, flags);
+	public ConversationCursorAdapter(Context context, Cursor c, ImageFetcher imageFetcher) {
+		super(context, R.layout.conversation_list_item, c, 0);
+		this.imageFetcher = imageFetcher;
 		
 		TypedArray a = context.obtainStyledAttributes(new int[] {android.R.attr.textColorPrimary});
 		primaryTextColor = a.getColor(0, 0);
@@ -34,8 +34,6 @@ public class ConversationCursorAdapter extends ResourceCursorAdapter {
 		subTextColor = context.getResources().getColor(R.color.sub_text_color);
 		
 		dateFormat = DateFormat.getDateInstance();
-		
-		imageFetcher = context.getImageFetcher();
 	}
 	
 	@Override

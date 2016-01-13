@@ -326,7 +326,7 @@ public class ChatActivity extends AppCompatActivity
 		attachLocationButton.setOnClickListener(this);
 	}
 
-	public static PendingIntent getChatActivityPendingIntent(Context context, String to, String nickname) {
+	public static PendingIntent getNotificationPendingIntent(Context context, String to, String nickname) {
 		TaskStackBuilder taskStackbuilder = TaskStackBuilder.create(context);
 		taskStackbuilder.addParentStack(ChatActivity.class);
 		Intent intent = new Intent(context, ChatActivity.class);
@@ -334,7 +334,7 @@ public class ChatActivity extends AppCompatActivity
 		intent.putExtra(ChatActivity.EXTRA_DATA_NAME_NICKNAME, nickname);
 		taskStackbuilder.addNextIntent(intent);
 		
-		return taskStackbuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+		return taskStackbuilder.getPendingIntent(1, PendingIntent.FLAG_UPDATE_CURRENT);
 	}
 
 	private void sendLocation() {

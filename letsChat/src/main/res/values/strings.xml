@@ -10,6 +10,7 @@
 	<string name="chats">Chats</string>
 	<string name="add_contact">Add contact</string>
 	<string name="select_contact">Select contact</string>
+	<string name="contacts">contacts</string>
 	<string name="new_chat">New chat</string>
 	<string name="search">Search:</string>
 	<string name="search_contact_no_result">No result</string>
@@ -68,4 +69,5 @@
 	<string name="gallery">Gallery</string>
 	<string name="photo">Photo</string>
 	<string name="location">Location</string>
+	<string name="default_server_ip">52.32.181.170</string>
 </resources>

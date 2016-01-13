@@ -22,7 +22,7 @@ public class IncomingContactRequestReceiver extends BroadcastReceiver {
 			stackBuilder.addParentStack(ContactRequestListActivity.class);
 			stackBuilder.addNextIntent(new Intent(context, ContactRequestListActivity.class));
 			
-			PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+			PendingIntent pendingIntent = stackBuilder.getPendingIntent(1, PendingIntent.FLAG_UPDATE_CURRENT);
 			
 			NotificationUtils.notify(context, context.getString(R.string.app_name),
 					intent.getStringExtra(MessageService.EXTRA_DATA_NAME_NOTIFICATION_TEXT),

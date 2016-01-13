@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.mstr.letschat.R;
+
 public class PreferenceUtils {
 	public static final String USERNAME = "user";
 	public static final String PASSWORD = "password";
@@ -36,7 +38,8 @@ public class PreferenceUtils {
 	}
 
 	public static String getServerHost(Context context) {
-		return getSharedPreferences(context).getString(SERVER_ADDRESS, null);
+		String serverHost = getSharedPreferences(context).getString(SERVER_ADDRESS, null);
+		return serverHost == null ? context.getString(R.string.default_server_ip) : serverHost;
 	}
 
 	public static SharedPreferences getSharedPreferences(Context context) {

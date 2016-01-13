@@ -10,6 +10,7 @@
   <string name="chats">对话</string>
   <string name="add_contact">添加好友</string>
   <string name="select_contact">选择联系人</string>
+  <string name="contacts">联系人</string>
   <string name="new_chat">新建对话</string>
   <string name="search">搜索:</string>
   <string name="search_contact_no_result">没有符合条件的结果</string>

@@ -309,7 +309,7 @@ public class MessageService extends Service {
 	}
 	
 	private void showContactRequestApprovedNotification(String from, String fromNickname) {
-		PendingIntent pendingIntent = ChatActivity.getChatActivityPendingIntent(this, from, fromNickname);
+		PendingIntent pendingIntent = ChatActivity.getNotificationPendingIntent(this, from, fromNickname);
 		
 		NotificationUtils.notify(this, fromNickname,
 				getString(R.string.acceptance_text),
@@ -409,7 +409,7 @@ public class MessageService extends Service {
 		
 		// show notification
 		if (!isInConversationWith(from)) {
-			PendingIntent pendingIntent = ChatActivity.getChatActivityPendingIntent(this, from, nickname);
+			PendingIntent pendingIntent = ChatActivity.getNotificationPendingIntent(this, from, nickname);
 			String notifyText = unreadCount == 1 ? body : String.format("%s %s", unreadCount, getString(R.string.new_messages));
 			
 			NotificationUtils.notify(this, nickname, notifyText, INCOMING_MESSAGE_NOTIFICATION_ID, pendingIntent);

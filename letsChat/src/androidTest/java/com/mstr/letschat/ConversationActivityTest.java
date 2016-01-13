@@ -6,11 +6,11 @@ import android.test.suitebuilder.annotation.MediumTest;
 /**
  * Created by dilli on 7/26/2015.
  */
-public class ConversationActivityTest extends ActivityInstrumentationTestCase2<ConversationActivity> {
-    private ConversationActivity activity;
+public class ConversationActivityTest extends ActivityInstrumentationTestCase2<ConversationFragment> {
+    private ConversationFragment activity;
 
     public ConversationActivityTest() {
-        super(ConversationActivity.class);
+        super(ConversationFragment.class);
     }
 
     @Override

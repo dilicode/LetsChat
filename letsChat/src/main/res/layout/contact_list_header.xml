@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical" >
+
 	<TextView
 	    android:id="@+id/tv_new_contacts"
 		android:layout_width="match_parent"
@@ -7,12 +12,12 @@
 	    android:padding="10dp"
 		android:text="@string/new_contacts"
 		android:textAppearance="?android:attr/textAppearanceListItemSmall"
-		android:gravity="center_vertical">
-	</TextView>
-	
+		android:gravity="center_vertical"
+		android:clickable="true" />
+
 	<View
 	    android:id="@+id/contacts_divider"
 	    android:layout_width="match_parent"
 	    android:layout_height="20dp"
 	    android:background="#d9d9d9" />
-</merge>
+</LinearLayout>

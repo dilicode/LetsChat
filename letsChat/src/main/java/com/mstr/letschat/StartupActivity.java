@@ -7,13 +7,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Toast;
 
-import com.mstr.letschat.tasks.LoginTask;
-import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.utils.PreferenceUtils;
 
-public class StartupActivity extends AppCompatActivity implements OnClickListener, Listener<Boolean> {
+public class StartupActivity extends AppCompatActivity implements OnClickListener {
 	private static final int REQUEST_CODE_LOGIN = 1;
 	private static final int REQUEST_CODE_SIGNUP = 2;
 
@@ -23,7 +20,8 @@ public class StartupActivity extends AppCompatActivity implements OnClickListene
 		setContentView(R.layout.activity_startup);
 		
 		if (PreferenceUtils.getUser(this) != null) {
-			new LoginTask(this, this, PreferenceUtils.getUser(this), PreferenceUtils.getPassword(this), false).execute();
+			startMainActivity();
+			return;
 		} else {
 			findViewById(R.id.ll_buttons_container).setVisibility(View.VISIBLE);
 		}
@@ -67,21 +65,8 @@ public class StartupActivity extends AppCompatActivity implements OnClickListene
 		}
 	}
 
-	@Override
-	public void onResponse(Boolean result) {
-		if (result) {
-			startConversationActivity();
-		}
-	}
-
-	@Override
-	public void onErrorResponse(SmackInvocationException exception) {
-		Toast.makeText(this, R.string.login_error, Toast.LENGTH_SHORT).show();
-		startConversationActivity();
-	}
-	
-	private void startConversationActivity() {
-		startActivity(new Intent(this, ConversationActivity.class));
+	private void startMainActivity() {
+		startActivity(new Intent(this, MainActivity.class));
 		finish();
 	}
 }

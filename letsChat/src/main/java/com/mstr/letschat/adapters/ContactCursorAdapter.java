@@ -8,7 +8,6 @@ import android.widget.ImageView;
 import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
 
-import com.mstr.letschat.ContactListActivity;
 import com.mstr.letschat.R;
 import com.mstr.letschat.bitmapcache.ImageFetcher;
 import com.mstr.letschat.databases.ChatContract.ContactTable;
@@ -16,10 +15,10 @@ import com.mstr.letschat.databases.ChatContract.ContactTable;
 public class ContactCursorAdapter extends ResourceCursorAdapter {
 	private ImageFetcher imageFetcher;
 	
-	public ContactCursorAdapter(ContactListActivity context, Cursor c, int flags) {
-		super(context, R.layout.contact_list_item, c, flags);
+	public ContactCursorAdapter(Context context, Cursor c, ImageFetcher imageFetcher) {
+		super(context, R.layout.contact_list_item, c, 0);
 		
-		imageFetcher = context.getImageFetcher();
+		this.imageFetcher = imageFetcher;
 	}
 	
 	@Override

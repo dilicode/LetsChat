@@ -34,33 +34,26 @@
 		<activity android:name=".SignupActivity" />
 		
 		<activity android:name=".LoginActivity" />
-		
-		<activity android:name=".ChatActivity" android:windowSoftInputMode="stateHidden|adjustResize" android:theme="@style/AppTheme"
-		    android:parentActivityName=".ConversationActivity">
-		    <meta-data
-		        android:name="android.support.PARENT_ACTIVITY"
-		        android:value=".ConversationActivity" />
+
+		<activity android:name=".MainActivity" android:theme="@style/AppTheme.NoActionBar" />
+
+		<activity android:name=".ChatActivity" android:windowSoftInputMode="stateHidden|adjustResize" android:theme="@style/AppTheme" android:parentActivityName=".MainActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".MainActivity" />
 		</activity>
-		
-		<activity android:name=".ConversationActivity" android:label="@string/chats" />
-		
+
 		<activity android:name=".SearchUserActivity" android:label="@string/search_contact" />
 		
 		<activity android:name=".SetStatusActivity" android:label="@string/status" android:theme="@style/AppTheme" />
 		
-		<activity android:name=".ContactListActivity" android:label="@string/select_contact" android:parentActivityName=".ConversationActivity">
-		    <meta-data
-		        android:name="android.support.PARENT_ACTIVITY"
-		        android:value=".ConversationActivity" />
+		<activity android:name=".ContactRequestListActivity" android:label="@string/new_contacts" android:parentActivityName=".MainActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".MainActivity" />
 		</activity>
-		
-		<activity android:name=".ContactRequestListActivity" android:label="@string/new_contacts" android:parentActivityName=".ContactListActivity">
-		    <meta-data
-		        android:name="android.support.PARENT_ACTIVITY"
-		        android:value=".ContactListActivity" />
-		</activity>
-		
-		<activity android:name="de.duenndns.ssl.MemorizingActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+		<activity android:name="de.duenndns.ssl.MemorizingActivity" android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 		
 		<activity android:name="com.android.camera.CropImage" />
 		

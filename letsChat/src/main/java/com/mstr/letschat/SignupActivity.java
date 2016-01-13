@@ -102,7 +102,7 @@ public class SignupActivity extends AppCompatActivity implements OnClickListener
 		if (result) {
 			Toast.makeText(this, R.string.login_success, Toast.LENGTH_SHORT).show();
 			
-			startActivity(new Intent(this, ConversationActivity.class));
+			startActivity(new Intent(this, MainActivity.class));
 
 			setResult(RESULT_OK);
 			finish();
