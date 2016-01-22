@@ -1,7 +1,5 @@
 package com.mstr.letschat.bitmapcache;
 
-import java.lang.ref.WeakReference;
-
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -11,6 +9,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.widget.ImageView;
 
 import com.mstr.letschat.R;
@@ -18,8 +18,9 @@ import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.bitmapcache.ImageCache.ImageCacheParams;
 import com.mstr.letschat.model.UserProfile;
 import com.mstr.letschat.utils.AppLog;
-import com.mstr.letschat.utils.Utils;
 import com.mstr.letschat.xmpp.SmackHelper;
+
+import java.lang.ref.WeakReference;
 
 public class ImageFetcher {
 	private Context context;
@@ -78,8 +79,8 @@ public class ImageFetcher {
 		if (jid == null) {
 			return;
 		}
-		
-		BitmapDrawable value = null;
+
+		RoundedBitmapDrawable value = null;
 		
 		if (imageCache != null) {
 			value = imageCache.getBitmapFromMemCache(jid);
@@ -120,7 +121,7 @@ public class ImageFetcher {
 		return null;
 	}
 	
-	public class BitmapWorkerTask extends AsyncTask<String, Void, BitmapDrawable> {
+	public class BitmapWorkerTask extends AsyncTask<String, Void, Drawable> {
 		WeakReference<ImageView> imageViewReference;
 		String jid;
 		
@@ -130,9 +131,9 @@ public class ImageFetcher {
 		}
 		
 		@Override
-		protected BitmapDrawable doInBackground(String... params) {
+		protected Drawable doInBackground(String... params) {
 			Bitmap bitmap = null;
-			BitmapDrawable drawable = null;
+			RoundedBitmapDrawable drawable = null;
 			
 			if (imageCache != null && !isCancelled() && getAttachedImageView() != null) {
 				bitmap = imageCache.getBitmapFromDiskCache(jid);
@@ -155,25 +156,18 @@ public class ImageFetcher {
 			}
 				
 			if (bitmap != null) {
-                if (Utils.hasHoneycomb()) {
-                    // Running on Honeycomb or newer, so wrap in a standard BitmapDrawable
-                    drawable = new BitmapDrawable(resources, bitmap);
-                } else {
-                    // Running on Gingerbread or older, so wrap in a RecyclingBitmapDrawable
-                    // which will recycle automagically
-                }
-
-                if (imageCache != null) {
-                	imageCache.addBitmapToCache(jid, drawable);
-                }
+				if (imageCache != null) {
+					drawable = RoundedBitmapDrawableFactory.create(context.getResources(), bitmap);
+					drawable.setCircular(true);
+					imageCache.addBitmapToCache(jid, drawable);
+				}
 			}
-				
-			
+
 			return drawable;
 		}
 		
 		@Override
-		protected void onPostExecute(BitmapDrawable drawable) {
+		protected void onPostExecute(Drawable drawable) {
 			if (isCancelled()) {
 				drawable = null;
 			}

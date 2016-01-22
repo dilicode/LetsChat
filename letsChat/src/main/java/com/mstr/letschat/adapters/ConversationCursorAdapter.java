@@ -14,6 +14,7 @@ import com.mstr.letschat.bitmapcache.ImageFetcher;
 import com.mstr.letschat.databases.ChatContract.ConversationTable;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class ConversationCursorAdapter extends ResourceCursorAdapter {
@@ -33,7 +34,7 @@ public class ConversationCursorAdapter extends ResourceCursorAdapter {
 		
 		subTextColor = context.getResources().getColor(R.color.sub_text_color);
 		
-		dateFormat = DateFormat.getDateInstance();
+		dateFormat = new SimpleDateFormat("MM/dd/yy");
 	}
 	
 	@Override

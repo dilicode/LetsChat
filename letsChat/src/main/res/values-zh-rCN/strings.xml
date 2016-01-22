@@ -52,7 +52,7 @@
   <string name="incomplete_signup_info">请输入完整个人信息</string>
   <string name="profile_avatar">头像</string>
   <string name="profile_nickname">昵称</string>
-  <string name="title_traffic_stats_fragment">网络使用流量</string>
+  <string name="title_network_usage_fragment">网络使用流量</string>
   <string name="title_profile_fragment">个人资料</string>
   <string name="title_traffic_transmitted_preference">发送消息流量</string>
   <string name="title_traffic_received_preference">接收消息流量</string>

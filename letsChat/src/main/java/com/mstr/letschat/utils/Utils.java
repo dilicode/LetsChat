@@ -16,9 +16,6 @@
 
 package com.mstr.letschat.utils;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
 
@@ -56,12 +53,5 @@ public class Utils {
 
 	public static boolean hasLollipop() {
 		return Build.VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP;
-	}
-
-	public static boolean isNetworkConnected(Context context) {
-		ConnectivityManager conn = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo networkInfo = conn.getActiveNetworkInfo();
-
-		return networkInfo != null && networkInfo.isConnected();
 	}
 }

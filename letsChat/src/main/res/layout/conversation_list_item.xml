@@ -28,12 +28,15 @@
 	            android:layout_width="0dp"
 	            android:layout_height="wrap_content"
 	            android:layout_weight="1"
-	            android:textAppearance="?android:attr/textAppearanceMedium" />
+	            android:textAppearance="?android:attr/textAppearanceListItemSmall" />
 			
 			<TextView 
 			    android:id="@+id/tv_date"
 			    android:layout_width="wrap_content"
-			    android:layout_height="wrap_content" />
+			    android:layout_height="wrap_content"
+				android:textColor="?android:attr/textColorSecondary"
+				android:textAppearance="?android:attr/textAppearanceListItemSmall"
+				android:textSize="14sp" />
 		</LinearLayout>
 		
 		<LinearLayout
@@ -47,7 +50,8 @@
 				android:layout_weight="1"
 				android:singleLine="true"
 				android:ellipsize="end"
-				android:textAppearance="?android:attr/textAppearanceMedium" />
+				android:textColor="?android:attr/textColorSecondary"
+				android:textAppearance="?android:attr/textAppearanceListItemSmall" />
 			
 			<TextView
 				android:id="@+id/tv_unread_count"

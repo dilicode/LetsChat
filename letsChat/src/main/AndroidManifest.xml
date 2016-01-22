@@ -59,7 +59,7 @@
 		
 		<activity android:name=".UserProfileActivity" android:label="@string/contact_profile" android:theme="@style/AppTheme" />
 		
-		<activity android:name=".SettingsActivity" android:label="@string/settings" />
+		<activity android:name=".SettingsActivity" android:label="@string/settings" android:hardwareAccelerated="false" />
 
 		<activity android:name=".ServerSettingsActivity" android:label="@string/server" />
 		
@@ -67,6 +67,12 @@
 		    <intent-filter>
 		        <action android:name="android.intent.action.BOOT_COMPLETED" />
 		    </intent-filter>
+		</receiver>
+
+		<receiver android:name=".receivers.ShutDownReceiver">
+			<intent-filter>
+				<action android:name="android.intent.action.ACTION_SHUTDOWN" />
+			</intent-filter>
 		</receiver>
 		
 		<receiver android:name=".receivers.IncomingContactRequestReceiver" android:exported="false">

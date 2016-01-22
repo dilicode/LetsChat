@@ -1,7 +1,5 @@
 package com.mstr.letschat.tasks;
 
-import java.lang.ref.WeakReference;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.widget.TextView;
@@ -12,6 +10,8 @@ import com.mstr.letschat.adapters.StatusListAdapter;
 import com.mstr.letschat.tasks.Response.Listener;
 import com.mstr.letschat.utils.AppLog;
 import com.mstr.letschat.xmpp.SmackHelper;
+
+import java.lang.ref.WeakReference;
 
 public class SaveStatusTask extends BaseAsyncTask<Void, Void, Boolean> {
 	private int position;
@@ -50,7 +50,7 @@ public class SaveStatusTask extends BaseAsyncTask<Void, Void, Boolean> {
 	
 	@Override
 	protected void onPostExecute(Response<Boolean> response) {
-		dialog.dismiss();
+		dismissDialog();
 		
 		Listener<Boolean> listener = getListener();
 		if (listener != null && response != null) {
@@ -72,6 +72,18 @@ public class SaveStatusTask extends BaseAsyncTask<Void, Void, Boolean> {
 	
 	@Override
 	protected void onCancelled() {
-		dialog.dismiss();
+		super.onCancelled();
+		dismissDialog();
+	}
+
+	public void dismissDialog() {
+		if (dialog != null && dialog.isShowing()) {
+			dialog.dismiss();
+		}
+	}
+
+	public void dismissDialogAndCancel() {
+		dismissDialog();
+		cancel(false);
 	}
 }

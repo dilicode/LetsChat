@@ -3,6 +3,7 @@ package com.mstr.letschat;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -30,6 +31,19 @@ public class LoginActivity extends AppCompatActivity implements Listener<Boolean
 		loginButton = (Button)findViewById(R.id.btn_login);
 		
 		loginButton.setOnClickListener(this);
+
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				finish();
+				return true;
+		}
+
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -64,7 +78,7 @@ public class LoginActivity extends AppCompatActivity implements Listener<Boolean
 		super.onDestroy();
 
 		if (loginTask != null) {
-			loginTask.cancel(false);
+			loginTask.dismissDialogAndCancel();
 		}
 	}
 }

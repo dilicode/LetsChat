@@ -8,11 +8,11 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.StatFs;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.util.Log;
 import android.util.LruCache;
 
@@ -49,7 +49,7 @@ public class ImageCache {
     private static final int DEFAULT_COMPRESS_QUALITY = 100;
     private static final int DISK_CACHE_INDEX = 0;
     
-    private LruCache<String, BitmapDrawable> memoryCache;
+    private LruCache<String, RoundedBitmapDrawable> memoryCache;
     private DiskLruCache diskLruCache;
     private ImageCacheParams cacheParams;
     
@@ -83,15 +83,15 @@ public class ImageCache {
 
 		reusableBitmaps = Collections.synchronizedSet(new HashSet<SoftReference<Bitmap>>());
     	
-    	memoryCache = new LruCache<String, BitmapDrawable>(cacheParams.memCacheSize) {
+    	memoryCache = new LruCache<String, RoundedBitmapDrawable>(cacheParams.memCacheSize) {
 			@Override
-			protected int sizeOf(String key, BitmapDrawable value) {
+			protected int sizeOf(String key, RoundedBitmapDrawable value) {
 			    final int bitmapSize = getBitmapSize(value) / 1024;
 			    return bitmapSize == 0 ? 1 : bitmapSize;
 			}
 			
 			@Override
-			protected void entryRemoved(boolean evicted, String key, BitmapDrawable oldValue, BitmapDrawable newValue) {
+			protected void entryRemoved(boolean evicted, String key, RoundedBitmapDrawable oldValue, RoundedBitmapDrawable newValue) {
 				if (Utils.hasHoneycomb()) {
 					reusableBitmaps.add(new SoftReference<Bitmap>(oldValue.getBitmap()));
 				}
@@ -154,7 +154,7 @@ public class ImageCache {
     	}
     }
     
-    public void addBitmapToCache(String data, BitmapDrawable value) {
+    public void addBitmapToCache(String data, RoundedBitmapDrawable value) {
     	if (data == null || value == null) {
     		return;
     	}
@@ -201,9 +201,9 @@ public class ImageCache {
 	 * @param data Unique identifier for which item to get
 	 * @return The bitmap drawable if found in cache, null otherwise
 	 */
-    public BitmapDrawable getBitmapFromMemCache(String data) {
+    public RoundedBitmapDrawable getBitmapFromMemCache(String data) {
     	//BEGIN_INCLUDE(get_bitmap_from_mem_cache)
-    	BitmapDrawable memValue = null;
+		RoundedBitmapDrawable memValue = null;
 	    
 	    if (memoryCache != null) {
 	    	memValue = memoryCache.get(data);
@@ -435,7 +435,7 @@ public class ImageCache {
 	 * @return size in bytes
 	 */
     @TargetApi(VERSION_CODES.KITKAT)
-    public static int getBitmapSize(BitmapDrawable value) {
+    public static int getBitmapSize(RoundedBitmapDrawable value) {
     	Bitmap bitmap = value.getBitmap();
 	
 	    // From KitKat onward use getAllocationByteCount() as allocated bytes can potentially be

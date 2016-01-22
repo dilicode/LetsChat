@@ -57,13 +57,26 @@ public class SignupTask extends BaseAsyncTask<Void, Void, Boolean> {
 
 	@Override
 	protected void onPostExecute(Response<Boolean> response) {
-		dialog.dismiss();
+		dismissDialog();
 
 		super.onPostExecute(response);
 	}
 
 	@Override
 	protected void onCancelled() {
-		dialog.dismiss();
+		super.onCancelled();
+
+		dismissDialog();
+	}
+
+	public void dismissDialog() {
+		if (dialog != null && dialog.isShowing()) {
+			dialog.dismiss();
+		}
+	}
+
+	public void dismissDialogAndCancel() {
+		dismissDialog();
+		cancel(false);
 	}
 }

@@ -10,8 +10,8 @@ import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.model.SubscribeInfo;
 import com.mstr.letschat.model.UserProfile;
 import com.mstr.letschat.service.MessageService;
+import com.mstr.letschat.utils.NetworkUtils;
 import com.mstr.letschat.utils.PreferenceUtils;
-import com.mstr.letschat.utils.Utils;
 
 import org.jivesoftware.smack.AccountManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -364,7 +364,7 @@ public class SmackHelper {
 		
 		setState(State.WAITING_TO_CONNECT);
 
-		if (Utils.isNetworkConnected(context)) {
+		if (NetworkUtils.isNetworkConnected(context)) {
 			context.startService(new Intent(MessageService.ACTION_RECONNECT, null, context, MessageService.class));
 		}
 	}

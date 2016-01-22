@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
-    
-    <header android:fragment="com.mstr.letschat.fragments.ProfileFragment"
-            android:title="@string/title_profile_fragment" />
+    <header
+        android:fragment="com.mstr.letschat.fragments.ProfileFragment"
+        android:title="@string/title_profile_fragment"
+        android:icon="@drawable/ic_account" />
 
-    <header android:fragment="com.mstr.letschat.fragments.TrafficStatsFragment"
-        android:title="@string/title_traffic_stats_fragment" />
+    <header
+        android:fragment="com.mstr.letschat.fragments.NetworkUsageFragment"
+        android:title="@string/title_network_usage_fragment"
+        android:icon="@drawable/ic_network_usage" />
 </preference-headers>

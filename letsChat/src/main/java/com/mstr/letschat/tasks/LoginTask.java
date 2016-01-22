@@ -56,6 +56,19 @@ public class LoginTask extends BaseAsyncTask<Void, Void, Boolean> {
 
 	@Override
 	protected void onCancelled() {
-		dialog.dismiss();
+		super.onCancelled();
+
+		dismissDialog();
+	}
+
+	public void dismissDialog() {
+		if (dialog != null && dialog.isShowing()) {
+			dialog.dismiss();
+		}
+	}
+
+	public void dismissDialogAndCancel() {
+		dismissDialog();
+		cancel(false);
 	}
 }

@@ -1,11 +1,15 @@
 package com.mstr.letschat;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -42,6 +46,8 @@ public class SignupActivity extends AppCompatActivity implements OnClickListener
 	
 	private File rawImageFile;
 	private File avatarImageFile;
+
+	private SignupTask signupTask;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -63,8 +69,21 @@ public class SignupActivity extends AppCompatActivity implements OnClickListener
 		}
 		rawImageFile = new File(dir, RAW_PHOTO_FILE_NAME);
 		avatarImageFile = new File(dir, AVATAR_FILE_NAME);
+
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
-	
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				finish();
+				return true;
+		}
+
+		return super.onOptionsItemSelected(item);
+	}
+
 	@Override
 	public void onClick(View v) {
 		if (v == submitButton) {
@@ -77,8 +96,9 @@ public class SignupActivity extends AppCompatActivity implements OnClickListener
 				Toast.makeText(this, R.string.incomplete_signup_info, Toast.LENGTH_SHORT).show();
 				return;
 			}
-			
-			new SignupTask(this, this, phoneNumber, password, name, getAvatarBytes()).execute();
+
+			signupTask = new SignupTask(this, this, phoneNumber, password, name, getAvatarBytes());
+			signupTask.execute();
 		} else if(v == uploadAvatarButton) {
 			chooseAction();
 		}
@@ -143,7 +163,10 @@ public class SignupActivity extends AppCompatActivity implements OnClickListener
 			break;
 		
 		case REQUEST_CODE_CROP_IMAGE:
-			uploadAvatarButton.setImageBitmap(BitmapFactory.decodeFile(avatarImageFile.getAbsolutePath()));
+			Bitmap bitmap = BitmapFactory.decodeFile(avatarImageFile.getAbsolutePath());
+			RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
+			drawable.setCircular(true);
+			uploadAvatarButton.setImageDrawable(drawable);
 			
 			break;
 		}
@@ -181,5 +204,14 @@ public class SignupActivity extends AppCompatActivity implements OnClickListener
 		}
 		
 		return output.toByteArray();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+
+		if (signupTask != null) {
+			signupTask.dismissDialogAndCancel();
+		}
 	}
 }

@@ -21,6 +21,8 @@ public class SetStatusActivity extends AppCompatActivity implements OnItemClickL
 	private ProgressBar progressBar;
 	private ListView listView;
 	private StatusListAdapter adapter;
+	private LoadStatusTask loadStatusTask;
+	private SaveStatusTask saveStatusTask;
 	
 	private Listener<String> getStatusListener = new Listener<String>() {
 		@Override
@@ -60,10 +62,10 @@ public class SetStatusActivity extends AppCompatActivity implements OnItemClickL
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(this);
 		
-		
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		
-		new LoadStatusTask(getStatusListener, this).execute();
+
+		loadStatusTask = new LoadStatusTask(getStatusListener, this);
+		loadStatusTask.execute();
 	}
 	
 	@Override
@@ -83,6 +85,20 @@ public class SetStatusActivity extends AppCompatActivity implements OnItemClickL
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		new SaveStatusTask(setStatusListener, this, adapter, statusText, position).execute();
+		saveStatusTask = new SaveStatusTask(setStatusListener, this, adapter, statusText, position);
+		saveStatusTask.execute();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+
+		if (saveStatusTask != null) {
+			saveStatusTask.dismissDialogAndCancel();
+		}
+
+		if (loadStatusTask != null) {
+			loadStatusTask.cancel(false);
+		}
 	}
 }

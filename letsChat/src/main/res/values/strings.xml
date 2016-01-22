@@ -52,7 +52,7 @@
 	<string name="incomplete_signup_info">Please input complete information</string>
 	<string name="profile_avatar">Avatar</string>
 	<string name="profile_nickname">Nick name</string>
-	<string name="title_traffic_stats_fragment">Network traffic</string>
+	<string name="title_network_usage_fragment">Network Usage</string>
 	<string name="title_profile_fragment">Profile</string>
 	<string name="title_traffic_transmitted_preference">Traffic transmitted</string>
 	<string name="title_traffic_received_preference">Traffic received</string>
