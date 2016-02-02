@@ -2,7 +2,6 @@ package com.mstr.letschat.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -36,16 +35,14 @@ public abstract class LocationView extends MessageView implements OnMapReadyCall
 
     @Override
     protected void init(Context context) {
-        LayoutInflater.from(context).inflate(getLayoutResource(), this);
+        super.init(context);
+
         mapView = (MapView)findViewById(R.id.map);
         name = (TextView)findViewById(R.id.tv_location_name);
         address = (TextView)findViewById(R.id.tv_address);
-        time = (TextView)findViewById(R.id.tv_time);
 
         setOrientation(LinearLayout.VERTICAL);
         setDescendantFocusability(FOCUS_BLOCK_DESCENDANTS);
-
-        super.init(context);
     }
 
     public GoogleMap getMap() {
@@ -102,6 +99,4 @@ public abstract class LocationView extends MessageView implements OnMapReadyCall
             map.setMapType(GoogleMap.MAP_TYPE_NONE);
         }
     }
-
-    protected abstract int getLayoutResource();
 }

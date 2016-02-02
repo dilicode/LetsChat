@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+            <solid android:color="@color/attach_view_circle_background_color"/>
+            <size android:height="@dimen/attach_view_background_size" android:width="@dimen/attach_view_background_size" />
+        </shape>
+    </item>
+
+    <item>
+        <bitmap android:src="@drawable/ic_photo" android:gravity="center" />
+    </item>
+</layer-list>

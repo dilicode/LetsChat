@@ -2,88 +2,40 @@
 
 <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_gravity="center"
-    android:layout_width="200dp"
-    android:layout_height="200dp"
-    card_view:cardCornerRadius="4dp">
+    android:id="@+id/attach_options_container"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/attach_views_container_height"
+    card_view:cardCornerRadius="4dp"
+    android:visibility="invisible">
 
     <LinearLayout
-        android:id="@+id/attach_options_container"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
         android:paddingLeft="@dimen/attach_options_container_horizontal_padding"
         android:paddingRight="@dimen/attach_options_container_horizontal_padding"
         android:paddingTop="@dimen/attach_options_container_vertical_padding"
         android:paddingBottom="@dimen/attach_options_container_vertical_padding"
-        android:background="@android:color/background_light"
-        android:visibility="gone" >
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <LinearLayout
+        android:background="@android:color/background_light">
+            <Button
+                android:id="@+id/attach_from_gallery"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
+                android:layout_height="@dimen/attach_option_size"
+                android:drawableTop="@drawable/attach_photo_background"
+                android:background="@null"
+                android:text="@string/gallery"
+                android:textColor="?android:attr/textColorSecondary" />
 
-                <ImageButton
-                    android:id="@+id/attach_from_gallery"
-                    android:layout_width="@dimen/attach_option_size"
-                    android:layout_height="@dimen/attach_option_size"
-                    android:background="@null"
-                    android:src="@drawable/ic_attach_gallery" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/gallery" />
-            </LinearLayout>
-
-            <LinearLayout
+            <Button
+                android:id="@+id/attach_location"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/attach_option_size"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageButton
-                    android:id="@+id/attach_new_photo"
-                    android:layout_width="@dimen/attach_option_size"
-                    android:layout_height="@dimen/attach_option_size"
-                    android:src="@drawable/ic_attach_photo"
-                    android:background="@null" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/photo" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageButton
-                    android:id="@+id/attach_location"
-                    android:layout_width="@dimen/attach_option_size"
-                    android:layout_height="@dimen/attach_option_size"
-                    android:background="@null"
-                    android:src="@drawable/ic_attach_location" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/location" />
-            </LinearLayout>
-
-        </LinearLayout>
+                android:background="@null"
+                android:text="@string/location"
+                android:textColor="?android:attr/textColorSecondary"
+                android:drawableTop="@drawable/attach_location_background" />
     </LinearLayout>
 </android.support.v7.widget.CardView>

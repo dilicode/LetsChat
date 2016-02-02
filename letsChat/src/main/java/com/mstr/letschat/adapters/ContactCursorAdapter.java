@@ -9,13 +9,13 @@ import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
 
 import com.mstr.letschat.R;
-import com.mstr.letschat.bitmapcache.ImageFetcher;
+import com.mstr.letschat.bitmapcache.AvatarImageFetcher;
 import com.mstr.letschat.databases.ChatContract.ContactTable;
 
 public class ContactCursorAdapter extends ResourceCursorAdapter {
-	private ImageFetcher imageFetcher;
+	private AvatarImageFetcher imageFetcher;
 	
-	public ContactCursorAdapter(Context context, Cursor c, ImageFetcher imageFetcher) {
+	public ContactCursorAdapter(Context context, Cursor c, AvatarImageFetcher imageFetcher) {
 		super(context, R.layout.contact_list_item, c, 0);
 		
 		this.imageFetcher = imageFetcher;

@@ -130,46 +130,46 @@ public class SignupActivity extends AppCompatActivity implements OnClickListener
 	}
 
 	@Override
-	public void onErrorResponse(SmackInvocationException exception) {
+	public void onErrorResponse(Exception exception) {
 		Toast.makeText(this, R.string.create_account_error, Toast.LENGTH_SHORT).show();
 	}
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (resultCode != RESULT_OK) {
-			return;
-		}
-		
-		switch (requestCode) {
-		case REQUEST_CODE_SELECT_PICTURE:
-			boolean isCamera;
-			if(data == null) {
-				isCamera = true;
-			} else {
-				String action = data.getAction();
-				if(action == null) {
-					isCamera = false;
-				} else {
-					isCamera = action.equals(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-				}
+		if (resultCode == RESULT_OK) {
+			switch (requestCode) {
+				case REQUEST_CODE_SELECT_PICTURE:
+					boolean isCamera;
+					if (data == null) {
+						isCamera = true;
+					} else {
+						String action = data.getAction();
+						if (action == null) {
+							isCamera = false;
+						} else {
+							isCamera = action.equals(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+						}
+					}
+
+					if (isCamera) {
+						startCropImage(Uri.fromFile(rawImageFile));
+					} else {
+						startCropImage(data == null ? null : data.getData());
+					}
+
+					break;
+
+				case REQUEST_CODE_CROP_IMAGE:
+					Bitmap bitmap = BitmapFactory.decodeFile(avatarImageFile.getAbsolutePath());
+					RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
+					drawable.setCircular(true);
+					uploadAvatarButton.setImageDrawable(drawable);
+
+					break;
 			}
-			
-			if(isCamera) {
-				startCropImage(Uri.fromFile(rawImageFile));
-			} else {
-				startCropImage(data == null ? null : data.getData());
-			}
-			
-			break;
-		
-		case REQUEST_CODE_CROP_IMAGE:
-			Bitmap bitmap = BitmapFactory.decodeFile(avatarImageFile.getAbsolutePath());
-			RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
-			drawable.setCircular(true);
-			uploadAvatarButton.setImageDrawable(drawable);
-			
-			break;
 		}
+
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 	
 	private void startCropImage(Uri source) {

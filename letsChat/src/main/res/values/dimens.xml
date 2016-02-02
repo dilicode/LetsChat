@@ -9,4 +9,9 @@
     <dimen name="map_list_item_height">120dp</dimen>
     <dimen name="message_content_horizontal_padding">15dp</dimen>
     <dimen name="message_content_vertical_padding">5dp</dimen>
+    <dimen name="attach_views_container_height">300dp</dimen>
+    <dimen name="attach_view_background_size">48dp</dimen>
+    <dimen name="sent_image_size">100dp</dimen>
+    <dimen name="image_message_size">200dp</dimen>
+    <integer name="attach_views_anim_duration">200</integer>
 </resources>

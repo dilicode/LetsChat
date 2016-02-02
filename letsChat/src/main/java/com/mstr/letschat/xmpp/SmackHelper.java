@@ -6,10 +6,13 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.mstr.letschat.R;
 import com.mstr.letschat.SmackInvocationException;
+import com.mstr.letschat.databases.ChatMessageTableHelper;
 import com.mstr.letschat.model.SubscribeInfo;
 import com.mstr.letschat.model.UserProfile;
 import com.mstr.letschat.service.MessageService;
+import com.mstr.letschat.utils.FileUtils;
 import com.mstr.letschat.utils.NetworkUtils;
 import com.mstr.letschat.utils.PreferenceUtils;
 
@@ -24,6 +27,7 @@ import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.SmackAndroid;
 import org.jivesoftware.smack.SmackConfiguration;
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.MessageTypeFilter;
@@ -35,9 +39,16 @@ import org.jivesoftware.smack.packet.RosterPacket.ItemType;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
+import org.jivesoftware.smackx.filetransfer.FileTransferListener;
+import org.jivesoftware.smackx.filetransfer.FileTransferManager;
+import org.jivesoftware.smackx.filetransfer.FileTransferRequest;
+import org.jivesoftware.smackx.filetransfer.IncomingFileTransfer;
+import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 import org.jivesoftware.smackx.offline.OfflineMessageManager;
 import org.jivesoftware.smackx.vcardtemp.packet.VCard;
 
+import java.io.File;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -78,6 +89,8 @@ public class SmackHelper {
 	private SmackContactHelper contactHelper;
 	
 	private SmackVCardHelper vCardHelper;
+
+	private FileTransferManager fileTransferManager;
 
 	public static final String ACTION_CONNECTION_CHANGED = "com.mstr.letschat.intent.action.CONNECTION_CHANGED";
 	public static final String EXTRA_NAME_STATE = "com.mstr.letschat.State";
@@ -250,7 +263,10 @@ public class SmackHelper {
 			
 			contactHelper = new SmackContactHelper(context, con);
 			vCardHelper = new SmackVCardHelper(context, con);
-			
+			fileTransferManager = new FileTransferManager(con);
+			OutgoingFileTransfer.setResponseTimeout(30000);
+			addFileTransferListener();
+
 			con.addPacketListener(messagePacketListener, new MessageTypeFilter(Message.Type.chat));
 			con.addPacketListener(presencePacketListener, new PacketTypeFilter(Presence.class));
 			con.addConnectionListener(createConnectionListener());
@@ -394,18 +410,33 @@ public class SmackHelper {
 	}
 	
 	public String loadStatus() throws SmackInvocationException {
+		if (vCardHelper == null) {
+			throw new SmackInvocationException("server not connected");
+		}
 		return vCardHelper.loadStatus();
 	}
 	
 	public VCard loadVCard(String jid) throws SmackInvocationException {
+		if (vCardHelper == null) {
+			throw new SmackInvocationException("server not connected");
+		}
+
 		return vCardHelper.loadVCard(jid);
 	}
 	
 	public VCard loadVCard() throws SmackInvocationException {
+		if (vCardHelper == null) {
+			throw new SmackInvocationException("server not connected");
+		}
+
 		return vCardHelper.loadVCard();
 	}
 	
 	public void saveStatus(String status) throws SmackInvocationException {
+		if (vCardHelper == null) {
+			throw new SmackInvocationException("server not connected");
+		}
+
 		vCardHelper.saveStatus(status);
 		
 		contactHelper.broadcastStatus(status);
@@ -430,7 +461,76 @@ public class SmackHelper {
 		result.setFrom(from);
 		return result;
 	}
-	
+
+	public void sendImage(File file, String to) throws SmackInvocationException {
+		if (fileTransferManager == null || !isConnected()) {
+			throw new SmackInvocationException("server not connected");
+		}
+
+		String fullJid = to + "/" + RESOURCE_PART;
+		OutgoingFileTransfer transfer = fileTransferManager.createOutgoingFileTransfer(fullJid);
+		try {
+			transfer.sendFile(file, file.getName());
+		} catch (SmackException e) {
+			Log.e(LOG_TAG, "send file error");
+			throw new SmackInvocationException(e);
+		}
+
+		while(!transfer.isDone()) {
+			if(transfer.getStatus().equals(Status.refused) || transfer.getStatus().equals(Status.error)
+					|| transfer.getStatus().equals(Status.cancelled)){
+				throw new SmackInvocationException("send file error, " + transfer.getError());
+			}
+		}
+
+		Log.d(LOG_TAG, "send file status: " + transfer.getStatus());
+		if(transfer.getStatus().equals(Status.refused) || transfer.getStatus().equals(Status.error)
+				|| transfer.getStatus().equals(Status.cancelled)){
+			throw new SmackInvocationException("send file error, " + transfer.getError());
+		}
+	}
+
+	private void addFileTransferListener() {
+		fileTransferManager.addFileTransferListener(new FileTransferListener() {
+			public void fileTransferRequest(final FileTransferRequest request) {
+				new Thread() {
+					@Override
+					public void run() {
+						IncomingFileTransfer transfer = request.accept();
+						String fileName = String.valueOf(System.currentTimeMillis());
+						File file = new File(FileUtils.getReceivedImagesDir(context), fileName + FileUtils.IMAGE_EXTENSION);
+						try {
+							transfer.recieveFile(file);
+						} catch (SmackException e) {
+							Log.e(LOG_TAG, "receive file error", e);
+							return;
+						}
+
+						while (!transfer.isDone()) {
+							if(transfer.getStatus().equals(Status.refused) || transfer.getStatus().equals(Status.error)
+									|| transfer.getStatus().equals(Status.cancelled)){
+								Log.e(LOG_TAG, "receive file error, " + transfer.getError());
+								return;
+							}
+						}
+
+						// start service to save the image to sqlite
+						if (transfer.getStatus().equals(Status.complete)) {
+							Intent intent = new Intent(MessageService.ACTION_MESSAGE_RECEIVED, null, context, MessageService.class);
+							intent.putExtra(MessageService.EXTRA_DATA_NAME_FROM, StringUtils.parseBareAddress(request.getRequestor()));
+							intent.putExtra(MessageService.EXTRA_DATA_NAME_MESSAGE_BODY, context.getString(R.string.image_message_body));
+							intent.putExtra(MessageService.EXTRA_DATA_NAME_FILE_PATH, file.getAbsolutePath());
+							intent.putExtra(MessageService.EXTRA_DATA_NAME_TYPE, ChatMessageTableHelper.TYPE_INCOMING_IMAGE);
+
+							context.startService(intent);
+						}
+
+					}
+				}.start();
+			}
+		});
+	}
+
 	public void onDestroy() {
 		cleanupConnection();
 		

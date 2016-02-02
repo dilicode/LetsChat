@@ -33,7 +33,7 @@ public class SetStatusActivity extends AppCompatActivity implements OnItemClickL
 		}
 
 		@Override
-		public void onErrorResponse(SmackInvocationException exception) {
+		public void onErrorResponse(Exception exception) {
 			hideProgressBar();
 		}
 	};
@@ -44,7 +44,7 @@ public class SetStatusActivity extends AppCompatActivity implements OnItemClickL
 		public void onResponse(Boolean result) {}
 
 		@Override
-		public void onErrorResponse(SmackInvocationException exception) {
+		public void onErrorResponse(Exception exception) {
 			Toast.makeText(SetStatusActivity.this, R.string.set_status_error, Toast.LENGTH_SHORT).show();
 		}
 	};

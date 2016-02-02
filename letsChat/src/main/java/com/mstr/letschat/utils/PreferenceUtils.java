@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.mstr.letschat.R;
-
 public class PreferenceUtils {
 	public static final String USERNAME = "user";
 	public static final String PASSWORD = "password";
@@ -15,6 +13,8 @@ public class PreferenceUtils {
 	public static final String TRAFFIC_RECEIVED = "traffic_received";
 	public static final String SERVER_ADDRESS = "server_address";
 	public static final String SECRET_KEY = "secret_key";
+
+	public static final String AWS_SERVER_IP = "52.32.181.170";
 
 	public static void setLoginUser(Context context, String user, String password, String nickname) {
 		String encryptedUser = AESEncryption.encrypt(context, user);
@@ -39,7 +39,7 @@ public class PreferenceUtils {
 
 	public static String getServerHost(Context context) {
 		String serverHost = getSharedPreferences(context).getString(SERVER_ADDRESS, null);
-		return serverHost == null ? context.getString(R.string.default_server_ip) : serverHost;
+		return serverHost == null ? AWS_SERVER_IP : serverHost;
 	}
 
 	public static SharedPreferences getSharedPreferences(Context context) {

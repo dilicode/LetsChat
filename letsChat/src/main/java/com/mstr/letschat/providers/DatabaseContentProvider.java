@@ -195,8 +195,25 @@ public class DatabaseContentProvider extends ContentProvider {
 
 	@Override
 	public int delete(Uri uri, String where, String[] whereArgs) {
-		// Don't support delete
-		return 0;
+		String table = null;
+		switch (uriMatcher.match(uri)) {
+			case CHAT_MESSAGE:
+				table = ChatMessageTable.TABLE_NAME;
+				break;
+
+			case CONVERSATION:
+				table = ConversationTable.TABLE_NAME;
+				break;
+
+			default:
+				throw new IllegalArgumentException("Unknown URI " + uri);
+		}
+
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		int count = db.delete(table, where, whereArgs);
+		getContext().getContentResolver().notifyChange(uri, null);
+
+		return count;
 	}
 	
 	@Override
@@ -241,7 +258,6 @@ public class DatabaseContentProvider extends ContentProvider {
 		
 		return count;
 	}
-	
 	
 	@Override
 	public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) {

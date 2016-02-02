@@ -11,6 +11,7 @@
 	    android:layout_height="wrap_content"
 	    android:padding="10dp"
 		android:text="@string/new_contacts"
+		android:textColor="?android:attr/textColorPrimary"
 		android:textAppearance="?android:attr/textAppearanceListItemSmall"
 		android:gravity="center_vertical"
 		android:clickable="true" />

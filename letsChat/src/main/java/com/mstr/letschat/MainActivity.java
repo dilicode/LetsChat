@@ -11,7 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-import com.mstr.letschat.bitmapcache.ImageFetcher;
+import com.mstr.letschat.bitmapcache.AvatarImageFetcher;
 import com.mstr.letschat.fragments.ContactListFragment;
 import com.mstr.letschat.fragments.ConversationFragment;
 import com.mstr.letschat.service.MessageService;
@@ -20,7 +20,7 @@ import com.mstr.letschat.service.MessageService;
  * Created by dilli on 12/24/2015.
  */
 public class MainActivity extends AppCompatActivity {
-    private ImageFetcher imageFetcher;
+    private AvatarImageFetcher imageFetcher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         // start service to login
         startService(new Intent(MessageService.ACTION_CONNECT, null, this, MessageService.class));
 
-        imageFetcher = ImageFetcher.getAvatarImageFetcher(this);
+        imageFetcher = AvatarImageFetcher.getAvatarImageFetcher(this);
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(pager);
     }
 
-    public ImageFetcher getImageFetcher() {
+    public AvatarImageFetcher getImageFetcher() {
         return imageFetcher;
     }
 

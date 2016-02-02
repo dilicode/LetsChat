@@ -60,6 +60,8 @@ public class MessageService extends Service {
 	public static final String EXTRA_DATA_NAME_FROM = "com.mstr.letschat.From";
 	public static final String EXTRA_DATA_NAME_MESSAGE_BODY = "com.mstr.letschat.MessageBody";
 	public static final String EXTRA_DATA_NAME_LOCATION = "com.mstr.letschat.Location";
+	public static final String EXTRA_DATA_NAME_TYPE = "com.mstr.letschat.Type";
+	public static final String EXTRA_DATA_NAME_FILE_PATH = "com.mstr.letschat.FilePath";
 	
 	// Service Actions
 	public static final String ACTION_CONNECT = "com.mstr.letschat.intent.action.CONNECT";
@@ -345,16 +347,20 @@ public class MessageService extends Service {
 	}
 	
 	private void handleMessagePacket(Intent intent) {
+		int type = intent.getIntExtra(EXTRA_DATA_NAME_TYPE, 0);
 		String from = intent.getStringExtra(EXTRA_DATA_NAME_FROM);
 		String body = intent.getStringExtra(EXTRA_DATA_NAME_MESSAGE_BODY);
+		String filePath = intent.getStringExtra(EXTRA_DATA_NAME_FILE_PATH);
 		UserLocation location = intent.getParcelableExtra(EXTRA_DATA_NAME_LOCATION);
 		long timeMillis = System.currentTimeMillis();
 
 		ContentValues messageValues = null;
-		if (location == null) { // this is a plain text message
+		if (ChatMessageTableHelper.isPlainTextMessage(type)) { // this is a plain text message
 			messageValues = ChatMessageTableHelper.newPlainTextMessage(from, body, timeMillis, false);
-		} else {
+		} else if (ChatMessageTableHelper.isLocationMessage(type)){
 			messageValues = ChatMessageTableHelper.newLocationMessage(from, body, timeMillis, location, false);
+		} else if (ChatMessageTableHelper.isImageMessage(type)){
+			messageValues = ChatMessageTableHelper.newImageMessage(from, body, timeMillis, filePath, false);
 		}
 
 		ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();

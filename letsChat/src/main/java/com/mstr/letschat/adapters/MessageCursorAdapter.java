@@ -6,8 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 
+import com.mstr.letschat.bitmapcache.ImageMessageFetcher;
 import com.mstr.letschat.databases.ChatContract.ChatMessageTable;
 import com.mstr.letschat.databases.ChatMessageTableHelper;
+import com.mstr.letschat.views.ImageMessageView;
 import com.mstr.letschat.views.LocationView;
 import com.mstr.letschat.views.MessageView;
 import com.mstr.letschat.views.PlainTextView;
@@ -21,12 +23,16 @@ import java.util.Calendar;
 public class MessageCursorAdapter extends CursorAdapter {
 	private DateFormat timeFormat;
 	private DateFormat dateFormat;
+
+	private ImageMessageFetcher imageFetcher;
 	
 	public MessageCursorAdapter(Context context, Cursor c, int flags) {
 		super(context, c, flags);
 		
 		timeFormat = new SimpleDateFormat("HH:mm");
 		dateFormat = DateFormat.getDateInstance();
+
+		imageFetcher = new ImageMessageFetcher(context);
 	}
 
 	@Override
@@ -34,9 +40,11 @@ public class MessageCursorAdapter extends CursorAdapter {
 		MessageView messageView = (MessageView)view;
 
 		if (ChatMessageTableHelper.isPlainTextMessage(cursor)) {
-				bindPlainTextMessage((PlainTextView) messageView, cursor);
+			bindPlainTextMessage((PlainTextView) messageView, cursor);
 		} else if (ChatMessageTableHelper.isLocationMessage(cursor)) {
-				bindLocation((LocationView) view, cursor);
+			bindLocation((LocationView) view, cursor);
+		} else if (ChatMessageTableHelper.isImageMessage(cursor)) {
+			bindImage(context, (ImageMessageView)view, cursor);
 		}
 
 		// set message status, sent or pending, for example
@@ -84,6 +92,11 @@ public class MessageCursorAdapter extends CursorAdapter {
 
 		view.setAddress(location.getAddress());
 		view.setName(location.getName());
+	}
+
+	private void bindImage(Context context, ImageMessageView view, Cursor cursor) {
+		String filePath = cursor.getString(cursor.getColumnIndex(ChatMessageTable.COLUMN_NAME_MEDIA_URL));
+		imageFetcher.loadImage(filePath, view.getImageView());
 	}
 
 	@Override

@@ -10,7 +10,7 @@ import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
 
 import com.mstr.letschat.R;
-import com.mstr.letschat.bitmapcache.ImageFetcher;
+import com.mstr.letschat.bitmapcache.AvatarImageFetcher;
 import com.mstr.letschat.databases.ChatContract.ConversationTable;
 
 import java.text.DateFormat;
@@ -22,9 +22,9 @@ public class ConversationCursorAdapter extends ResourceCursorAdapter {
 	private int subTextColor;
 	private DateFormat dateFormat;
 	
-	private ImageFetcher imageFetcher;
+	private AvatarImageFetcher imageFetcher;
 	
-	public ConversationCursorAdapter(Context context, Cursor c, ImageFetcher imageFetcher) {
+	public ConversationCursorAdapter(Context context, Cursor c, AvatarImageFetcher imageFetcher) {
 		super(context, R.layout.conversation_list_item, c, 0);
 		this.imageFetcher = imageFetcher;
 		

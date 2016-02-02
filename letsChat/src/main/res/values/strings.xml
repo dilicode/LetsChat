@@ -69,5 +69,6 @@
 	<string name="gallery">Gallery</string>
 	<string name="photo">Photo</string>
 	<string name="location">Location</string>
-	<string name="default_server_ip">52.32.181.170</string>
+	<string name="send_image_error">Send image error</string>
+	<string name="image_message_body">Image</string>
 </resources>

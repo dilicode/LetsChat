@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.preference.PreferenceFragment;
 
 import com.mstr.letschat.R;
-import com.mstr.letschat.SmackInvocationException;
 import com.mstr.letschat.model.LoginUserProfile;
 import com.mstr.letschat.tasks.LoadProfileTask;
 import com.mstr.letschat.tasks.Response.Listener;
@@ -30,5 +29,5 @@ public class ProfileFragment extends PreferenceFragment implements Listener<Logi
 	}
 	
 	@Override
-	public void onErrorResponse(SmackInvocationException exception) {}
+	public void onErrorResponse(Exception exception) {}
 }

@@ -1,32 +1,29 @@
 package com.mstr.letschat.tasks;
 
-import com.mstr.letschat.SmackInvocationException;
-
 public class Response<T> {
-	
 	public interface Listener<T> {
 		public void onResponse(T result);
 		
-		public void onErrorResponse(SmackInvocationException exception);
+		public void onErrorResponse(Exception exception);
 	}
 	
 	public static <T> Response<T> success(T result) {
 		return new Response<T>(result);
 	}
 	
-	public static <T> Response<T> error(SmackInvocationException e) {
+	public static <T> Response<T> error(Exception e) {
 		return new Response<T>(e);
 	}
 	
 	private T result;
 	
-	private SmackInvocationException exception;
+	private Exception exception;
 	
 	private Response(T result) {
 		this.result = result;
 	}
 	
-	private Response(SmackInvocationException exception) {
+	private Response(Exception exception) {
 		this.exception = exception;
 	}
 	
@@ -38,7 +35,7 @@ public class Response<T> {
 		return result;
 	}
 
-	public SmackInvocationException getException() {
+	public Exception getException() {
 		return exception;
 	}
 }

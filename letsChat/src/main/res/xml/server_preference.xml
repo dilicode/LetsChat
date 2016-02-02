@@ -5,5 +5,5 @@
         android:title="@string/title_server_address"
         android:summary="@string/summary_server_address"
         android:dialogTitle="@string/summary_server_address"
-        android:defaultValue="@string/default_server_ip"/>
+        android:defaultValue="52.32.181.170"/>
 </PreferenceScreen>

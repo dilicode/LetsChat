@@ -45,4 +45,14 @@
 	    <item name="android:background">@drawable/btn_green</item>
 		<item name="android:textColor">@android:color/white</item>
 	</style>
+
+    <style name="MessageViewStyle">
+        <item name="android:padding">@dimen/message_list_item_padding</item>
+    </style>
+
+    <style name="ChatActivity" parent="AppTheme" >
+        <item name="actionModeBackground">@color/actionModeBackground</item>
+        <item name="messageViewStyle">@style/MessageViewStyle</item>
+        <item name="colorControlActivated">@color/colorControlActivated</item>
+    </style>
 </resources>

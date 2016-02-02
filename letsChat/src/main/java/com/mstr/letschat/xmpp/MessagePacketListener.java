@@ -3,6 +3,7 @@ package com.mstr.letschat.xmpp;
 import android.content.Context;
 import android.content.Intent;
 
+import com.mstr.letschat.databases.ChatMessageTableHelper;
 import com.mstr.letschat.service.MessageService;
 
 import org.jivesoftware.smack.PacketListener;
@@ -28,6 +29,7 @@ public class MessagePacketListener implements PacketListener {
 		Intent intent = new Intent(MessageService.ACTION_MESSAGE_RECEIVED, null, context, MessageService.class);
 		intent.putExtra(MessageService.EXTRA_DATA_NAME_FROM, StringUtils.parseBareAddress(msg.getFrom()));
 		intent.putExtra(MessageService.EXTRA_DATA_NAME_MESSAGE_BODY, msg.getBody());
+		intent.putExtra(MessageService.EXTRA_DATA_NAME_TYPE, ChatMessageTableHelper.TYPE_INCOMING_PLAIN_TEXT);
 		processPacketExtension(intent, msg);
 
 		context.startService(intent);
@@ -41,6 +43,7 @@ public class MessagePacketListener implements PacketListener {
 				PacketExtension extension = iterator.next();
 				if (extension instanceof UserLocation) {
 					intent.putExtra(MessageService.EXTRA_DATA_NAME_LOCATION, (UserLocation)extension);
+					intent.putExtra(MessageService.EXTRA_DATA_NAME_TYPE, ChatMessageTableHelper.TYPE_INCOMING_LOCATION);
 				}
 			}
 		}

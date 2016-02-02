@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mstr.letschat"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionCode="2"
+    android:versionName="1.1" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -37,7 +37,7 @@
 
 		<activity android:name=".MainActivity" android:theme="@style/AppTheme.NoActionBar" />
 
-		<activity android:name=".ChatActivity" android:windowSoftInputMode="stateHidden|adjustResize" android:theme="@style/AppTheme" android:parentActivityName=".MainActivity">
+		<activity android:name=".ChatActivity" android:windowSoftInputMode="stateHidden|adjustResize" android:theme="@style/ChatActivity" android:parentActivityName=".MainActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".MainActivity" />
@@ -97,6 +97,6 @@
 
 		<meta-data
 			android:name="com.google.android.geo.API_KEY"
-			android:value="AIzaSyAHqXgEuEpHNqasOrLmWZ534VJ49751Glg"/>
+			android:value="AIzaSyA4MxIPfhZKC1xhAZCFm1qOGIs0isCbyCc"/>
     </application>
 </manifest>

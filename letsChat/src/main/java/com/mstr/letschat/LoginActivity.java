@@ -65,8 +65,8 @@ public class LoginActivity extends AppCompatActivity implements Listener<Boolean
 	}
 
 	@Override
-	public void onErrorResponse(SmackInvocationException exception) {
-		if (exception.isCausedBySASLError()) {
+	public void onErrorResponse(Exception exception) {
+		if (((SmackInvocationException)exception).isCausedBySASLError()) {
 			Toast.makeText(this, R.string.invalid_credentials, Toast.LENGTH_SHORT).show();
 		} else {
 			Toast.makeText(this, R.string.login_error, Toast.LENGTH_SHORT).show();

@@ -8,6 +8,7 @@ import android.os.Environment;
 import java.io.File;
 
 public class FileUtils {
+    public static final String IMAGE_EXTENSION = ".jpg";
 	/**
      * Get a usable cache directory (external if available, internal otherwise).
      *
@@ -18,14 +19,12 @@ public class FileUtils {
     public static File getDiskCacheDir(Context context, String uniqueName) {
         // Check if media is mounted or storage is built-in, if so, try and use external cache dir
         // otherwise use internal cache dir
-        final String cachePath =
-                Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
-                        !isExternalStorageRemovable() ? getExternalCacheDir(context).getPath() :
-                                context.getCacheDir().getPath();
+        final String cachePath = isExternalStorageWritable() || !isExternalStorageRemovable() ? getExternalCacheDir(context).getPath() :
+                context.getCacheDir().getPath();
 
         return new File(cachePath + File.separator + uniqueName);
     }
-    
+
     /**
      * Check if external storage is built-in or removable.
      *
@@ -55,5 +54,31 @@ public class FileUtils {
     	// Before Froyo we need to construct the external cache dir ourselves
     	final String cacheDir = "/Android/data/" + context.getPackageName() + "/cache/";
     	return new File(Environment.getExternalStorageDirectory().getPath() + cacheDir);
+    }
+
+    public static File getSentImagesDir(Context context) {
+        File dir = new File(getImagesDir(context), "sent");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        return dir;
+    }
+
+    public static File getReceivedImagesDir(Context context) {
+        File dir = new File(getImagesDir(context), "received");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        return dir;
+    }
+
+    private static File getImagesDir(Context context) {
+        return isExternalStorageWritable() ? context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) : context.getDir("images", Context.MODE_PRIVATE);
+    }
+
+    public static boolean isExternalStorageWritable() {
+        return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
     }
 }

@@ -32,7 +32,8 @@ public final class ChatContract {
 		public static final String COLUMN_NAME_LONGITUDE = "longitude";
 		public static final String COLUMN_NAME_LATITUDE = "latitude";
 		public static final String COLUMN_NAME_ADDRESS = "address";
-		
+		public static final String COLUMN_NAME_MEDIA_URL = "media_url";
+
 		public static final String DEFAULT_SORT_ORDER = "_id ASC";
 		
 		public static final Uri CONTENT_URI =  Uri.parse("content://" + DatabaseContentProvider.AUTHORITY + "/message");

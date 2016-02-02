@@ -10,4 +10,7 @@
 	<color name="colorPrimary">#3F51B5</color>
 	<color name="colorPrimaryDark">#303F9F</color>
 	<color name="colorAccent">#2bacfe</color>
+	<color name="actionModeBackground">#00897b</color>
+	<color name="colorControlActivated">#b6dbe0</color>
+	<color name="attach_view_circle_background_color">#02a8f3</color>
 </resources>

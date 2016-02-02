@@ -2,7 +2,6 @@ package com.mstr.letschat.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -28,15 +27,9 @@ public abstract class PlainTextView extends MessageView {
 
     @Override
     protected void init(Context context) {
-        LayoutInflater.from(context).inflate(getLayoutResource(), this);
-
+        super.init(context);
         messageText = (TextView)findViewById(R.id.tv_message);
-        time = (TextView)findViewById(R.id.tv_time);
 
         setOrientation(LinearLayout.VERTICAL);
-
-        super.init(context);
     }
-
-    protected abstract int getLayoutResource();
 }

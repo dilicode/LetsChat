@@ -1,2 +1,5 @@
 -keep class org.jivesoftware.** { *; }
+-keep class android.support.v7.widget.SearchView { *; }
+
 -dontwarn sun.net.spi.nameservice.**
+-dontwarn de.duenndns.ssl.MemorizingTrustManager

@@ -2,6 +2,7 @@ package com.mstr.letschat.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -19,15 +20,14 @@ public abstract class MessageView extends LinearLayout {
 	}
 	
 	public MessageView(Context context, AttributeSet attrs) {
-		super(context, attrs);
+		super(context, attrs, R.attr.messageViewStyle);
 		init(context);
 	}
 
 	protected void init(Context context) {
+		LayoutInflater.from(context).inflate(getLayoutResource(), this);
+		time = (TextView)findViewById(R.id.tv_time);
 		dateSeparator = (TextView)findViewById(R.id.tv_date);
-
-		int padding = context.getResources().getDimensionPixelOffset(R.dimen.message_list_item_padding);
-		setPadding(padding, padding, padding, padding);
 	}
 
 	public void setTimeText(String text) {
@@ -65,6 +65,14 @@ public abstract class MessageView extends LinearLayout {
 				view = new OutgoingLocationView(context);
 				((LocationView)view).initializeMapView();
 				break;
+
+			case ChatMessageTableHelper.TYPE_INCOMING_IMAGE:
+				view = new IncomingImageMessageView(context);
+				break;
+
+			case ChatMessageTableHelper.TYPE_OUTGOING_IMAGE:
+				view = new OutgoingImageMessageView(context);
+				break;
 		}
 
 		if (view != null) {
@@ -73,4 +81,6 @@ public abstract class MessageView extends LinearLayout {
 
 		return view;
 	}
+
+	protected abstract int getLayoutResource();
 }

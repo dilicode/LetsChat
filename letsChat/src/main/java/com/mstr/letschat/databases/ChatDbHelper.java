@@ -41,10 +41,6 @@ public class ChatDbHelper extends SQLiteOpenHelper {
 			return;
 		}
 	}
-	
-	public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		onUpgrade(db, oldVersion, newVersion);
-	}
 
 	private void updateToVersion2(SQLiteDatabase db) {
 		ChatMessageTableHelper.updateToVersion2(db);

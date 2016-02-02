@@ -117,7 +117,7 @@ public class SearchUserActivity extends AppCompatActivity implements SearchView.
 	}
 
 	@Override
-	public void onErrorResponse(SmackInvocationException exception) {
+	public void onErrorResponse(Exception exception) {
 		Toast.makeText(this, R.string.search_user_error, Toast.LENGTH_SHORT).show();
 	}
 }

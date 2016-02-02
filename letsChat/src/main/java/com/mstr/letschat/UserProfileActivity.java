@@ -12,7 +12,6 @@ import android.os.Handler;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -95,18 +94,9 @@ public class UserProfileActivity extends AppCompatActivity implements OnClickLis
 		case android.R.id.home:
 			finish();
 			break;
-			
-		case R.id.action_delete:
 		}
 		
 		return super.onOptionsItemSelected(item);
-	}
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.contact_profile_menu, menu);
-		
-		return true;
 	}
 	
 	@Override
@@ -134,7 +124,7 @@ public class UserProfileActivity extends AppCompatActivity implements OnClickLis
 			}
 
 			@Override
-			public void onErrorResponse(SmackInvocationException exception) {
+			public void onErrorResponse(Exception exception) {
 				Toast.makeText(UserProfileActivity.this, R.string.sending_contact_request_error, Toast.LENGTH_SHORT).show();	
 			}
 			

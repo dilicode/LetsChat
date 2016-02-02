@@ -1,12 +1,16 @@
 package com.mstr.letschat.bitmapcache;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.util.Log;
 
 import com.mstr.letschat.utils.Utils;
 
 import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 public class BitmapUtils {
 	private static final String TAG = "ImageCache";
@@ -69,8 +73,7 @@ public class BitmapUtils {
 		int inSampleSize = 1;
 
         if (height > reqHeight || width > reqWidth) {
-
-            final int halfHeight = height / 2;
+			final int halfHeight = height / 2;
             final int halfWidth = width / 2;
 
             // Calculate the largest inSampleSize value that is a power of 2 and keeps both
@@ -102,4 +105,28 @@ public class BitmapUtils {
         
         return null;
     }
+
+	public static Bitmap decodeSampledBitmapFromStream(Context context, Uri uri, int reqWidth, int reqHeight) {
+		InputStream inputStream;
+		try {
+			inputStream = context.getContentResolver().openInputStream(uri);
+		} catch(FileNotFoundException e) {
+			return null;
+		}
+		// First decode with inJustDecodeBounds=true to check dimensions
+		final BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		BitmapFactory.decodeStream(inputStream, null, options);
+
+		// Calculate inSampleSize
+		options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+		// Decode bitmap with inSampleSize set
+		options.inJustDecodeBounds = false;
+		try {
+			inputStream = context.getContentResolver().openInputStream(uri);
+		} catch(FileNotFoundException e) {
+			return null;
+		}
+		return BitmapFactory.decodeStream(inputStream, null, options);
+	}
 }

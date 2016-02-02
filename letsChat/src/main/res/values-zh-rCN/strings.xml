@@ -43,7 +43,7 @@
   <string name="current_status">您当前的状态</string>
   <string name="select_status">选择您的新状态</string>
   <string name="default_status">Hey</string>
-  <string name="no_status">***no status***</string>
+  <string name="no_status">***尚未设置***</string>
   <string name="set_status_error">设置状态失败</string>
   <string name="update_status_text">正在更新</string>
   <string name="profile_photo">头像</string>
@@ -69,4 +69,6 @@
   <string name="gallery">相册</string>
   <string name="photo">照片</string>
   <string name="location">位置</string>
+  <string name="send_image_error">发送图片错误</string>
+  <string name="image_message_body">图片</string>
 </resources>

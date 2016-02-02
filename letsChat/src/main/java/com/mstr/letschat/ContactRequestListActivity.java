@@ -98,7 +98,7 @@ public class ContactRequestListActivity extends AppCompatActivity
 			}
 			
 			@Override
-			public void onErrorResponse(SmackInvocationException exception) {}
+			public void onErrorResponse(Exception exception) {}
 			
 		}, this, uri).execute();
 	}
