@@ -15,26 +15,37 @@
             android:layout_height="0dp"
             android:layout_weight="2" />
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="8"
-            android:orientation="vertical"
-            android:paddingTop="@dimen/message_content_vertical_padding"
-            android:paddingBottom="@dimen/message_content_vertical_padding"
-            android:paddingLeft="@dimen/message_content_horizontal_padding"
-            android:paddingRight="@dimen/message_content_horizontal_padding"
-            android:background="@drawable/msg_out">
-
-            <com.google.android.gms.maps.MapView
-                android:id="@+id/map"
+            android:layout_weight="8">
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/map_list_item_height"
-                android:focusable="false"
-                map:liteMode="true" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/message_content_vertical_padding"
+                android:paddingBottom="@dimen/message_content_vertical_padding"
+                android:paddingLeft="@dimen/message_content_horizontal_padding"
+                android:paddingRight="@dimen/message_content_horizontal_padding"
+                android:background="@drawable/msg_out">
 
-            <include layout="@layout/location_text_view" />
+                <com.google.android.gms.maps.MapView
+                    android:id="@+id/map"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/map_list_item_height"
+                    android:focusable="false"
+                    map:liteMode="true" />
 
-            </LinearLayout>
+                <include layout="@layout/location_text_view" />
+
+                </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/sending_progress"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" />
+        </FrameLayout>
     </LinearLayout>
 </merge>

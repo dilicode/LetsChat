@@ -73,7 +73,7 @@ public class MessageService extends Service {
 	// Broadcast Actions
 	public static final String ACTION_CONTACT_REQUEST_RECEIVED = "com.mstr.letschat.intent.action.CONTACT_REQUEST_RECEIVED";
 	
-	private int reconnectCount = 0;
+	public static volatile int reconnectCount = 0;
 	
 	// used to specify whom I am currently talking to
 	private String conversationTarget;

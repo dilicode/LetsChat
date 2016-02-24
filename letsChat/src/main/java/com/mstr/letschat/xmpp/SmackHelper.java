@@ -46,6 +46,8 @@ import org.jivesoftware.smackx.filetransfer.FileTransferRequest;
 import org.jivesoftware.smackx.filetransfer.IncomingFileTransfer;
 import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 import org.jivesoftware.smackx.offline.OfflineMessageManager;
+import org.jivesoftware.smackx.ping.PingFailedListener;
+import org.jivesoftware.smackx.ping.PingManager;
 import org.jivesoftware.smackx.vcardtemp.packet.VCard;
 
 import java.io.File;
@@ -54,6 +56,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +94,10 @@ public class SmackHelper {
 	private SmackVCardHelper vCardHelper;
 
 	private FileTransferManager fileTransferManager;
+
+	private PingManager pingManager;
+
+	private long lastPing = new Date().getTime();
 
 	public static final String ACTION_CONNECTION_CHANGED = "com.mstr.letschat.intent.action.CONNECTION_CHANGED";
 	public static final String EXTRA_NAME_STATE = "com.mstr.letschat.State";
@@ -214,7 +221,7 @@ public class SmackHelper {
 	@SuppressLint("TrulyRandom")
 	private XMPPConnection createConnection() {
 		ConnectionConfiguration config = new ConnectionConfiguration(PreferenceUtils.getServerHost(context), PORT);
-		
+
 		SSLContext sc = null;
 		MemorizingTrustManager mtm = null;
 		try {
@@ -267,6 +274,22 @@ public class SmackHelper {
 			OutgoingFileTransfer.setResponseTimeout(30000);
 			addFileTransferListener();
 
+			pingManager = PingManager.getInstanceFor(con);
+			pingManager.registerPingFailedListener(new PingFailedListener() {
+				@Override
+				public void pingFailed() {
+					// Note: remember that maybeStartReconnect is called from a different thread (the PingTask) here, it may causes synchronization problems
+					long now = new Date().getTime();
+					if (now - lastPing > 30000) {
+						Log.e(LOG_TAG, "Ping failure, reconnect");
+						startReconnectIfNecessary();
+						lastPing = now;
+					} else {
+						Log.e(LOG_TAG, "Ping failure reported too early. Skipping this occurrence.");
+					}
+				}
+			});
+
 			con.addPacketListener(messagePacketListener, new MessageTypeFilter(Message.Type.chat));
 			con.addPacketListener(presencePacketListener, new PacketTypeFilter(Presence.class));
 			con.addConnectionListener(createConnectionListener());
@@ -274,6 +297,8 @@ public class SmackHelper {
 			setState(State.CONNECTED);
 
 			broadcastState(State.CONNECTED);
+
+			MessageService.reconnectCount = 0;
 		}
 	}
 
@@ -285,12 +310,12 @@ public class SmackHelper {
 
 	public void login(String username, String password) throws SmackInvocationException {
 		connect();
-		
+
 		try {
 			if (!con.isAuthenticated()) {
 				con.login(username, password, RESOURCE_PART);
 			}
-			
+
 			onConnectionEstablished();
 		} catch(Exception e) {
 			SmackInvocationException exception = new SmackInvocationException(e);
@@ -357,7 +382,7 @@ public class SmackHelper {
 			public void connectionClosedOnError(Exception arg0) {
 				// it may be due to network is not available or server is down, update state to WAITING_TO_CONNECT
 				// and schedule an automatic reconnect
-				Log.e(LOG_TAG, "xmpp disconnected due to error ", arg0);
+				Log.e(LOG_TAG, "connection closed due to error ", arg0);
 
 				startReconnectIfNecessary();
 			}

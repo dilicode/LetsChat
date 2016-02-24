@@ -22,7 +22,7 @@ public class OutgoingPlainTextView extends PlainTextView {
 	public void init(Context context) {
 		super.init(context);
 
-		progressBar = (ProgressBar)findViewById(R.id.message_sending_progress);
+		progressBar = (ProgressBar)findViewById(R.id.sending_progress);
 	}
 
 

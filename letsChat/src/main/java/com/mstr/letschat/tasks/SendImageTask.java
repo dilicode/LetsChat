@@ -12,6 +12,7 @@ import com.mstr.letschat.utils.FileUtils;
 import com.mstr.letschat.xmpp.SmackHelper;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -55,7 +56,7 @@ public class SendImageTask extends SendMessageTask {
         if (file != null) {
             SmackHelper.getInstance(context).sendImage(file, to);
         } else {
-            throw new Exception("no image found");
+            throw new FileNotFoundException(fileName);
         }
     }
 }
