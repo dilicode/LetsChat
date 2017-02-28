@@ -1,4 +1,5 @@
 # LetsChat
+This app does not work any more due to the server deployed on AWS is closed.
 
 LetsChat is a Android chat application based on Openfire XMPP and Smack.
 
